@@ -15,7 +15,11 @@
   "dependencies": {
     "@feathersjs/express": "^5.0.8",
     "@feathersjs/feathers": "^5.0.8",
+    "@feathersjs/koa": "^5.0.8",
+    "@feathersjs/mongodb": "^5.0.8",
     "@feathersjs/rest-client": "^5.0.8",
+    "@feathersjs/schema": "^5.0.8",
+    "@feathersjs/typebox": "^5.0.8",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "feathers-mongoose": "^8.5.1",
