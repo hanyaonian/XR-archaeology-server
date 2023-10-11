@@ -1,32 +1,15 @@
 {
   "name": "XR-archaeology-server",
   "version": "1.0.0",
+  "description": "backend for  XR-archaeology-app",
   "main": "index.js",
-  "author": "humenchau <humenchau@gmail.com>",
+  "repository": "https://github.com/Humen-debug/XR-archaeology-server.git",
+  "author": "Ada-Au <adaau0209@gmail.com>",
   "license": "MIT",
-  "devDependencies": {
-    "@types/feathersjs__feathers": "^3.1.11",
-    "@types/lodash": "^4.14.198",
-    "@types/node": "^20.6.2",
-    "@types/webpack-env": "^1.18.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+  "scripts": {
+    "start": "docker-compose up",
+    "build": "docker-compose up --build",
+    "force": "docker-compose up --build --force-recreate --renew-anon-volumes"
   },
-  "dependencies": {
-    "@feathersjs/express": "^5.0.8",
-    "@feathersjs/feathers": "^5.0.8",
-    "@feathersjs/koa": "^5.0.8",
-    "@feathersjs/mongodb": "^5.0.8",
-    "@feathersjs/rest-client": "^5.0.8",
-    "@feathersjs/schema": "^5.0.8",
-    "@feathersjs/typebox": "^5.0.8",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "feathers-mongoose": "^8.5.1",
-    "mongodb": "^6.1.0",
-    "mongoose": "^7.5.2"
-  },
-  "include": [
-    "server"
-  ]
+  "dependencies": {}
 }

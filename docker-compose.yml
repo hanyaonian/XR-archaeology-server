@@ -1,0 +1,25 @@
+# Use root/example as user/password credentials
+version: "3.1"
+
+services:
+  mongo:
+    image: mongo:latest
+    env_file: .env
+    container_name: OPEN-XR
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MYSQL_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-express:
+    image: mongo-express
+    env_file: .env
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MYSQL_ROOT_USERNAME}:${MYSQL_ROOT_PASSWORD}@OPEN-XR:27017/
