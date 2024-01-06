@@ -1,0 +1,42 @@
+/* drawer menu pane - note the 0px width */
+.navbar {
+  background: #2f2f2f;
+  height: 100vh;
+  padding: theme(spacing.0);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.navbar_open {
+  overflow-x: hidden;
+  min-width: 200px;
+}
+
+.navbar_closed {
+  overflow: hidden;
+  max-width: 72px;
+}
+
+.fade_enter_active,
+.fade_leave_active {
+  transition: all 0.4s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.fade_enter {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade_leave_active {
+  opacity: 0;
+  -webkit-transform: translateY(-30px);
+  transform: translateY(-30px);
+}
+
+.navbar_item {
+  @apply p-4 rounded !important;
+}
+
+.navbar_item_active {
+  background: theme(colors.slate.700);
+}
