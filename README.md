@@ -6,20 +6,20 @@ This is the backend for XR-archaeology-app.
 
 1. Create the mongodb container and start running the server
 
-```
-yarn build
-```
+    ``` bash
+    yarn build
+    ```
 
 2. Log on to mongo express
-   go to http://localhost:8081/
+   go to <http://localhost:8081/>
    log on using credentials set in .env(ME_CONFIG_BASICAUTH_USERNAME, ME_CONFIG_BASICAUTH_PASSWORD)
 
 ## To run the docker container
 
-```
+``` bash
 yarn start
 ```
 
-2. Log on to mongo express
-   go to http://localhost:8081/
+1. Log on to mongo express
+   go to <http://localhost:8081/>
    log on using credentials set in .env(ME_CONFIG_BASICAUTH_USERNAME, ME_CONFIG_BASICAUTH_PASSWORD)
