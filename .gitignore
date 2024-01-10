@@ -149,3 +149,6 @@ dist
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# mongodb local data
+data
