@@ -8,11 +8,10 @@ const schema = new Schema(
     createdAt: { type: Date, default: Date.now },
 
     bookmarks: [{ type: Schema.Types.ObjectId, ref: "Artefact" }],
-    collection: [{ type: Schema.Types.ObjectId, ref: "Artefact" }],
+    collections: [{ type: Schema.Types.ObjectId, ref: "Artefact" }],
   },
   { _id: false }
 );
 
-type UserType = InferSchemaType<typeof schema>;
-const User = model<UserType>("AppUser", schema);
-export default User;
+export type User = InferSchemaType<typeof schema>;
+export default model<User>("AppUser", schema);

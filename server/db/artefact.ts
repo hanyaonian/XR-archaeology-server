@@ -13,11 +13,10 @@ const schema = new Schema(
     width: { type: Number, min: 0 },
     length: { type: Number, min: 0 },
     height: { type: Number, min: 0 },
-    createdAt: { type: Date, default: new Date() },
+    createdAt: { type: Date, default: Date.now },
   },
   { _id: false } // Important to remove default _id in mongoose, because MongoDB will generate one
 );
 
-type ArtefactType = InferSchemaType<typeof schema>;
-const Artefact = model<ArtefactType>("Artefact", schema);
-export default Artefact;
+export type Artefact = InferSchemaType<typeof schema>;
+export default model<Artefact>("Artefact", schema);
