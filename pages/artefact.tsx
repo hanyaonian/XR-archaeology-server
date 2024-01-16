@@ -2,8 +2,18 @@ import type { ReactElement } from "react";
 import type { NextPageWithLayout } from "./_app";
 import DefaultLayout from "@/layouts/default";
 import styles from "../styles/Home.module.css";
+import { adminApp } from "@/server";
 
 const ArtefactPage: NextPageWithLayout = () => {
+  const getItems = async () => {
+    try {
+      const res = await adminApp.service("artefact").find();
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  getItems();
   return (
     <div className={styles.container}>
       <main>

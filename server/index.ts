@@ -1,21 +1,19 @@
-import { MongoClient } from "mongodb";
-import Artefact from "./db/artefact";
+import { Application } from "@feathersjs/feathers";
+import startServer from "./feathers/index";
+import { requireContext } from "./utils/webpack";
+import _ from "lodash";
 
-let mongoHost = "localhost";
-let mongoPort = "27017";
-let mongoParams = "?replicaSet=rs0";
-const dbName = "xr-archaeology";
+export let publicApp: Application;
+export let adminApp: Application;
+async function run() {
+  const servers = requireContext("./api/", false, /\.(js|ts)$/);
+  const schema = requireContext("./db", true, /\.(js|ts)$/);
 
-const url = `mongodb://${mongoHost}:${mongoPort}/${mongoParams}`;
-
-const client = new MongoClient(url);
-let conn;
-
-try {
-  conn = await client.connect();
-} catch (error) {
-  console.error(error);
+  startServer(servers, { schema }, (servers) => {
+    console.log(servers);
+    adminApp = servers.api.api;
+    publicApp = servers.public.api;
+  });
 }
 
-const db = conn.db(dbName);
-export default db;
+run().catch(console.dir);
