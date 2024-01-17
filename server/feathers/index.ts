@@ -1,3 +1,7 @@
+/**
+ * This file starts feathersjs app for server
+ */
+
 import express, { Router } from "express";
 import { RequireContext } from "./feathers";
 import { Application } from "@feathersjs/feathers";
@@ -5,6 +9,7 @@ import _ from "lodash";
 import { cors } from "@feathersjs/express";
 import http from "http";
 import https from "https";
+import dbInit from "./db";
 
 interface ServerDef {
   type: "api" | "nuxt" | "nuxtapi" | "none";
@@ -51,6 +56,8 @@ interface SchemaOpts {
 }
 
 async function startServer(servers: RequireContext) {
+  // Start MongoDB connection
+  await dbInit();
   // TODO: create api for adminApp and public for publicApp
   const dict: {
     [key: string]: {
@@ -62,7 +69,6 @@ async function startServer(servers: RequireContext) {
     };
   } = {
     api: createServer(servers, { type: "api", source: "", port: 3000 }),
-    public: createServer(servers, { type: "api", source: "", port: 3001 }),
   };
   return dict;
 }

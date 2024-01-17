@@ -1,4 +1,8 @@
-import { Application, HookContext, Service } from "@feathersjs/feathers";
+/**
+ * This file handles automatic registration of services
+ */
+
+import type { Application, HookContext, Service } from "@feathersjs/feathers";
 import { RequireContext } from "./feathers";
 import _ from "lodash";
 import path from "path";
@@ -45,7 +49,10 @@ export interface ApiOpts {
   events?: boolean;
   tasks?: boolean;
 }
-
+/*
+ * Inputs:
+ * [mservices] for automate imported schemas and services
+ */
 export default function (
   name: string,
   mservices: RequireContext | (RequireContext | [RequireContext, any])[],
@@ -55,6 +62,8 @@ export default function (
   return function (this: Application) {
     const app = this;
     const contextList = Array.isArray(mservices) ? mservices : [mservices];
+    // Returns a list of services with its actual path as [mkey], context, and other optional
+    // arguments
     const services = _.flatMap(contextList, (ictx) => {
       const [ctx, args] = Array.isArray(ictx) ? ictx : [ictx, null];
       return _.map(ctx.keys(), (key) => {
@@ -65,6 +74,7 @@ export default function (
       });
     });
 
+    // Register services in feathersjs
     function addService(path: string, item: ServiceDef, args: any) {
       try {
         if (item.mixins) {
@@ -110,8 +120,63 @@ export default function (
           throw new Error(`Not implemented route ${path}`);
         }
 
-        app.use(path, s);
-        // const service = app.service(path);
+        app.use(path, <any>s);
+        console.log(`Feathers set up service "${path}"`);
+
+        const service = app.service(path);
+        // Register populate query to service
+        if (item.populate) {
+          service.hooks({
+            before: {
+              async find(hook: HookContext) {
+                const q = hook.params.query || {};
+                if (q.$populate) {
+                  if (!(q.$populate instanceof Array)) q.$populate = [q.$populate];
+                } else {
+                  q.$populate = [];
+                }
+
+                const s = q.$select || [];
+
+                _.each(item.populate, (p) => {
+                  if (!s.length || s.indexOf(p.path) !== -1) {
+                    q.$populate.push(p);
+                  }
+                });
+              },
+              async get(hook: HookContext) {
+                const q = hook.params.query || {};
+                if (q.$populate) {
+                  if (!(q.$populate instanceof Array)) q.$populate = [q.$populate];
+                } else {
+                  q.$populate = [];
+                }
+                const s = q.$select || [];
+
+                _.each(item.populate, (p) => {
+                  if (!s.length || s.indexOf(p.path) !== -1) {
+                    q.$populate.push(p);
+                  }
+                });
+              },
+            },
+          });
+        }
+        _.each(item, (value, key) => {
+          if (key.startsWith("hooks")) {
+            value = value instanceof Function ? value(app) : value;
+            if (!value) return;
+            service.hooks(value);
+          }
+        });
+        if (item.handlers) {
+          service.hooks({
+            before: item.handlers,
+          });
+        }
+        if (item.setup) {
+          setTimeout(() => item.setup(app), 5000);
+        }
       } catch (error) {
         console.warn("Error during ", path);
         throw error;

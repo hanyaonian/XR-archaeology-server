@@ -23,3 +23,18 @@ yarn start
 1. Log on to mongo express
    go to <http://localhost:8081/>
    log on using credentials set in .env(ME_CONFIG_BASICAUTH_USERNAME, ME_CONFIG_BASICAUTH_PASSWORD)
+
+## Folder Structures
+
++ components: our own UI components
++ node_modules: installed public libraries
++ pages: content of different web pages
++ server: server configuration
+  + api:
+    + public: API for common users
+    + services: API for admin users
+  + db: database schema
+  + feathers: for database initialize and query
++ types: TypeScript files
++ config.json: website configuration details
++ package.json: libraries

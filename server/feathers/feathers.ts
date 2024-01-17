@@ -1,8 +1,11 @@
+/**
+ * This file registered feathersjs app for server
+ */
+
 import { feathers } from "@feathersjs/feathers";
 import express, { rest } from "@feathersjs/express";
 import socketio from "@feathersjs/socketio";
 import bodyParser from "body-parser";
-import service from "feathers-mongoose";
 import { RequestHandler } from "express";
 import { Socket } from "socket.io";
 import _ from "lodash";
@@ -60,6 +63,7 @@ export default function (
     .use(bodyParser.urlencoded({ extended: true, limit: restOpts.limit }))
     .use(bodyParser.text({ type: ["text/html", "application/xml"], limit: restOpts.limit }));
 
+  // Register REST service handler
   if (props.rest) {
     app.configure(
       rest(function (req, res, next) {
@@ -115,7 +119,7 @@ export default function (
       })
     );
   }
-
+  // Configure Socket.io real-time APIs
   if (props.socketio) {
     const sockOpts = typeof props.socketio === "object" ? props.socketio : {};
     app.configure(

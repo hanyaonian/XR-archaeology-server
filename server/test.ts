@@ -2,7 +2,7 @@ import path from "path";
 import { requireContext } from "./utils/webpack";
 
 async function run() {
-  const schema = requireContext("./server/db", true, /\.(js|ts)$/);
+  const schema = requireContext("server/db", true, /\.(js|ts)$/);
   const contextList = Array.isArray(schema) ? schema : [schema];
   const schemas = contextList.flatMap((ictx) => {
     const [ctx, args] = Array.isArray(ictx) ? ictx : [ictx, null];

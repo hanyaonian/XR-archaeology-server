@@ -1,4 +1,4 @@
-import { Schema, InferSchemaType, model } from "mongoose";
+import { Schema, InferSchemaType, model, type Model } from "mongoose";
 
 const schema = new Schema(
   {
@@ -25,3 +25,8 @@ const schema = new Schema(
 );
 export type Attachment = InferSchemaType<typeof schema>;
 export default model<Attachment>("Attachment", schema);
+declare module "../feathers/db" {
+  interface DB {
+    Attachment: Model<Attachment>;
+  }
+}

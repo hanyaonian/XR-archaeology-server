@@ -1,4 +1,4 @@
-import { Schema, InferSchemaType, model } from "mongoose";
+import { Schema, InferSchemaType, model, type Model } from "mongoose";
 
 const schema = new Schema(
   {
@@ -20,3 +20,8 @@ const schema = new Schema(
 
 export type Artefact = InferSchemaType<typeof schema>;
 export default model<Artefact>("Artefact", schema);
+declare module "../feathers/db" {
+  interface DB {
+    Artefact: Model<Artefact>;
+  }
+}

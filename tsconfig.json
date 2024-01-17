@@ -19,17 +19,24 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": ["./*"],
+      "@mfeathers" :["./server/feathers"],
+      "@mfeathers/*" : ["./server/feathers/*"],
+      "@db": ["./server/db"],
+      "@db/*": ["./server/db/*"],
+      "@hooks": ["./server/feathers/hooks"],
+      "@api/*": ["./server/api/*"]
+    },
+    "typeRoots": ["types"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "server/**/*.ts"],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",
-      "target": "es6",
-      "isolatedModules": false, 
+      "target": "es2019",
+      "isolatedModules": false,
       "esModuleInterop": true
-    },
+    }
   }
 }
