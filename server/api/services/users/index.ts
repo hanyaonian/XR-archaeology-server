@@ -10,8 +10,8 @@ let def = service({
 });
 
 export default def;
-// declare module "serviceTypes" {
-//   interface AdminApplication {
-//     appUsers: typeof def;
-//   }
-// }
+declare module "serviceTypes" {
+  interface AdminApplication {
+    appUsers: typeof def;
+  }
+}

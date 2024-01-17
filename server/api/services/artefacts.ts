@@ -10,8 +10,8 @@ let def = service({
 });
 
 export default def;
-// declare module "serviceTypes" {
-//   interface AdminApplication {
-//     artefacts: typeof def;
-//   }
-// }
+declare module "serviceTypes" {
+  interface AdminApplication {
+    artefacts: typeof def;
+  }
+}
