@@ -26,6 +26,11 @@ export let db!: MongoClient;
 
 export const setSchema = (_schema: RequireContext, mixins?: RequireContext) => {};
 
+/**
+ * Initialized both mongoose and MongoDB and their connection.
+ *
+ * MongoDB URL is configured at ./configs
+ */
 async function init() {
   while (true) {
     try {
@@ -33,10 +38,7 @@ async function init() {
       await connect(configs.mongodb);
 
       // MongoDB connection
-      db = await MongoClient.connect(configs.mongodb, <MongoOptions>(<any>{
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-      }));
+      db = await MongoClient.connect(configs.mongodb);
       console.log("Start MongoDB connection");
       break;
     } catch (e) {

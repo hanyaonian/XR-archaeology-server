@@ -25,6 +25,12 @@ export interface ServerDef {
   corsAny?: boolean;
 }
 
+/**
+ * Returns env configuration.
+ *
+ * If there is no specific config.json in .env, it uses default config.json
+ * in the root directory.
+ */
 class config {
   _opts: any;
   [key: string]: any;

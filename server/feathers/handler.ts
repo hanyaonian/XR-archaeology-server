@@ -6,6 +6,7 @@ import type { Application, HookContext, Service } from "@feathersjs/feathers";
 import { RequireContext } from "./feathers";
 import _ from "lodash";
 import path from "path";
+import db from "./db";
 
 export type ServiceDefOpts =
   | Service<any>
@@ -49,9 +50,9 @@ export interface ApiOpts {
   events?: boolean;
   tasks?: boolean;
 }
-/*
- * Inputs:
- * [mservices] for automate imported schemas and services
+/**
+ * @name for identifying/registering feathersjs's app name
+ * @mservices for automate imported schemas and services
  */
 export default function (
   name: string,
@@ -73,6 +74,13 @@ export default function (
         return [mkey, ctx(key) as ServiceDef, args] as const;
       });
     });
+
+    const d = db._services && db._services[name];
+    if (d) {
+      _.each(d, (v, k) => {
+        services.push([k, v, null]);
+      });
+    }
 
     // Register services in feathersjs
     function addService(path: string, item: ServiceDef, args: any) {
@@ -121,7 +129,7 @@ export default function (
         }
 
         app.use(path, <any>s);
-        console.log(`Feathers set up service "${path}"`);
+        console.log(`Feathers(${name}) set up service "${path}"`);
 
         const service = app.service(path);
         // Register populate query to service
