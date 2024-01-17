@@ -1,0 +1,20 @@
+{
+  "servers": {
+    "api": {
+      "type": "api",
+      "source": "./index.ts",
+      "port": 3001
+    },
+    "next": {
+      "type": "next",
+      "port": 3000,
+      "nextSource": "next.config.js"
+    },
+    "internal": {
+      "type": "api",
+      "source": "./index.ts",
+      "port": 9000,
+      "internal": true
+    }
+  }
+}

@@ -1,5 +1,7 @@
 import { Db, MongoClient, MongoOptions } from "mongodb";
+import { connect } from "mongoose";
 import { RequireContext } from "./feathers";
+import configs from "@configs";
 
 /**
  * This file stores MongDB configuration and initialization
@@ -22,27 +24,16 @@ export interface DBMixin {}
 
 export let db!: MongoClient;
 
-let mongoHost = "localhost";
-let mongoPort = "27017";
-let mongoParams = "?replicaSet=rs0";
-const dbName = "xr-archaeology";
-
-const url = `mongodb://${mongoHost}:${mongoPort}/${mongoParams}`;
-
 export const setSchema = (_schema: RequireContext, mixins?: RequireContext) => {};
 
 async function init() {
   while (true) {
     try {
       // mongoose connection
+      await connect(configs.mongodb);
 
-      // await connect(configs.mongodb, <any>{
-      //   useFindAndModify: false,
-      //   useNewUrlParser: true,
-      //   useUnifiedTopology: true,
-      //   useCreateIndex: true,
-      // });
-      db = await MongoClient.connect(url, <MongoOptions>(<any>{
+      // MongoDB connection
+      db = await MongoClient.connect(configs.mongodb, <MongoOptions>(<any>{
         useUnifiedTopology: true,
         useNewUrlParser: true,
       }));

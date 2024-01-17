@@ -10,19 +10,7 @@ import { cors } from "@feathersjs/express";
 import http from "http";
 import https from "https";
 import dbInit from "./db";
-
-interface ServerDef {
-  type: "api" | "nuxt" | "nuxtapi" | "none";
-  source: string;
-  port: number | string;
-  internal?: boolean;
-  nuxtStatic?: string;
-  nuxtSource?: string;
-  exclude?: string[] | string;
-  proxy?: boolean;
-  corsAny?: boolean;
-  allowHeaders?: string[];
-}
+import configs, { type ServerDef } from "@configs";
 
 function createServer<T = any>(servers: RequireContext, item: ServerDef) {
   const s = servers ? servers(item.source) : null;
@@ -30,7 +18,28 @@ function createServer<T = any>(servers: RequireContext, item: ServerDef) {
 
   const app = express();
 
-  app.use(cors());
+  const whitelist = _.map(configs.servers, (v, k) => configs.getUrl(k));
+  if (process.env.NODE_ENV === "production" && !item.corsAny) {
+    console.log("CORS WhiteList", whitelist.join());
+    app.use(
+      "/api/",
+      cors({
+        origin: function (origin, callback) {
+          console.log(origin);
+          if (whitelist.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
+        allowedHeaders: ["Authorization"],
+      })
+    );
+  } else {
+    app.use(cors());
+  }
+
+  app.set("port", configs.port);
 
   if (mapi) {
     app.use("/api", function (req, res, next) {
@@ -58,7 +67,7 @@ interface SchemaOpts {
 async function startServer(servers: RequireContext) {
   // Start MongoDB connection
   await dbInit();
-  // TODO: create api for adminApp and public for publicApp
+
   const dict: {
     [key: string]: {
       app: express.Express;
@@ -67,9 +76,35 @@ async function startServer(servers: RequireContext) {
       http?: http.Server;
       https?: https.Server;
     };
-  } = {
-    api: createServer(servers, { type: "api", source: "", port: 3000 }),
-  };
+  } = _.fromPairs(
+    _.filter(
+      _.map(configs.servers, (item, name) => {
+        if (item.type === "next") return;
+        return [name, createServer(servers, item)];
+      }),
+      (it) => !!it
+    )
+  );
+
+  _.each(dict, (server, name) => {
+    if (+configs.getPort(name) === -1) {
+      console.log(`Skipping server ${name}`);
+      return;
+    }
+    if (configs.getMode(name) === "https") {
+      const s = https.createServer(configs.getTlsInfo(name), server.app);
+      s.listen(configs.getPort(name));
+      server.api.setup(s);
+      server.https = s;
+    } else {
+      const s = http.createServer(server.app);
+      s.listen(configs.getPort(name));
+      server.api.setup(s);
+      server.http = s;
+    }
+
+    console.log(`Listening ${name} at ${configs.getUrl(name)}`);
+  });
   return dict;
 }
 

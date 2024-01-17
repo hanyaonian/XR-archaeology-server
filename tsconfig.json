@@ -20,11 +20,12 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@mfeathers" :["./server/feathers"],
-      "@mfeathers/*" : ["./server/feathers/*"],
+      "@mfeathers": ["./server/feathers"],
+      "@mfeathers/*": ["./server/feathers/*"],
       "@db": ["./server/db"],
       "@db/*": ["./server/db/*"],
       "@hooks": ["./server/feathers/hooks"],
+      "@configs": ["./server/feathers/configs"],
       "@api/*": ["./server/api/*"]
     },
     "typeRoots": ["types"]
