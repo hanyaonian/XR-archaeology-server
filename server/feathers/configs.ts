@@ -8,7 +8,6 @@ const mpackage = (fs.existsSync("./package.json") && JSON.parse(fs.readFileSync(
 let hostname: string;
 let ip: string = "localhost";
 let mongoHost: string = "localhost";
-let mongoPort: string = "27017";
 let mongoParams: string = "?replicaSet=rs0";
 
 let nodeId: string = process.env.NODE_ID || os.hostname();
@@ -41,6 +40,7 @@ class config {
     this._opts = opts || {};
     _.extend(this, opts);
   }
+
   get mongodb() {
     return process.env.MONGO_URL || `mongodb://${mongoHost}/${mpackage.name}${mongoParams}`;
   }
@@ -57,6 +57,10 @@ class config {
 
   get dev() {
     return process.env.NODE_ENV !== "production";
+  }
+
+  get proto() {
+    return this.prod || hostname || process.env.FORCE_HTTPS ? "https" : "http";
   }
 
   get nodeId() {

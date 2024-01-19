@@ -6,10 +6,12 @@ import { feathers } from "@feathersjs/feathers";
 import express, { rest } from "@feathersjs/express";
 import socketio from "@feathersjs/socketio";
 import bodyParser from "body-parser";
+import compress from "compression";
 import { RequestHandler } from "express";
 import { Socket } from "socket.io";
 import _ from "lodash";
 import handler from "./handler";
+import dbInit from "./db";
 
 interface RestOpts {
   limit: string;
@@ -54,14 +56,19 @@ export default function (
   props: FeathersOpts = {}
 ) {
   const app = express(feathers());
+  (<any>app).appName = name;
+  (<any>app).models = dbInit;
 
   const restOpts = props.rest && _.assign({ limit: "50mb" }, props.rest);
 
   // Turn on JSON parser for REST services
   app
+    .use(compress())
     .use(bodyParser.json({ limit: restOpts.limit }))
     .use(bodyParser.urlencoded({ extended: true, limit: restOpts.limit }))
     .use(bodyParser.text({ type: ["text/html", "application/xml"], limit: restOpts.limit }));
+
+  if (props.before) app.use(props.before);
 
   // Register REST service handler
   if (props.rest) {
@@ -124,14 +131,24 @@ export default function (
     const sockOpts = typeof props.socketio === "object" ? props.socketio : {};
     app.configure(
       socketio({ path: sockOpts.path || "/api/socket.io", ...sockOpts }, (io) => {
-        io.sockets.use(function (socket, next) {
+        const maxListen =
+          _.sumBy(Array.isArray(services) ? services : [services], (ctx) => (Array.isArray(ctx) ? ctx : [ctx])[0].keys().length) +
+          _.keys(_.get(dbInit, "_services." + name, {})).length;
+        io.sockets.setMaxListeners(maxListen + 32);
+
+        io.on("connection", function (socket) {
+          Object.assign((<any>socket).feathers, { headers: socket.handshake.headers });
           (<any>socket).feathers.ip =
             socket.handshake.headers["cf-connecting-ip"] ||
             socket.handshake.headers["x-real-ip"] ||
             socket.handshake.headers["x-forwarded-for"] ||
             socket.conn.remoteAddress;
           (<any>socket).feathers.internal = props.internal || false;
-          next();
+          console.log("A client connects to server", socket.id);
+          socket.once("disconnect", function () {
+            console.log("The client left", socket.id);
+            app.emit("disconnect", (<any>socket).feathers);
+          });
         });
         if (sockOpts.use) {
           io.use(sockOpts.use);

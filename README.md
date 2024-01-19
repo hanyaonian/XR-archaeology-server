@@ -35,6 +35,7 @@ yarn start
     + services: API for admin users
   + db: database schema
   + feathers: for database initialize and query
++ contexts: our own react contexts
 + types: TypeScript files
 + config.json: website configuration details
 + package.json: libraries

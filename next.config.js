@@ -1,11 +1,11 @@
+/** @type {import('next').NextConfig} */
 module.exports = {
-  webpack5: true,
-  webpack: (config, {isServer}) => {
+  webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve = {
-        ...config.resolve, 
+        ...config.resolve,
         fallback: {
-           // fixes proxy-agent dependencies
+          // fixes proxy-agent dependencies
           net: false,
           dns: false,
           tls: false,
@@ -16,11 +16,11 @@ module.exports = {
           // fixes mapbox dependencies
           events: false,
           // fixes sentry dependencies
-          process: false
-        }
-      }
+          process: false,
+        },
+      };
     }
-    
+
     return config;
   },
 };

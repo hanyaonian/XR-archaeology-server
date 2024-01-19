@@ -1,19 +1,22 @@
-import type { ReactElement } from "react";
+import { useEffect, type ReactElement } from "react";
 import type { NextPageWithLayout } from "./_app";
 import DefaultLayout from "@/layouts/default";
 import styles from "../styles/Home.module.css";
-import { adminApp } from "@/server";
+import { useFeathersContext } from "@/contexts/feathers";
 
 const ArtefactPage: NextPageWithLayout = () => {
   const getItems = async () => {
+    const feathers = useFeathersContext();
+
     try {
-      const res = await adminApp.service("artefact").find();
-      console.log(res);
+      const res = await feathers.service("artefacts").find();
     } catch (error) {
       console.error(error);
     }
   };
+
   getItems();
+
   return (
     <div className={styles.container}>
       <main>
