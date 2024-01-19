@@ -1273,11 +1273,6 @@ cliui@^8.0.1:
     strip-ansi "^6.0.1"
     wrap-ansi "^7.0.0"
 
-clsx@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.0.tgz#e851283bcb5c80ee7608db18487433f7b23f77cb"
-  integrity sha512-m3iNNWpd9rl3jvvcBnu70ylMdrXt8Vlq4HYadnU5fwcOtvkSQWPmj7amUcDT2qYI7risszBjI5AUIUox9D16pg==
-
 color-convert@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-2.0.1.tgz#72d3a68d598c9bdb3af2ad1e84f21d896abd4de3"
@@ -3433,13 +3428,6 @@ raw-body@2.5.2:
     http-errors "2.0.0"
     iconv-lite "0.4.24"
     unpipe "1.0.0"
-
-react-data-grid@^7.0.0-beta.41:
-  version "7.0.0-beta.41"
-  resolved "https://registry.yarnpkg.com/react-data-grid/-/react-data-grid-7.0.0-beta.41.tgz#4de30876df528cf0ecf8d2922b674917c15b50c6"
-  integrity sha512-WmTP/PV+vtVjIaGVLgyG6WAhqvuPBM8I54bsR7oJZl6w43+mIasZM9rEBWjQ52XHJEy41/tjcMBIMNiWqoEbrQ==
-  dependencies:
-    clsx "^2.0.0"
 
 react-dom@^18:
   version "18.2.0"

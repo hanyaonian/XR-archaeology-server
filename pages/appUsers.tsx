@@ -6,9 +6,7 @@ import styles from "../styles/Home.module.css";
 const AppUsersPage: NextPageWithLayout = () => {
   return (
     <div className={styles.container}>
-      <main>
-        <h1>App Users</h1>
-      </main>
+      <h1>App Users</h1>
     </div>
   );
 };

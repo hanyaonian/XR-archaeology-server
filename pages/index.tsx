@@ -6,9 +6,7 @@ import styles from "../styles/Home.module.css";
 const Dashboard: NextPageWithLayout = () => {
   return (
     <div className={styles.container}>
-      <main>
-        <h1>Dashboard</h1>
-      </main>
+      <h1>Dashboard</h1>
     </div>
   );
 };

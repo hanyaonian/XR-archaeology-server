@@ -1,20 +1,109 @@
-/* drawer menu pane - note the 0px width */
-.navbar {
-  background: #2f2f2f;
-  height: 100vh;
-  padding: theme(spacing.0);
+/* main container */
+.grid-container {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  transition: 300ms;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+  gap: 0px;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: min-content minmax(0, 1fr);
 }
 
-.navbar_open {
+/* drawer menu pane*/
+.nav-root {
+  --nav-mini-width: 5rem;
+  --nav-full-width: 14.75rem;
+  height: 100vh;
   overflow-x: hidden;
-  min-width: 200px;
 }
 
-.navbar_closed {
-  overflow: hidden;
-  max-width: 72px;
+.navbar {
+  height: 100vh;
+  display: grid;
+  overflow-x: hidden;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  @apply transition-all;
+  --nav-cur-width-padded: calc(var(--nav-cur-width) - 1.5rem);
+  --nav-cur-width-2padded: calc(var(--nav-cur-width) - 3rem);
+  z-index: 200;
+  overflow-x: hidden;
+  width: var(--nav-cur-width);
+}
+
+.bg-nav {
+  background: #2f2f2f;
+  overflow-x: hidden;
+  @apply col-start-1 row-start-1 row-span-3 border-r-2 border-r-gray-50;
+}
+
+.nav-root {
+  --nav-cur-width: var(--nav-full-width);
+  width: var(--nav-full-width);
+}
+
+.mini.nav-root {
+  width: var(--nav-mini-width);
+}
+
+.mini-real .navbar {
+  --nav-cur-width: var(--nav-mini-width);
+}
+
+.nav-anim {
+  @apply transition-all;
+  width: var(--nav-cur-width);
+  transition-property: width;
+}
+
+.nav-root:not(.mini-real) .navbar .navbar-item {
+  @apply px-8;
+}
+
+.navbar .navbar-item:hover::before {
+  @apply transition-all;
+  transform-property: min-width;
+  min-width: var(--nav-cur-width-padded);
+}
+
+.mini-real .mini-hide {
+  opacity: 0;
+}
+
+.temporary .nav-root {
+  @apply w-0;
+}
+.temporary .navbar {
+  @apply transform transition-transform pointer-events-none;
+}
+
+.temporary .navbar .activeDrawer {
+  @apply translate-x-0 pointer-events-auto;
+}
+
+.nav-open {
+  @apply w-6 h-10;
+}
+
+.nav-close {
+  @apply w-6 h-10 hidden;
+}
+
+.mini .nav-open {
+  display: none;
+}
+
+.mini .nav-close {
+  display: block;
+}
+
+.mini-real .nav-close,
+.mini-real .nav-open {
+  display: none;
+}
+
+.nav-root.temporary.activeDrawer .overlay {
+  @apply absolute inset-0 bg-black bg-opacity-30 z-10 block;
 }
 
 .fade_enter_active,
@@ -33,10 +122,35 @@
   transform: translateY(-30px);
 }
 
-.navbar_item {
-  @apply p-4 rounded !important;
+.navbar-item {
+  @apply p-4 rounded relative !important;
 }
 
-.navbar_item_active {
+.navbar-item-active {
   background: theme(colors.slate.700);
+}
+
+.data-table-container {
+  @apply w-full text-sm text-left rtl:text-right text-gray-500 flex flex-col !important;
+}
+
+.data-table-row {
+  @apply grid relative items-center text-left flex-auto gap-0 w-full !important;
+}
+
+.data-table-cell {
+  overflow: hidden;
+  @apply px-2 py-4 !important;
+}
+
+.data-table-header {
+  @apply text-xs text-gray-700 !important;
+}
+
+.data-table-item-index {
+  @apply w-3 flex items-center justify-center text-xs text-center flex-grow-0;
+}
+
+.center {
+  @apply flex justify-center items-center;
 }
