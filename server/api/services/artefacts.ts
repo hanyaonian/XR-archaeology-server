@@ -7,6 +7,7 @@ let def = service({
     default: 10,
     max: 100,
   },
+  whitelist: ["$populate"],
 });
 
 export default def;

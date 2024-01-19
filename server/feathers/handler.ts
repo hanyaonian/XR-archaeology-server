@@ -51,8 +51,8 @@ export interface ApiOpts {
   tasks?: boolean;
 }
 /**
- * @name for identifying/registering feathersjs's app name
- * @mservices for automate imported schemas and services
+ * @param name for identifying/registering feathersjs's app name
+ * @param mservices for automate imported schemas and services
  */
 export default function (
   name: string,

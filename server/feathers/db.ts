@@ -40,6 +40,7 @@ async function init() {
       // MongoDB connection
       db = await MongoClient.connect(configs.mongodb);
       console.log("Start MongoDB connection");
+
       break;
     } catch (e) {
       console.log("cannot connect db, waiting", e);
