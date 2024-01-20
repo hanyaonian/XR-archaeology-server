@@ -154,3 +154,60 @@
 .center {
   @apply flex justify-center items-center;
 }
+
+dialog {
+  border: none !important;
+  overflow: hidden !important;
+  border-radius: theme(borderRadius.2xl);
+  width: auto;
+  @apply backdrop:bg-gray-700 backdrop:bg-opacity-20  shadow-md !important;
+}
+
+dialog.edit-dialog,
+.edit-dialog {
+  height: calc(100% - 140px) !important;
+  max-height: initial !important;
+  margin-left: 100px;
+  margin-right: 100px;
+  overflow: hidden !important;
+  @apply rounded-2xl transition-all;
+}
+
+.edit-content {
+  display: grid;
+  gap: theme(spacing.2);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  padding: theme(spacing.8) theme(spacing.8) theme(spacing.14) theme(spacing.8);
+}
+
+@media (max-width: theme(screens.md)) {
+  .edit-content {
+    grid-template-columns: auto;
+  }
+  dialog.edit-dialog,
+  .edit-dialog {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}
+
+label {
+  @apply text-sm text-gray-600 flex items-center;
+}
+
+input,
+textarea {
+  @apply text-sm w-full rounded px-4 py-2;
+  border: unset;
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+  outline-color: theme(colors.blue.500);
+  min-height: 32px;
+}
+
+.scrollable {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: #828282 transparent;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}

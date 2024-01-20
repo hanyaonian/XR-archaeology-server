@@ -26,7 +26,8 @@
       "@db/*": ["./server/db/*"],
       "@hooks": ["./server/feathers/hooks"],
       "@configs": ["./server/feathers/configs"],
-      "@api/*": ["./server/api/*"]
+      "@api/*": ["./server/api/*"],
+      "@components/*":["./components/*"]
     },
     "typeRoots": ["types"]
   },

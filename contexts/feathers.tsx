@@ -13,7 +13,7 @@ function createClient(baseURL?: string) {
   }
   apiURL = baseHost + "/api";
 
-  const socket = socketio(baseHost, { path: "/api/socket.io", transports: ["websocket"] });
+  const socket = socketio(baseHost, { path: "/api/socket.io", transports: ["websocket"], forceNew: true });
   socket.on("connect", function () {
     console.log("Socket connected");
     connected = true;

@@ -5,48 +5,51 @@ import { MdMenu, MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+const menus = [
+  {
+    href: "/",
+    title: "Dashboard",
+    action: "FaHome",
+  },
+  {
+    href: "/appUsers",
+    title: "App Users",
+    action: "FaUser",
+  },
+  {
+    href: "/artefact",
+    title: "Artefact",
+  },
+  {
+    href: "/tags",
+    title: "Tags",
+    action: "FaHashtag",
+  },
+  {
+    href: "/attachments",
+    title: "Attachments",
+    action: "FaFileImage",
+  },
+  {
+    href: "/admins",
+    title: "Admins",
+    action: "FaRegUserCircle",
+  },
+];
+
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
   const [mini, setMini] = useState<boolean>(false);
   const [isNavHovering, setNavHovering] = useState<boolean>(false);
   const miniReal = useMemo(() => mini && !isNavHovering, [mini, isNavHovering]);
+
+  const { pathname } = useRouter();
+
   const toggleNavbar = () => {
     setMini((value) => !value);
   };
-  const menus = [
-    {
-      href: "/",
-      title: "Dashboard",
-      action: "FaHome",
-    },
-    {
-      href: "/appUsers",
-      title: "App Users",
-      action: "FaUser",
-    },
-    {
-      href: "/artefact",
-      title: "Artefact",
-    },
-    {
-      href: "/tags",
-      title: "Tags",
-      action: "FaHashtag",
-    },
-    {
-      href: "/attachments",
-      title: "Attachments",
-      action: "FaFileImage",
-    },
-    {
-      href: "/admins",
-      title: "Admins",
-      action: "FaRegUserCircle",
-    },
-  ];
-  const { pathname } = useRouter();
 
   return (
-    <div className="flex flex-col flex-auto h-full w-full">
+    <div className="flex flex-col flex-auto h-full w-full bg-gray-50">
       <div className="grid-container">
         {/* header */}
         <div className={`col-start-2  row-start-1 h-16 sticky top-0`}>
@@ -55,7 +58,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
           </button>
         </div>
         {/* nav bar */}
-        <div className="col-start-1  row-start-1 row-span-2" onMouseEnter={() => setNavHovering(true)} onMouseLeave={() => setNavHovering(false)}>
+        <div className="col-start-1 row-start-1 row-span-2" onMouseEnter={() => setNavHovering(true)} onMouseLeave={() => setNavHovering(false)}>
           <div className={`nav-root ${mini ? "mini" : ""} ${miniReal ? "mini-real" : ""}`}>
             <nav className={`navbar inset-y-0 fixed text-white`}>
               <div className="bg-nav nav-anim" />
