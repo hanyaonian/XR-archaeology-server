@@ -10,6 +10,7 @@ export default (internal) => {
       events: !internal,
       tasks: !internal,
     },
+    attachments: { internal },
   });
   return app;
 };

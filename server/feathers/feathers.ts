@@ -12,6 +12,7 @@ import { Socket } from "socket.io";
 import _ from "lodash";
 import handler from "./handler";
 import dbInit from "./db";
+import attachments, { AttachmentOpts } from "./attachments";
 
 interface RestOpts {
   limit: string;
@@ -23,6 +24,7 @@ export interface ApiOpts {
 }
 
 export interface FeathersOpts {
+  attachments?: boolean | AttachmentOpts;
   rest?: boolean | RestOpts;
   socketio?:
     | boolean
@@ -70,6 +72,8 @@ export default function (
 
   if (props.before) app.use(props.before);
 
+  // Register attachments service
+  if (props.attachments) app.configure(<any>attachments(typeof props.attachments === "object" ? props.attachments : {}));
   // Register REST service handler
   if (props.rest) {
     app.configure(

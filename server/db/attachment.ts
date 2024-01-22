@@ -6,7 +6,11 @@ const schema = new Schema({
   mime: String, // file mime, e.g. png, jpg and mp4
   type: { type: String, index: true }, // video, image, other
   source: { type: String, index: true }, // path of parent
-  parent: { type: String, index: true }, //
+  parent: { type: String, index: true },
+  date: { type: Date, default: Date, index: true }, // upload date
+
+  thumb: { type: Buffer, contentType: String },
+
   uploadDate: { type: Date, default: Date.now, index: true }, // upload date
   width: Number, // image width
   height: Number, // image height
@@ -19,6 +23,11 @@ const schema = new Schema({
       src: { type: String }, // optimized file
     },
   ],
+
+  meta: Object,
+  status: String,
+  src: { type: String }, // original file
+  hash: String,
 });
 export type Attachment = InferSchemaType<typeof schema>;
 export default model<Attachment>("Attachment", schema);
