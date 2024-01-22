@@ -31,6 +31,16 @@ function createClient(baseURL?: string) {
 
   // TODO add authentication
 
+  app.post = async function (url: string, data: any, params: any) {
+    console.log(`POST ${apiURL}/${url}`);
+    // authentication with token in header
+    return fetch(`${apiURL}/${url}`, {
+      method: "POST",
+      body: data,
+      ...params,
+    });
+  };
+
   console.log("Feathers-Client using url:", apiURL);
 
   return app;

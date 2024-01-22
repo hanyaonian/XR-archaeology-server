@@ -11,8 +11,9 @@ import { RequestHandler } from "express";
 import { Socket } from "socket.io";
 import _ from "lodash";
 import handler from "./handler";
-import dbInit from "./db";
+import dbInit, { db } from "./db";
 import attachments, { AttachmentOpts } from "./attachments";
+import mongoose from "mongoose";
 
 interface RestOpts {
   limit: string;
@@ -60,6 +61,8 @@ export default function (
   const app = express(feathers());
   (<any>app).appName = name;
   (<any>app).models = dbInit;
+  (<any>app).mdb = db;
+  (<any>app).db = mongoose;
 
   const restOpts = props.rest && _.assign({ limit: "50mb" }, props.rest);
 

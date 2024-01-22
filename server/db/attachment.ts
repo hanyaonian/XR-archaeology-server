@@ -4,7 +4,7 @@ const schema = new Schema({
   name: { type: String, index: true }, //filename
   size: Number, //file size
   mime: String, // file mime, e.g. png, jpg and mp4
-  type: { type: String, index: true }, // video, image, other
+  type: { type: String, index: true }, // video | image | audio | model | other
   source: { type: String, index: true }, // path of parent
   parent: { type: String, index: true },
   date: { type: Date, default: Date, index: true }, // upload date

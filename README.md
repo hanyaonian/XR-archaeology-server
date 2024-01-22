@@ -39,3 +39,7 @@ yarn start
 + types: TypeScript files
 + config.json: website configuration details
 + package.json: libraries
+
+## Reminder
+
++ yarn version 1 is not able to resolve the package engine of sharp. Therefore, use `yarn add sharp --ignore engines`

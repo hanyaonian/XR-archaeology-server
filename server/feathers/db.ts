@@ -39,7 +39,17 @@ async function init() {
 
       // MongoDB connection
       db = await MongoClient.connect(configs.mongodb);
+
       console.log("Start MongoDB connection");
+
+      db.on("reconnectFailed", () => {
+        console.error("[FATAL] DB Connection lost");
+        process.exit(1);
+      });
+      db.on("close", () => {
+        console.error("[FATAL] DB Connection lost");
+        process.exit(1);
+      });
 
       break;
     } catch (e) {

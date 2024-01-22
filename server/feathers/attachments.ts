@@ -13,9 +13,9 @@ const storageEngines = requireContext("server/feathers/storages", true, /\.ts$/)
 
 declare module "@feathersjs/feathers" {
   interface Application {
-    downloadFile(_id: string, type: "stream"): Promise<NodeJS.ReadableStream>;
-    downloadFile(_id: string, type: "buffer"): Promise<Buffer>;
-    downloadFile(_id: string): Promise<NodeJS.ReadableStream>;
+    // downloadFile(_id: string, type: "stream"): Promise<NodeJS.ReadableStream>;
+    // downloadFile(_id: string, type: "buffer"): Promise<Buffer>;
+    // downloadFile(_id: string): Promise<NodeJS.ReadableStream>;
     uploadFile(data: Buffer, mime?: string, root?: string, opts?: UploadOptions): Promise<InfoType>;
   }
 }
@@ -89,7 +89,7 @@ export type InfoType = Partial<Attachment> & {
 
 export interface AttachmentStorage {
   storage: StorageEngine;
-  getInfo(info: InfoType): Promise<void>;
+  updateInfo(info: InfoType): Promise<void>;
   handleImage?(
     req: Request,
     res: Response,
@@ -110,7 +110,22 @@ export interface AttachmentStorage {
 
 export function getFileTypeFromMime(mime: string) {
   const type = (mime?.split("/") ?? [""])[0];
-  return ["image", "video", "audio"].includes(type) ? type : "others";
+  return ["image", "video", "audio", "model"].includes(type) ? type : "others";
+}
+
+export function findSize(sizes: InfoType["sizes"], size: string, acceptWebp?: boolean): InfoType["sizes"][0] {
+  let result: InfoType["sizes"][0];
+  let maxSize = Math.max(1, ["small", "medium", "large", "exlarge", "exlarge"].lastIndexOf(size) + 1) * 400;
+  if (acceptWebp) {
+    _.each(sizes, (size) => {
+      if (size.src && acceptWebp && size.width <= maxSize && size.format === "webp" && (!result || size.width > result.width)) result = size;
+    });
+  }
+  if (result) return result;
+  _.each(sizes, (size) => {
+    if (size.src && size.width <= maxSize && size.format !== "webp" && (!result || size.width > result.width)) result = size;
+  });
+  return result;
 }
 
 export default (opts: AttachmentOpts) =>
@@ -156,10 +171,10 @@ export default (opts: AttachmentOpts) =>
 
       let info: InfoType = {
         type,
-        path: path,
+        path,
         name: filename,
-        size: size,
-        mime: mime,
+        size,
+        mime,
         parent,
         date: new Date(),
         meta: meta || {},
@@ -173,7 +188,8 @@ export default (opts: AttachmentOpts) =>
         userContent,
         ...extra,
       };
-      await storage.getInfo(info);
+      // update info
+      await storage.updateInfo(info);
 
       // Create data in db.attachments.
       let resp = await app.service("attachments").create({
@@ -188,17 +204,23 @@ export default (opts: AttachmentOpts) =>
     app.uploadFile = async (data, mime, root, opts) => {
       const n = uuid();
       root = path.join(root, n);
-      const result = await storage.upload(root, data, mime);
-      const resp = await handleUpload(root, n, mime, data.length, {
-        extra: result,
-        ...opts,
-      });
-      return resp;
+      try {
+        const result = await storage.upload(root, data, mime);
+        const resp = await handleUpload(root, n, mime, data.length, {
+          extra: result,
+          ...opts,
+        });
+        return resp;
+      } catch (error) {
+        console.log("feather setup upload failed", error);
+      }
     };
 
     const fileUploader = wrap(async function (req, res, next) {
       const file = req.file;
+      console.log(req.file);
       try {
+        const result = await storage.upload(`${uuid()}/${file.originalname}`, file.buffer, file.mimetype);
         const resp = await handleUpload(file.path, file.originalname, file.mimetype, file.size, {
           parent: req.params.id,
           meta: (<any>file).meta || {},
@@ -207,10 +229,10 @@ export default (opts: AttachmentOpts) =>
           userContent: req.query.userContent || opts.userContent ? true : false,
           extra: {
             url: (<any>file).url,
-            id: (<any>file).id,
+            id: (<any>file).id || result.id,
           },
           query: _.omit(req.query, "token"),
-          accessToken: req.headers.authorization ? req.headers.authorization.substr(7) : <string>req.query.token || "",
+          accessToken: req.headers.authorization ? req.headers.authorization.substring(7) : <string>req.query.token || "",
         });
         res.send({ status: true, info: resp });
       } catch (e) {
@@ -228,8 +250,6 @@ export default (opts: AttachmentOpts) =>
 
     var router = express.Router();
 
-    // router.use(cookieParser());
-
     // Register POST API for attachments
     router.post("/upload", upload.single("file"), fileUploader);
     router.post("/upload/:source", upload.single("file"), fileUploader);
@@ -237,9 +257,11 @@ export default (opts: AttachmentOpts) =>
 
     app.use("/attachments", router);
 
-    // Register GET API for attachments
-    app.get("/attachments/:id", async (req: Request, res: Response, next: NextFunction) => {
-      let id = req.params.id;
+    // Register GET API for attachments.
+    // feathersId, rather than id, is to prevent the conflict from feathers-mongoose service
+    app.get("/attachments/:feathersId", async (req: Request, res: Response, next: NextFunction) => {
+      let id = req.params.feathersId;
+      console.log(id);
       let acceptWebp = false;
       let size: string;
       if (path.extname(id)) {
@@ -250,14 +272,19 @@ export default (opts: AttachmentOpts) =>
       if (path.extname(id)) {
         const ext = path.extname(id);
         id = path.basename(id, ext);
-        size = ext.substr(1);
+        size = ext.substring(1);
       }
       try {
         const img = await app.service("attachments").get(id, {
           query: {
             $select: ["thumb", "src", "sizes", "mime", "type", "size"],
           },
-        });
+        } as const);
+
+        if (!img) {
+          res.status(404).send("Attachment not found");
+          return;
+        }
 
         if (img.thumb && !img.src) {
           res.set("Cache-Control", "public, max-age=31557600");
@@ -267,17 +294,23 @@ export default (opts: AttachmentOpts) =>
         }
 
         if (storage.handleImage) {
-          if (
-            await storage.handleImage(req, res, img, {
-              acceptWebp,
-              size,
-            })
-          )
-            return;
+          try {
+            if (
+              await storage.handleImage(req, res, img, {
+                acceptWebp,
+                size,
+              })
+            )
+              return;
+          } catch (e) {
+            console.warn("handle image error", img._id, e);
+          }
         }
+
         res.set("Cache-Control", "public, max-age=31557600");
         res.redirect(302, img.src);
       } catch (e) {
+        console.log("attachment get error", e);
         next();
       }
     });
