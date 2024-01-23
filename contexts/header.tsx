@@ -3,7 +3,7 @@ import { PropsWithChildren, createContext, useContext, useState } from "react";
 interface Action {
   icon: string;
   name: string;
-  action?: Function | Promise<any>;
+  action?: (props?: any) => void | Promise<any | void>;
   altText?: string;
   to?: string;
 }

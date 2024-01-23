@@ -1,23 +1,20 @@
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { FormEvent, MouseEventHandler, ReactNode, useEffect, useState } from "react";
 
-export type EditDialogProps<P = {}> = {
+export type EditDialogProps<T> = {
   modalId: string;
-  modalResult: (item: P | boolean) => void;
-  source?: P;
-  origin?: P;
-  save: (item: P, origin?: P) => Promise<P | boolean | undefined | null>;
+  modalResult: (item: T | boolean) => void;
+  source?: T;
+  origin?: T;
+  save: (item: T, origin?: T) => Promise<T | boolean | undefined | null>;
+  renderInputs?: (props: any, setItem: (item: any) => void) => ReactNode;
 };
 
-function EditDialog<P = {}>(props: EditDialogProps<P>) {
+function EditDialog<T>(props: EditDialogProps<T>) {
   const [loading, setLoading] = useState(false);
-  const [item, setItem] = useState<P>(null);
+  const [item, setItem] = useState<T>(props.source);
 
-  useEffect(() => {
-    setItem(props.source);
-  }, []);
-
-  const cancel = () => {
+  const cancel = (e) => {
     props.modalResult(false);
   };
 
@@ -35,9 +32,13 @@ function EditDialog<P = {}>(props: EditDialogProps<P>) {
   };
 
   const renderAttributes = () => {
+    if (props.renderInputs) {
+      return props.renderInputs(item, setItem);
+    }
     const processAttributes = (value: any, key?: string) => {
       let res: JSX.Element;
       const type = typeof value;
+
       if (Array.isArray(value)) {
         // todo: convert array to tags/chips
         res = <div>TODO: convert array to chips: {value.toString()}</div>;
@@ -71,11 +72,26 @@ function EditDialog<P = {}>(props: EditDialogProps<P>) {
         </div>
       );
     };
-    return <form>{processAttributes(props.source)}</form>;
+    return processAttributes(props.source);
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formElement = e.target as HTMLFormElement;
+    const isValid = formElement.checkValidity();
+
+    const firstInvalidField = formElement.querySelector(":invalid") as HTMLInputElement;
+    firstInvalidField?.focus();
+
+    if (isValid) {
+      await save();
+    } else {
+      alert("Invalid save");
+    }
   };
 
   return (
-    <div className="bg-slate-100 h-full">
+    <form className="bg-slate-100 h-full" onSubmit={handleSubmit}>
       <div className="flex flex-col h-full">
         <div className="relative !flex-grow">
           <div className="scrollable overflow-auto absolute top-0 bottom-0 left-0 right-0">
@@ -99,15 +115,15 @@ function EditDialog<P = {}>(props: EditDialogProps<P>) {
       </div>
       <div className="absolute bottom-0 left-0 right-0 p-2">
         <div className="flex flex-row justify-end items-center gap-3 backdrop-blur-sm z-10">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded" disabled={loading} onClick={save}>
+          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded" disabled={loading} type="submit">
             Save
           </button>
-          <button className="text-gray-400 hover:text-gray-600 hover:bg-slate-200 py-2 px-4 min-w-24 rounded" onClick={cancel}>
+          <button className="text-gray-400 hover:text-gray-600 hover:bg-slate-200 py-2 px-4 min-w-24 rounded" type="button" onClick={cancel}>
             Cancel
           </button>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 

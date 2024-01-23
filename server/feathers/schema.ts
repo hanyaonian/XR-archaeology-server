@@ -1,8 +1,6 @@
 import { Schema, model as newModel, SchemaDefinition, Document, Model, IndexOptions } from "mongoose";
 import _ from "lodash";
 import path from "path";
-import { DBBase } from "./db";
-import service from "feathers-mongoose";
 import { ServiceDef } from "./handler";
 
 const entries: [any, string][] = [
@@ -25,12 +23,14 @@ export interface EditorAddonField {
 }
 
 export interface EditorConfig {
-  import?: boolean;
-  export?: boolean;
+  // CURD
   create?: boolean;
   patch?: boolean;
   remove?: boolean;
   readOnly?: boolean;
+  import?: boolean;
+  export?: boolean;
+  // toolbar buttons
   actions?: {
     name?: string;
     icon?: string;
@@ -39,12 +39,18 @@ export interface EditorConfig {
   headers?: readonly string[];
   group?: string;
   groupIcon?: string;
+
+  // page name
   name?: string;
   rootPath?: string;
-  path?: string;
+
   icon?: string;
   order?: number;
+  // service path
   service?: string;
+  path?: string;
+
+  // expand panel fields
   expand?: readonly EditorAddonField[];
   edit?: readonly EditorAddonField[];
   filter?: Record<string, any>;
@@ -104,3 +110,15 @@ export type SchemaDefExt = SchemaDefinition & {
 type IndexFields = {
   [key: string]: number;
 };
+
+function convertType(def: Function | string) {
+  if (def instanceof Function) {
+    const f = entries.find((it) => it[0] === def);
+    if (!f) throw new Error(`Unresolved type ${def}`);
+    return f[1];
+  } else if (typeof def === "string") {
+    const f = entries.find((it) => it[1] === def);
+    if (!f) throw new Error(`Unresolved type ${def}`);
+    return f[1];
+  } else return false;
+}

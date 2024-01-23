@@ -66,8 +66,16 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                 let icon = action.icon;
                 if (!icon.startsWith("Md")) icon = "Md" + (icon[0].toUpperCase() + icon.slice(1));
                 const IconComponent = Icons[icon] || Icons.MdStar;
+
                 return (
-                  <button key={action.name} onClick={() => action.action} title={action.altText || action.name} className="h-9 w-9 flex center">
+                  <button
+                    key={action.name}
+                    onClick={(e) => {
+                      action.action?.();
+                    }}
+                    title={action.altText || action.name}
+                    className="h-9 w-9 flex center"
+                  >
                     <IconComponent size={24} />
                   </button>
                 );

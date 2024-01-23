@@ -205,6 +205,14 @@ textarea {
   min-height: 32px;
 }
 
+input:invalid,
+input:user-invalid,
+textarea:invalid,
+textarea:user-invalid {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    theme(colors.red.500) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
 .scrollable {
   -webkit-overflow-scrolling: touch;
   scrollbar-color: #828282 transparent;

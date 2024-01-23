@@ -1,9 +1,11 @@
 import _ from "lodash";
 import { useFeathersContext } from "@/contexts/feathers";
-import { useEffect, useState, useMemo, useRef, createRef } from "react";
+import { useEffect, useState, useMemo, useRef, createRef, ReactNode } from "react";
 import DataTableRow from "./dataTableRow";
 import DialogHost, { openDialog } from "../dialogHost";
 import { useHeaderContext } from "@/contexts/header";
+import url from "url";
+import { useRouter } from "next/router";
 
 /**
  * @param key for accessing the object's vale
@@ -37,10 +39,12 @@ export interface DataTableColumn {
  * @param noEdit determines whether the data/rows are editable.
  * @param noRemove determines whether the data/rows are removable.
  * @param noClone determines whether the data/rows can be duplicated.
- * @param default specifies the default value/arguments of the editing object/schema.
+ * @param default specifies the default value/arguments of the editing object/schema. TODO: add automatic
+ * setting schemas from server.
  * @param idProperty specifies the unique id of the object. Default as [_id]
+ * @param editor determines the rendered inputs according to the editing object
  */
-export type DataTableProps = {
+export type DataTableProps<T> = {
   path: string;
   columns: DataTableColumn[];
   paginate?: { default: number; max: number } | false;
@@ -49,8 +53,9 @@ export type DataTableProps = {
   noEdit?: boolean;
   noRemove?: boolean;
   noClone?: boolean;
-  default?: any | (() => any);
+  default?: T | (() => T);
   idProperty?: string;
+  editor?: (item: T, setItem: (item: T) => void) => ReactNode;
 };
 
 export interface DataTableHeader {
@@ -64,9 +69,10 @@ export interface DataTableHeader {
   maxWidth?: number;
 }
 
-function DataTable(props: DataTableProps) {
+function DataTable<T>(props: DataTableProps<T>) {
   const feathers = useFeathersContext();
-  const { setTitle, setActions } = useHeaderContext();
+  const { setActions } = useHeaderContext();
+  const router = useRouter();
 
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState<DataTableHeader[]>([]);
@@ -81,7 +87,15 @@ function DataTable(props: DataTableProps) {
       console.log("set up data", res.length);
     });
 
-    setActions([{ name: "Add", icon: "add" }]);
+    setActions([
+      {
+        name: "Add",
+        icon: "add",
+        action: () => {
+          editItem();
+        },
+      },
+    ]);
   }, []);
 
   /**
@@ -166,7 +180,7 @@ function DataTable(props: DataTableProps) {
       const result = await openDialog({
         context: dialogsRef.current,
         component: import("@components/editDialog"),
-        props: { source: newItem, origin, save },
+        props: { source: newItem, origin, save, renderInputs: props.editor },
         className: "edit-dialog",
       });
       return result;

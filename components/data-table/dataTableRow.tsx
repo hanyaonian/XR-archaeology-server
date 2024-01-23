@@ -40,6 +40,7 @@ function DataTableRow({ index, headers, item, gridTemplateColumns, editItem, ...
               if (Array.isArray(value)) {
                 return _.map(value, convertValue);
               } else if (typeof value === "object") {
+                if (!value) return "undefined";
                 return value?.name ?? value._id;
               } else {
                 return value;
