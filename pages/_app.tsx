@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import "../styles/main.css";
 import Head from "next/head";
 import { FeathersProvider } from "@/contexts/feathers";
+import { HeaderProvider } from "@/contexts/header";
 
 // server-side only code: to configure server api URL
 MyApp.getInitialProps = async (ctx: NextPageContext) => {
@@ -35,7 +36,9 @@ export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLay
         <title>APSAP</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FeathersProvider baseURL={baseUrl.current}>{getLayout(<Component {...pageProps} />)}</FeathersProvider>
+      <FeathersProvider baseURL={baseUrl.current}>
+        <HeaderProvider>{getLayout(<Component {...pageProps} />)}</HeaderProvider>
+      </FeathersProvider>
     </>
   );
 }

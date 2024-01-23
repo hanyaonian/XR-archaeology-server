@@ -1,24 +1,37 @@
 import _ from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type EditDialogProps<P = {}> = {
   modalId: string;
+  modalResult: (item: P | boolean) => void;
   source?: P;
-  modalResult: ({ id, result }: { id: string; result?: any }) => void;
+  origin?: P;
+  save: (item: P, origin?: P) => Promise<P | boolean | undefined | null>;
 };
 
-function EditDialog<P = {}>(props: EditDialogProps) {
-  const [isDisposed, setDisposed] = useState(false);
+function EditDialog<P = {}>(props: EditDialogProps<P>) {
+  const [loading, setLoading] = useState(false);
+  const [item, setItem] = useState<P>(null);
 
-  const returnResult = (item: P | boolean) => {
-    if (!isDisposed) {
-      setDisposed(true);
-    }
-    props.modalResult({ id: props.modalId, result: item });
-  };
+  useEffect(() => {
+    setItem(props.source);
+  }, []);
 
   const cancel = () => {
-    returnResult(false);
+    props.modalResult(false);
+  };
+
+  const save = async () => {
+    setLoading(true);
+    try {
+      const res = await props.save(item, props.origin);
+
+      if (!res) return;
+      props.modalResult(res || true);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderAttributes = () => {
@@ -84,9 +97,11 @@ function EditDialog<P = {}>(props: EditDialogProps) {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 p-2 backdrop-blur-sm ml-2">
-        <div className="flex flex-row justify-end items-center gap-3 z-10">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded">Save</button>
+      <div className="absolute bottom-0 left-0 right-0 p-2">
+        <div className="flex flex-row justify-end items-center gap-3 backdrop-blur-sm z-10">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded" disabled={loading} onClick={save}>
+            Save
+          </button>
           <button className="text-gray-400 hover:text-gray-600 hover:bg-slate-200 py-2 px-4 min-w-24 rounded" onClick={cancel}>
             Cancel
           </button>

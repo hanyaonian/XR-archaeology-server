@@ -3,6 +3,7 @@ import { useFeathersContext } from "@/contexts/feathers";
 import { useEffect, useState, useMemo, useRef, createRef } from "react";
 import DataTableRow from "./dataTableRow";
 import DialogHost, { openDialog } from "../dialogHost";
+import { useHeaderContext } from "@/contexts/header";
 
 /**
  * @param key for accessing the object's vale
@@ -65,6 +66,7 @@ export interface DataTableHeader {
 
 function DataTable(props: DataTableProps) {
   const feathers = useFeathersContext();
+  const { setTitle, setActions } = useHeaderContext();
 
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState<DataTableHeader[]>([]);
@@ -78,6 +80,8 @@ function DataTable(props: DataTableProps) {
       setData(res);
       console.log("set up data", res.length);
     });
+
+    setActions([{ name: "Add", icon: "add" }]);
   }, []);
 
   /**
@@ -123,28 +127,49 @@ function DataTable(props: DataTableProps) {
     }
   };
 
+  const save = async (item: any, origin?: any) => {
+    try {
+      const editId = _.get(item, props.idProperty || "_id");
+      let res: any;
+      const service = feathers.service(props.path);
+      if (editId) {
+        res = await service.patch(editId, item);
+        _.assign(item, res);
+        if (origin) {
+        }
+      } else {
+        res = await service.create(item);
+        let results = Array.isArray(res) ? res : [res];
+        // TODO cache store
+      }
+      console.log("Setting success");
+      return res;
+    } catch (error) {
+      console.warn("Setting Failed", error);
+    }
+  };
+
   const editItem = async (item?: any, clone?: boolean, assign?: boolean) => {
     const origin = clone ? null : item;
     if (item && item._id) {
       try {
         item = await feathers.service(props.path).get(item._id);
-
-        const newItem = _.merge({}, props.default instanceof Function ? props.default() : props.default, item, assign);
-        if (clone) {
-          _.unset(newItem, props.idProperty || "_id");
-        }
-        console.log(item, newItem);
-        if (dialogsRef.current) {
-          await openDialog({
-            context: dialogsRef.current,
-            component: import("@components/editDialog"),
-            props: { source: newItem, origin },
-            className: "edit-dialog",
-          });
-        }
       } catch (error) {
         console.warn("getting error", error);
       }
+    }
+    const newItem = _.merge({}, props.default instanceof Function ? props.default() : props.default, item, assign);
+    if (clone) {
+      _.unset(newItem, props.idProperty || "_id");
+    }
+    if (dialogsRef.current) {
+      const result = await openDialog({
+        context: dialogsRef.current,
+        component: import("@components/editDialog"),
+        props: { source: newItem, origin, save },
+        className: "edit-dialog",
+      });
+      return result;
     }
   };
 

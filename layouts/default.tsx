@@ -1,20 +1,21 @@
 import { useMemo, useState } from "react";
 // The icon/action name refers to here
-import * as Icons from "react-icons/fa";
+import * as Icons from "react-icons/md";
 import { MdMenu, MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useHeaderContext } from "@/contexts/header";
 
 const menus = [
   {
     href: "/",
     title: "Dashboard",
-    action: "FaHome",
+    action: "MdHome",
   },
   {
     href: "/appUsers",
     title: "App Users",
-    action: "FaUser",
+    action: "MdOutlinePerson",
   },
   {
     href: "/artefact",
@@ -23,17 +24,17 @@ const menus = [
   {
     href: "/tags",
     title: "Tags",
-    action: "FaHashtag",
+    action: "MdTag",
   },
   {
     href: "/attachments",
     title: "Attachments",
-    action: "FaFileImage",
+    action: "MdUploadFile",
   },
   {
     href: "/admins",
     title: "Admins",
-    action: "FaRegUserCircle",
+    action: "MdAccountCircle",
   },
 ];
 
@@ -41,6 +42,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
   const [mini, setMini] = useState<boolean>(false);
   const [isNavHovering, setNavHovering] = useState<boolean>(false);
   const miniReal = useMemo(() => mini && !isNavHovering, [mini, isNavHovering]);
+  const { state: headerState, setTitle } = useHeaderContext();
 
   const { pathname } = useRouter();
 
@@ -53,9 +55,25 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
       <div className="grid-container">
         {/* header */}
         <div className={`col-start-2  row-start-1 h-16 sticky top-0`}>
-          <button onClick={toggleNavbar} className="p-2 text-center center rounded-full hover:bg-gray-200">
-            <MdMenu size={24} />
-          </button>
+          <div className="flex flex-row items-center">
+            <button onClick={toggleNavbar} className="p-2 text-center center rounded-full hover:bg-gray-200">
+              <MdMenu size={24} />
+            </button>
+            <p>{headerState.title}</p>
+            <div className="flex-grow" />
+            <div>
+              {headerState.actions.map((action) => {
+                let icon = action.icon;
+                if (!icon.startsWith("Md")) icon = "Md" + (icon[0].toUpperCase() + icon.slice(1));
+                const IconComponent = Icons[icon] || Icons.MdStar;
+                return (
+                  <button key={action.name} onClick={() => action.action} title={action.altText || action.name} className="h-9 w-9 flex center">
+                    <IconComponent size={24} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
         {/* nav bar */}
         <div className="col-start-1 row-start-1 row-span-2" onMouseEnter={() => setNavHovering(true)} onMouseLeave={() => setNavHovering(false)}>
@@ -80,13 +98,13 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                   <div className="scroll-smooth overflow-y-auto overflow-x-hidden h-full px-3">
                     <div className="flex-col">
                       {menus.map((item, index) => {
-                        const IconComponent = (item.action && Icons[item.action]) || Icons.FaStar;
+                        const IconComponent = (item.action && Icons[item.action]) || Icons.MdStar;
                         return (
                           <div key={index} className={`navbar-item ${pathname === item.href ? "navbar-item-active" : ""}`}>
-                            <Link href={item.href}>
+                            <Link href={item.href} onClick={() => setTitle(item.title)}>
                               <div className="flex flex-row items-center gap-x-2">
                                 <div className="!h-6 !w-6 place-self-center place-content-center self-center">
-                                  <IconComponent size={20} />
+                                  <IconComponent size={24} />
                                 </div>
                                 <span className="overflow-hidden grow shrink mini-hide text-clip whitespace-nowrap">{item.title}</span>
                               </div>

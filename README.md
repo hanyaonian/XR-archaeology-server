@@ -42,4 +42,4 @@ yarn start
 
 ## Reminder
 
-+ yarn version 1 is not able to resolve the package engine of sharp. Therefore, use `yarn add sharp --ignore engines`
++ yarn version 1 is not able to resolve the package engine of sharp. Therefore, use `yarn add sharp --ignore-engines`

@@ -4,6 +4,7 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "preinstall": "yarn config set ignore-engines true",
     "dev": "npm run watch:css && next dev",
     "build": "npm run watch:css && next build",
     "start": "next start",

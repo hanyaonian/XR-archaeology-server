@@ -11,7 +11,7 @@ export type DataTableRowProps = {
   noEdit?: boolean;
   noClone?: boolean;
   noRemove?: boolean;
-  editItem?: (item?: any, clone?: boolean, assign?: boolean) => Promise<void>;
+  editItem?: (item?: any, clone?: boolean, assign?: boolean) => Promise<any>;
 };
 
 function DataTableRow({ index, headers, item, gridTemplateColumns, editItem, ...props }: DataTableRowProps) {

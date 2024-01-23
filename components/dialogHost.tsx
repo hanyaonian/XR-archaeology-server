@@ -1,16 +1,17 @@
 import { v4 as uuid } from "uuid";
-import { ReactElement, useState, ReactNode, Component, useRef, MutableRefObject } from "react";
+import { ReactNode, Component } from "react";
 import _ from "lodash";
+import Dialog from "./basicDialog";
 
-type ComponentType = <P = {}>(props: P) => ReactNode;
+export type ComponentType = <P = {}>(props: P) => ReactNode;
 
-export type DialogHostProps<P = {}> = {
-  context?: DialogHost;
-  component: Promise<ComponentType | any> | ComponentType;
-  props: P;
-  className?: string;
-};
-
+/**
+ * @param component specifies what component to be rendered in the dialog.
+ * It accepts functional component and import of file by using `import`.
+ * It is important that the component using `import` must be exported as default.
+ * @param props: property of the `component`
+ * @param className: css style className of the dialog
+ */
 type DialogProps<P = {}> = {
   component: Promise<ComponentType | any> | ComponentType;
   props: P;
@@ -19,7 +20,16 @@ type DialogProps<P = {}> = {
   reject: (reason?: any) => void;
 };
 
-export function openDialog(props: DialogHostProps) {
+/**
+ * Opens a dialog in `context`
+ * @param props `context` determines the `DialogHost` for `openDialog`.
+ * `component` determines the children components wrapped by the dialog. It accepts
+ * functional component and import of file by using `import`. It is important
+ * that the component using `import` must be exported as default.
+ * `props` specifies property of the `component`. `className` determines the css style of
+ * the dialog.
+ */
+export function openDialog(props: { context?: DialogHost; component: Promise<ComponentType | any> | ComponentType; props: any; className?: string }) {
   console.log("call open dialog");
   return new Promise((resolve, reject) => {
     if (props.context) {
@@ -122,7 +132,7 @@ class DialogHost extends Component<{}, DialogHostState> {
     }));
   }
 
-  private modalResult({ id, result }: { id: string; result?: any }) {
+  public modalResult({ id, result }: { id: string; result?: any }) {
     const dialog = this.state.dialogs.find((it) => it.key === id);
     if (dialog) dialog.hide(result);
   }
@@ -131,11 +141,12 @@ class DialogHost extends Component<{}, DialogHostState> {
     return (
       <div className="w-full">
         {this.state.dialogs.map((dialog) => {
-          const Component = dialog.component;
           return (
-            <dialog
+            <Dialog
               key={dialog.key}
-              aria-modal
+              modalId={dialog.key}
+              modalResult={this.modalResult}
+              props={dialog.props}
               ref={(node) => {
                 if (!node) return;
                 dialog.show ? node.showModal() : node.close();
@@ -147,9 +158,9 @@ class DialogHost extends Component<{}, DialogHostState> {
                   <p>Loading</p>
                 </div>
               ) : (
-                <Component {...{ modalResult: this.modalResult, modalId: dialog.key, ...dialog.props }} />
+                dialog.component
               )}
-            </dialog>
+            </Dialog>
           );
         })}
       </div>
