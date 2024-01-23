@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+import { useRef, type ReactElement, type ReactNode } from "react";
 import type { NextPage, NextPageContext } from "next";
 import type { AppProps } from "next/app";
 import "../styles/main.css";
@@ -28,14 +28,14 @@ type AppPropsWithLayout = AppProps & {
 export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
-
+  const baseUrl = useRef<string>(baseURL); // fix nextjs buggy refetch from server each time client navigate
   return (
     <>
       <Head>
         <title>APSAP</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FeathersProvider baseURL={baseURL}>{getLayout(<Component {...pageProps} />)}</FeathersProvider>
+      <FeathersProvider baseURL={baseUrl.current}>{getLayout(<Component {...pageProps} />)}</FeathersProvider>
     </>
   );
 }
