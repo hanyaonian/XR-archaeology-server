@@ -1,9 +1,9 @@
 import { v4 as uuid } from "uuid";
 import { ReactNode, Component } from "react";
 import _ from "lodash";
-import Dialog from "./basicDialog";
+import Dialog from "./dialogs/basicDialog";
 
-export type ComponentType = <P = {}>(props: P) => ReactNode;
+export type ComponentType = <P>(props: P) => ReactNode;
 
 /**
  * @param component specifies what component to be rendered in the dialog.

@@ -1,14 +1,13 @@
 import _ from "lodash";
-import { FormEvent, MouseEventHandler, ReactNode, useEffect, useState } from "react";
+import { FormEvent, ReactNode, useState } from "react";
+import { DialogProps } from "./basicDialog";
 
-export type EditDialogProps<T> = {
-  modalId: string;
-  modalResult: (item: T | boolean) => void;
+export interface EditDialogProps<T> extends DialogProps<T> {
   source?: T;
   origin?: T;
   save: (item: T, origin?: T) => Promise<T | boolean | undefined | null>;
   renderInputs?: (props: any, setItem: (item: any) => void) => ReactNode;
-};
+}
 
 function EditDialog<T>(props: EditDialogProps<T>) {
   const [loading, setLoading] = useState(false);

@@ -1,15 +1,24 @@
 import { ForwardedRef, ReactNode, forwardRef, useState } from "react";
-import { ComponentType } from "./dialogHost";
+import { ComponentType } from "../dialogHost";
+import { compact } from "lodash";
 
-interface BasicDialogProps<P = {}> {
+interface BasicDialogProps<P = {}, T = {}> {
   modalId: string;
   children?: ComponentType | ReactNode | undefined;
-  modalResult: ({ id, result }: { id: string; result?: any }) => void;
+  modalResult: ({ id, result }: { id: string; result?: T }) => void;
   props?: P;
   className?: string;
 }
 
-function BasicDialog({ modalId, modalResult, children, props: childProps, className }: BasicDialogProps, ref: ForwardedRef<HTMLDialogElement>) {
+export interface DialogProps<T> {
+  modalId: string;
+  modalResult: (item: T | boolean) => void;
+}
+
+function BasicDialog<P, T>(
+  { modalId, modalResult, children, props: childProps, className }: BasicDialogProps<P, T>,
+  ref: ForwardedRef<HTMLDialogElement>
+) {
   const [isDisposed, setDisposed] = useState(false);
 
   const returnResult = (item: any | boolean) => {
@@ -20,6 +29,7 @@ function BasicDialog({ modalId, modalResult, children, props: childProps, classN
   };
 
   let Component: ComponentType;
+
   if (children instanceof Function) {
     Component = children;
   } else {

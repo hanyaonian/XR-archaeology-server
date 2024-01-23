@@ -72,7 +72,6 @@ export interface DataTableHeader {
 function DataTable<T>(props: DataTableProps<T>) {
   const feathers = useFeathersContext();
   const { setActions } = useHeaderContext();
-  const router = useRouter();
 
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState<DataTableHeader[]>([]);
@@ -84,16 +83,13 @@ function DataTable<T>(props: DataTableProps<T>) {
     setColumns(initColumns());
     syncDataSource().then((res) => {
       setData(res);
-      console.log("set up data", res.length);
     });
 
     setActions([
       {
         name: "Add",
         icon: "add",
-        action: () => {
-          editItem();
-        },
+        action: editItem,
       },
     ]);
   }, []);
@@ -179,12 +175,31 @@ function DataTable<T>(props: DataTableProps<T>) {
     if (dialogsRef.current) {
       const result = await openDialog({
         context: dialogsRef.current,
-        component: import("@components/editDialog"),
+        component: import("@/components/dialogs/editDialog"),
         props: { source: newItem, origin, save, renderInputs: props.editor },
         className: "edit-dialog",
       });
       return result;
     }
+  };
+
+  const deleteItemCore = async (item?: any) => {
+    try {
+      const service = feathers.service(props.path);
+      await service.remove(_.get(item, props.idProperty || "_id"));
+    } catch (error) {
+      alert("Delete item fails");
+      console.warn(error);
+    }
+  };
+
+  const deleteItem = (item?: any) => {
+    openDialog({
+      context: dialogsRef.current,
+      component: import("@components/dialogs/deleteDialog"),
+      props: { deleteItemCore, item },
+      className: "w-3/5",
+    });
   };
 
   const gridTemplateColumns: string = `repeat(${getColumnCount()}, minmax(0, 1fr))`;
@@ -214,6 +229,7 @@ function DataTable<T>(props: DataTableProps<T>) {
               headers={visibleColumns}
               gridTemplateColumns={gridTemplateColumns}
               editItem={editItem}
+              deleteItem={deleteItem}
               {...props}
             />
           ))}

@@ -12,9 +12,10 @@ export type DataTableRowProps = {
   noClone?: boolean;
   noRemove?: boolean;
   editItem?: (item?: any, clone?: boolean, assign?: boolean) => Promise<any>;
+  deleteItem?: (item?: any) => void;
 };
 
-function DataTableRow({ index, headers, item, gridTemplateColumns, editItem, ...props }: DataTableRowProps) {
+function DataTableRow({ index, headers, item, gridTemplateColumns, editItem, deleteItem, ...props }: DataTableRowProps) {
   const [showActions, setShowActions] = useState(false);
 
   return (
@@ -40,7 +41,7 @@ function DataTableRow({ index, headers, item, gridTemplateColumns, editItem, ...
               if (Array.isArray(value)) {
                 return _.map(value, convertValue);
               } else if (typeof value === "object") {
-                if (!value) return "undefined";
+                if (!value) return "";
                 return value?.name ?? value._id;
               } else {
                 return value;
@@ -72,7 +73,7 @@ function DataTableRow({ index, headers, item, gridTemplateColumns, editItem, ...
             </button>
           )}
           {!props.noRemove && (
-            <button className="mx-1 p-2 text-center center rounded-full hover:bg-gray-200">
+            <button className="mx-1 p-2 text-center center rounded-full hover:bg-gray-200" onClick={() => deleteItem(item)}>
               <MdDelete color="red" size={24} />
             </button>
           )}
