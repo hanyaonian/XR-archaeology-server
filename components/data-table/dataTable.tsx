@@ -1,11 +1,22 @@
 import _ from "lodash";
 import { useFeathersContext } from "@/contexts/feathers";
-import { useEffect, useState, useMemo, useRef, createRef, ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  ReactNode,
+} from "react";
 import DataTableRow from "./dataTableRow";
 import DialogHost, { openDialog } from "../dialogHost";
 import { useHeaderContext } from "@/contexts/header";
-import url from "url";
-import { useRouter } from "next/router";
+import {
+  artefactSchema,
+  attachmentSchema,
+  tagSchema,
+} from "@db/schemas";
+
+
 
 /**
  * @param key for accessing the object's vale
@@ -75,7 +86,10 @@ function DataTable<T>(props: DataTableProps<T>) {
 
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState<DataTableHeader[]>([]);
-  const visibleColumns = useMemo(() => _.filter(columns, (header) => header.visible), [columns]);
+  const visibleColumns = useMemo(
+    () => _.filter(columns, (header) => header.visible),
+    [columns]
+  );
 
   const dialogsRef = useRef<DialogHost>();
 
@@ -168,15 +182,43 @@ function DataTable<T>(props: DataTableProps<T>) {
         console.warn("getting error", error);
       }
     }
-    const newItem = _.merge({}, props.default instanceof Function ? props.default() : props.default, item, assign);
+    const newItem = _.merge(
+      {},
+      props.default instanceof Function ? props.default() : props.default,
+      item,
+      assign
+    );
     if (clone) {
       _.unset(newItem, props.idProperty || "_id");
     }
+
+    console.log("artefactSchema", artefactSchema);
+    let schema: Object = artefactSchema;
+
+    switch (props.path) {
+      case "tags":
+        schema = tagSchema;
+        break;
+      case "attachments":
+        schema = attachmentSchema;
+        break;
+      case "artefacts":
+      default:
+        schema = artefactSchema;
+        break;
+    }
+
     if (dialogsRef.current) {
       const result = await openDialog({
         context: dialogsRef.current,
         component: import("@/components/dialogs/editDialog"),
-        props: { source: newItem, origin, save, renderInputs: props.editor },
+        props: {
+          source: newItem,
+          origin,
+          save,
+          schema,
+          renderInputs: props.editor,
+        },
         className: "edit-dialog",
       });
       return result;
@@ -211,9 +253,18 @@ function DataTable<T>(props: DataTableProps<T>) {
           {/* Header */}
           <div className="data-table-header flex flex-row">
             <div className="data-table-item-index" />
-            <div className="border-b border-gray-400 data-table-row" style={{ gridTemplateColumns: gridTemplateColumns }}>
+            <div
+              className="border-b border-gray-400 data-table-row"
+              style={{ gridTemplateColumns: gridTemplateColumns }}
+            >
               {visibleColumns.map((header, index) => (
-                <div key={header.key} className="data-table-cell" style={{ gridColumn: `span ${header.flex} / span ${header.flex}` }}>
+                <div
+                  key={header.key}
+                  className="data-table-cell"
+                  style={{
+                    gridColumn: `span ${header.flex} / span ${header.flex}`,
+                  }}
+                >
                   {header.name}
                 </div>
               ))}

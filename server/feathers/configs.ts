@@ -2,7 +2,8 @@ import fs from "fs";
 import os from "os";
 import _ from "lodash";
 
-const mpackage = (fs.existsSync("./package.json") && JSON.parse(fs.readFileSync("./package.json").toString())) || {
+const mpackage = (fs.existsSync("./package.json") &&
+  JSON.parse(fs.readFileSync("./package.json").toString())) || {
   name: "app",
 };
 let hostname: string;
@@ -42,7 +43,10 @@ class config {
   }
 
   get mongodb() {
-    return process.env.MONGO_URL || `mongodb://${mongoHost}/${mpackage.name}${mongoParams}`;
+    return (
+      process.env.MONGO_URL ||
+      `mongodb://${mongoHost}/${mpackage.name}${mongoParams}`
+    );
   }
 
   get attachments() {
@@ -106,7 +110,9 @@ class config {
     }
     if (config.host) {
       if (this.getMode(name) === "https") {
-        return `${config.host}${!config.port || config.port == 443 ? ":" + config.port : ""}`;
+        return `${config.host}${
+          !config.port || config.port == 443 ? ":" + config.port : ""
+        }`;
       }
       return config.host;
     } else if (process.env.NODE_ENV !== "production") {
@@ -140,5 +146,9 @@ if (process.env.CONFIG_FILE) {
   console.log(`Using config file ${process.env.CONFIG_FILE}`);
 }
 
-export const def = new config(JSON.parse(fs.readFileSync(process.env.CONFIG_FILE || "./config.json").toString()));
+export const def = new config(
+  JSON.parse(
+    fs.readFileSync(process.env.CONFIG_FILE || "./config.json").toString()
+  )
+);
 export default def;

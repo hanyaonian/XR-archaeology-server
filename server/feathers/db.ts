@@ -24,7 +24,10 @@ export interface DBMixin {}
 
 export let db!: MongoClient;
 
-export const setSchema = (_schema: RequireContext, mixins?: RequireContext) => {};
+export const setSchema = (
+  _schema: RequireContext,
+  mixins?: RequireContext
+) => {};
 
 /**
  * Initialized both mongoose and MongoDB and their connection.

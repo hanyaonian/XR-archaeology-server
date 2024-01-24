@@ -1,13 +1,15 @@
 import _ from "lodash";
 import { FormEvent, ReactNode, useState } from "react";
-import { DialogProps } from "./basicDialog";
 
-export interface EditDialogProps<T> extends DialogProps<T> {
-  source?: T;
-  origin?: T;
-  save: (item: T, origin?: T) => Promise<T | boolean | undefined | null>;
-  renderInputs?: (props: any, setItem: (item: any) => void) => ReactNode;
-}
+
+export type EditDialogProps<P = {}> = {
+  modalId: string;
+  modalResult: (item: P | boolean) => void;
+  source?: P;
+  origin?: P;
+  save: (item: P, origin?: P) => Promise<P | boolean | undefined | null>;
+  schema: Object;
+};
 
 function EditDialog<T>(props: EditDialogProps<T>) {
   const [loading, setLoading] = useState(false);
@@ -31,48 +33,40 @@ function EditDialog<T>(props: EditDialogProps<T>) {
   };
 
   const renderAttributes = () => {
-    if (props.renderInputs) {
-      return props.renderInputs(item, setItem);
-    }
-    const processAttributes = (value: any, key?: string) => {
-      let res: JSX.Element;
-      const type = typeof value;
+    const processAttributes = () =>
+      Object.keys(props.schema).map((key) => {
+        let res: JSX.Element;
+        const type = props.schema[key].type || props.schema[key];
+        const value = _.get(item, key);
 
-      if (Array.isArray(value)) {
-        // todo: convert array to tags/chips
-        res = <div>TODO: convert array to chips: {value.toString()}</div>;
-      } else if (type === "object") {
-        res = <div>{_.map(value, processAttributes)}</div>;
-      } else {
         switch (type) {
-          // TODO: convert long text into text area
-          case "string":
-            if (value.length > 100) {
-              res = <textarea defaultValue={value}></textarea>;
-            } else {
-              res = <input defaultValue={value} type="text" />;
-            }
+          case String:
+            // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
+            res = <textarea defaultValue={value || ""}></textarea>;
             break;
-          case "number":
-            res = <input defaultValue={value} type="number" />;
+          case Number:
+            res = <input defaultValue={value || 0} type="number" />; // TODO: what to do with undefined?
             break;
-          case "boolean":
-            res = <input defaultValue={value} type="checkbox" />;
+          case Boolean:
+            res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
           default:
-            res = <div>TODO: {type}</div>;
+            console.log();
+            res = <div>TODO: {typeof type == "function" ? typeof type.name : ""}</div>;
             break;
         }
-      }
-      return (
-        <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key || `v-${value}`}>
-          {/* TODO: translate key to label */}
-          <label>{key}</label>
-          {res}
-        </div>
-      );
-    };
-    return processAttributes(props.source);
+
+        return (
+          <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key}>
+            {/* TODO: translate key to label */}
+            <label>{key}</label>
+            {res}
+          </div>
+        );
+      });
+
+    return <form>{processAttributes()}</form>;
   };
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

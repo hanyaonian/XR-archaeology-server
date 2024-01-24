@@ -13,7 +13,11 @@ function createClient(baseURL?: string) {
   }
   apiURL = baseHost + "/api";
 
-  const socket = socketio(baseHost, { path: "/api/socket.io", transports: ["websocket"], forceNew: true });
+  const socket = socketio(baseHost, {
+    path: "/api/socket.io",
+    transports: ["websocket"],
+    forceNew: true,
+  });
   socket.on("connect", function () {
     console.log("Socket connected");
     connected = true;
@@ -49,14 +53,21 @@ type Props = {
   baseURL?: string;
 } & PropsWithChildren<{}>;
 
-export const FeathersContext = createContext<Application | undefined>(undefined);
+export const FeathersContext = createContext<Application | undefined>(
+  undefined
+);
 export const FeathersProvider = ({ children, baseURL }: Props) => {
   const feathers = createClient(baseURL);
 
-  return <FeathersContext.Provider value={feathers}>{children}</FeathersContext.Provider>;
+  return (
+    <FeathersContext.Provider value={feathers}>
+      {children}
+    </FeathersContext.Provider>
+  );
 };
 export const useFeathersContext = () => {
   const feathers = useContext(FeathersContext);
-  if (!feathers) throw new Error("useFeathersContext must be used inside FeathersProvider");
+  if (!feathers)
+    throw new Error("useFeathersContext must be used inside FeathersProvider");
   return feathers;
 };

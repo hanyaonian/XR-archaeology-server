@@ -1,11 +1,7 @@
 import { Schema, InferSchemaType, model, type Model } from "mongoose";
+import { adminSchema } from "./schemas";
 
-const schema = new Schema({
-  name: String,
-  email: { type: String, required: true },
-  password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+const schema = new Schema(adminSchema);
 
 export type Admin = InferSchemaType<typeof schema>;
 export default model<Admin>("Admin", schema);
