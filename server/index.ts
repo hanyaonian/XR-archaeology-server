@@ -7,7 +7,7 @@ import { AdminApplication } from "serviceTypes";
 export let adminApp: Application;
 async function run() {
   const servers = requireContext("server/api/", false, /\.(js|ts)$/);
-  const schema = requireContext("server/db", true, /\.(js|ts)$/);
+  const schema = requireContext("server/db/", true, /\.(js|ts)$/);
 
   startServer(servers, { schema }, (servers) => {
     adminApp = servers.api.api;

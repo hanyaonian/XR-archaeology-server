@@ -1,16 +1,27 @@
 export const artefactSchema = {
-  name: { type: String, required: true, unique: true },
-  desc: { type: String, textArea: true },
+  name: { type: String },
+  desc: { type: String, $editor: { props: { multiline: true } } },
   location: String,
   date: String,
-  tags: [{ type: Number, ref: "Tag" }],
+  tags: [{ type: "id", ref: "Tag" }],
   latitude: Number,
   longitude: Number,
-  altitude: Number,
   width: { type: Number, min: 0 },
   length: { type: Number, min: 0 },
   height: { type: Number, min: 0 },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date },
+
+  $services: {
+    services: {
+      artefacts: {},
+    },
+  },
+
+  $params: {
+    editor: {
+      headers: ["name", "desc", "latitude", "longitude", "createdAt"],
+    },
+  },
 };
 
 export const attachmentSchema = {
@@ -24,7 +35,7 @@ export const attachmentSchema = {
 
   thumb: { type: Buffer, contentType: String },
 
-  uploadDate: { type: Date, default: Date.now, index: true }, // upload date
+  uploadDate: { type: Date, default: Date, index: true, $editor: { props: { multiline: true } } }, // upload date
   width: Number, // image width
   height: Number, // image height
   duration: Number, // video duration
@@ -41,26 +52,71 @@ export const attachmentSchema = {
   status: String,
   src: { type: String }, // original file
   hash: String,
+
+  $services: {
+    services: {
+      attachments: {},
+    },
+  },
+
+  $params: {
+    editor: {
+      headers: ["name", "size", "type", "date"],
+    },
+  },
 };
 
 export const adminSchema = {
   name: String,
-  email: { type: String, required: true },
-  password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
+  email: { type: String },
+  password: { type: String },
+  createdAt: { type: Date, default: Date, $editor: { props: { multiline: true } } },
+
+  $services: {
+    services: {
+      admins: {},
+    },
+  },
+  $params: {
+    editor: false,
+  },
 };
 
 export const tagSchema = {
-  name: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
+  name: { type: String },
+  createdAt: { type: Date, default: Date, $editor: { props: { multiline: true } } },
+
+  $services: {
+    services: {
+      tags: {},
+    },
+  },
+
+  $params: {
+    editor: {
+      headers: ["name", "createdAt"],
+    },
+  },
 };
 
 export const userSchema = {
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  name: { type: String },
+  email: { type: String, index: { unique: true } },
   password: { type: String, require: true },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date, $editor: { props: { readonly: true } } },
 
-  bookmarks: [{ type: Number, ref: "Artefact" }],
-  collections: [{ type: Number, ref: "Artefact" }],
+  bookmarks: [{ type: "id", ref: "Artefact" }],
+  collections: [{ type: "id", ref: "Artefact" }],
+
+  $services: {
+    services: {
+      appUsers: {},
+    },
+  },
+
+  $params: {
+    editor: {
+      headers: ["name", "email", "createdAt"],
+    },
+  },
 };

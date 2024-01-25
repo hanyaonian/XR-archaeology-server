@@ -9,7 +9,7 @@ import _ from "lodash";
 import { cors } from "@feathersjs/express";
 import http from "http";
 import https from "https";
-import dbInit from "./db";
+import dbInit, { setSchema } from "./db";
 import configs, { type ServerDef } from "@configs";
 
 function createServer<T = any>(servers: RequireContext, item: ServerDef) {
@@ -121,6 +121,12 @@ export default function (
     };
   }) => void
 ) {
+  if (schema) {
+    console.log("Start setting schema");
+    setSchema(schema, mixins);
+  } else {
+    console.log("Start in no DB mode");
+  }
   startServer(servers)
     .then((servers) => {
       console.log("Server started");

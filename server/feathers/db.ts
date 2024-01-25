@@ -1,7 +1,8 @@
-import { Db, MongoClient, MongoOptions } from "mongodb";
+import { MongoClient } from "mongodb";
 import { connect } from "mongoose";
 import { RequireContext } from "./feathers";
 import configs from "@configs";
+import SchemaHelper, { SchemaDef } from "./schema";
 
 /**
  * This file stores MongDB configuration and initialization
@@ -24,10 +25,15 @@ export interface DBMixin {}
 
 export let db!: MongoClient;
 
-export const setSchema = (
-  _schema: RequireContext,
-  mixins?: RequireContext
-) => {};
+export let schemas: {
+  [key: string]: SchemaDef;
+};
+
+let hasSchemas = false;
+export const setSchema = (_schema: RequireContext | RequireContext[], mixins?: RequireContext) => {
+  hasSchemas = true;
+  schemas = SchemaHelper.init(<DBBase>(<any>init), _schema);
+};
 
 /**
  * Initialized both mongoose and MongoDB and their connection.
@@ -35,6 +41,7 @@ export const setSchema = (
  * MongoDB URL is configured at ./configs
  */
 async function init() {
+  if (!hasSchemas) return;
   while (true) {
     try {
       // mongoose connection
@@ -59,9 +66,17 @@ async function init() {
       console.log("cannot connect db, waiting", e);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+    await SchemaHelper.configure(init);
   }
 }
 
 const dbInit: DB & DBBase = <DB & DBBase>init;
 
 export default dbInit;
+
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return dbInit;
+  },
+});
