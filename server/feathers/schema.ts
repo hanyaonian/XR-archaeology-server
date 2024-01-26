@@ -6,8 +6,7 @@ import service from "feathers-mongoose";
 import { RequireContext } from "./feathers";
 import { DBBase } from "./db";
 
-/** @typedef string */
-type TypeKeyword = "id" | "mixed" | "array" | "number" | "integer" | "string" | "boolean" | "object" | "date" | "buffer";
+export type TypeKeyword = "id" | "mixed" | "array" | "number" | "integer" | "string" | "boolean" | "object" | "date" | "buffer";
 
 const entries: [any, TypeKeyword][] = [
   [String, "string"],
@@ -43,7 +42,6 @@ export interface EditorConfig {
   actions?: {
     name?: string;
     icon?: string;
-    component?: string;
   }[];
   headers?: readonly string[];
   group?: string;
@@ -90,21 +88,25 @@ export interface EditorFieldOptions {
   search?: boolean;
   optional?: boolean;
   sort?: string;
-  props?: Record<string, any>;
   linked?: EditorFieldOptions;
   group?: EditorGroupOptions;
   cond?: string;
   name?: string;
   format?: string;
-  headerValue?: string;
   objectFormat?: string;
+
+  headerValue?: string;
   headerUnique?: boolean;
   headerLimit?: number;
+  headerFlex?: number;
+
   hideEmpty?: boolean;
 
   sortField?: string;
 
   nameFields?: string | string[];
+
+  props?: Record<string, any>;
 }
 
 export interface SchemaDefParamsService {
@@ -192,7 +194,7 @@ function convertObjectType(target: SchemaDef, path: string, def: any) {
   } else {
     let t = convertType(def);
     if (!t) throw new Error(`Convert object type: Cannot resolve type: ${def}`);
-    return new SchemeTypeBasic(target, path, t);
+    return new SchemaTypeBasic(target, path, t);
   }
 }
 
@@ -205,7 +207,7 @@ function convertObjectType(target: SchemaDef, path: string, def: any) {
  * @property {SchemaTypeJson[]} fields are actually the properties of an object, in which
  * contains `options` and `params`
  */
-interface SchemaTypeJson {
+export interface SchemaTypeJson {
   type: TypeKeyword;
   itemType?: TypeKeyword | SchemaTypeJson;
   options?: SchemaTypeOptions<any>;
@@ -265,7 +267,7 @@ abstract class SchemaTypeBase {
   abstract merge(def: SchemaTypeBase): boolean;
 }
 
-export class SchemeTypeBasic extends SchemaTypeBase {
+export class SchemaTypeBasic extends SchemaTypeBase {
   // to convert typeof `something` into mongooseType
   func: any;
   constructor(public target: SchemaDef, public path: string, public name: TypeKeyword) {
@@ -279,7 +281,7 @@ export class SchemeTypeBasic extends SchemaTypeBase {
     return this.name;
   }
   merge(def: SchemaTypeBase): boolean {
-    if (def instanceof SchemeTypeBasic) {
+    if (def instanceof SchemaTypeBasic) {
       this.name = def.name;
       this.func = def.func;
       return true;
@@ -651,7 +653,6 @@ export default {
   },
 
   async configure(container) {
-    console.log("SchemaHelper:", container);
     const dbMeta = newModel<Document & { name: string; index: string; mschema: string }>(
       "DBMeta",
       new Schema({ name: { type: String, index: true }, index: String, mschema: String })

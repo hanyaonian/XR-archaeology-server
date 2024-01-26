@@ -1,3 +1,4 @@
+import { title } from "process";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 
 interface Action {
@@ -24,15 +25,22 @@ interface HeaderContext {
 export const HeaderStore = createContext<HeaderContext>(undefined);
 export const HeaderProvider = ({ children }: PropsWithChildren) => {
   const [state, setState] = useState<HeaderState>({ actions: [], title: "APSAP", noDrawer: false });
+  function setProps<K extends keyof HeaderState, V extends HeaderState[K]>(key: K, value: V) {
+    setState((state) => ({ ...state, [key]: value }));
+  }
 
-  const setActions = (actions: Action[]) => {
-    setState((state) => ({ ...state, actions: actions }));
-  };
-  const setTitle = (title: string) => {
-    setState((state) => ({ ...state, title: title }));
-  };
-
-  return <HeaderStore.Provider value={{ state, setState, setActions, setTitle }}>{children}</HeaderStore.Provider>;
+  return (
+    <HeaderStore.Provider
+      value={{
+        state,
+        setState,
+        setActions: (actions) => setProps("actions", actions),
+        setTitle: (title) => setProps("title", title),
+      }}
+    >
+      {children}
+    </HeaderStore.Provider>
+  );
 };
 
 export const useHeaderContext = () => {

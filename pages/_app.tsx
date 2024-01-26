@@ -5,6 +5,7 @@ import "../styles/main.css";
 import Head from "next/head";
 import { FeathersProvider } from "@/contexts/feathers";
 import { HeaderProvider } from "@/contexts/header";
+import { SchemasProvider } from "@/contexts/schemas";
 
 // server-side only code: to configure server api URL
 MyApp.getInitialProps = async (ctx: NextPageContext) => {
@@ -29,7 +30,7 @@ type AppPropsWithLayout = AppProps & {
 export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
-  const baseUrl = useRef<string>(baseURL); // fix nextjs buggy refetch from server each time client navigate
+  const baseUrl = useRef<string>(baseURL); // fix next.js buggy refetch from server each time client navigate
   return (
     <>
       <Head>
@@ -37,7 +38,9 @@ export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLay
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FeathersProvider baseURL={baseUrl.current}>
-        <HeaderProvider>{getLayout(<Component {...pageProps} />)}</HeaderProvider>
+        <SchemasProvider>
+          <HeaderProvider>{getLayout(<Component {...pageProps} />)}</HeaderProvider>
+        </SchemasProvider>
       </FeathersProvider>
     </>
   );

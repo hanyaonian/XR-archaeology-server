@@ -1,14 +1,13 @@
 import _ from "lodash";
 import { FormEvent, ReactNode, useState } from "react";
 
-
 export type EditDialogProps<P = {}> = {
   modalId: string;
   modalResult: (item: P | boolean) => void;
   source?: P;
   origin?: P;
   save: (item: P, origin?: P) => Promise<P | boolean | undefined | null>;
-  schema: Object;
+  schema?: any;
 };
 
 function EditDialog<T>(props: EditDialogProps<T>) {
@@ -33,40 +32,36 @@ function EditDialog<T>(props: EditDialogProps<T>) {
   };
 
   const renderAttributes = () => {
-    const processAttributes = () =>
-      Object.keys(props.schema).map((key) => {
-        let res: JSX.Element;
-        const type = props.schema[key].type || props.schema[key];
-        const value = _.get(item, key);
+    let item = props.schema || props.source || {};
+    return _.map(item, (value, key) => {
+      let res: JSX.Element;
+      const type = typeof value;
+      console.log(key, value);
+      switch (type) {
+        case "string":
+          // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
+          res = <textarea defaultValue={value || ""}></textarea>;
+          break;
+        case "number":
+          res = <input defaultValue={value || 0} type="number" />; // TODO: what to do with undefined?
+          break;
+        case "boolean":
+          res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
+        default:
+          console.log();
+          res = <div>TODO: {typeof type == "function" ? type : ""}</div>;
+          break;
+      }
 
-        switch (type) {
-          case String:
-            // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
-            res = <textarea defaultValue={value || ""}></textarea>;
-            break;
-          case Number:
-            res = <input defaultValue={value || 0} type="number" />; // TODO: what to do with undefined?
-            break;
-          case Boolean:
-            res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
-          default:
-            console.log();
-            res = <div>TODO: {typeof type == "function" ? typeof type.name : ""}</div>;
-            break;
-        }
-
-        return (
-          <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key}>
-            {/* TODO: translate key to label */}
-            <label>{key}</label>
-            {res}
-          </div>
-        );
-      });
-
-    return <form>{processAttributes()}</form>;
+      return (
+        <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key}>
+          {/* TODO: translate key to label */}
+          <label>{key}</label>
+          {res}
+        </div>
+      );
+    });
   };
-
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

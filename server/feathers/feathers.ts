@@ -11,10 +11,25 @@ import { RequestHandler } from "express";
 import { Socket } from "socket.io";
 import _ from "lodash";
 import handler from "./handler";
-import dbInit, { db } from "./db";
+import dbInit, { db, DB, schemas } from "./db";
 import attachments, { AttachmentOpts } from "./attachments";
-import mongoose from "mongoose";
 
+import { SchemaDef } from "./schema";
+import { MongoClient } from "mongodb";
+import mongoose, { Mongoose } from "mongoose";
+
+declare module "@feathersjs/feathers" {
+  interface Application<Services = any, Settings = any> {
+    _services: Services;
+    appName: string;
+    schemas: {
+      [key: string]: SchemaDef;
+    };
+    models: DB;
+    mdb: MongoClient;
+    db: Mongoose;
+  }
+}
 interface RestOpts {
   limit: string;
 }
@@ -59,10 +74,11 @@ export default function (
   props: FeathersOpts = {}
 ) {
   const app = express(feathers());
-  (<any>app).appName = name;
-  (<any>app).models = dbInit;
-  (<any>app).mdb = db;
-  (<any>app).db = mongoose;
+  app.appName = name;
+  app.schemas = schemas;
+  app.models = dbInit;
+  app.mdb = db;
+  app.db = mongoose;
 
   const restOpts = props.rest && _.assign({ limit: "50mb" }, props.rest);
 
