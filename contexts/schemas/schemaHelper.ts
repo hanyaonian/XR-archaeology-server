@@ -1,4 +1,4 @@
-import { GUIHeader } from "@/components/editor/def";
+import { EditorField, GUIHeader } from "@/components/editor/def";
 import { SchemaDefJson, SchemaDefParamsService, EditorConfig as DBEditorConfig, SchemaFieldJson } from "@/server/feathers/schema";
 import { Application } from "@feathersjs/feathers";
 import { EditorConfig } from "./def";
@@ -10,11 +10,17 @@ export class SchemaHelper {
   schemas: {
     [key: string]: SchemaDefJson;
   };
-  routers: {
+  routes: {
+    [key: string]: EditorConfig;
+  };
+  private allRoutes: {
     [key: string]: EditorConfig;
   };
   pageList: GUIHeader[];
   pathToEdit: Record<string, string> = {};
+  pathToSchemas: {
+    [key: string]: SchemaDefJson;
+  } = {};
 
   private _init: Promise<void>;
 
@@ -30,7 +36,8 @@ export class SchemaHelper {
     this.schemas = configs.schemas || {};
     this.appName = configs.appName || "";
 
-    this.routers = {};
+    this.routes = {};
+    this.allRoutes = {};
 
     const routeList: EditorConfig[] = [];
 
@@ -55,10 +62,12 @@ export class SchemaHelper {
           this.pathToEdit[serviceConfig.path] = resolveRootPath(config, serviceConfig);
         }
       }
+      this.pathToSchemas[serviceConfig.path] = def;
     }
     for (const { config, service, def } of routeCreateList) {
       const route = new EditorConfig(this, service, def, config);
-      this.routers[route.rootPath] = route;
+      this.routes[route.rootPath] = route;
+      this.allRoutes[route.rootPath] = route;
       routeList.push(route);
     }
     this.updatePageList(routeList);
@@ -132,6 +141,76 @@ export class SchemaHelper {
   }
 
   public getEditorPath(path: string) {
-    return this.pageList[path];
+    return this.pathToEdit[path];
+  }
+
+  /**
+   * Looks up router even `editor` is set to false.
+   * @returns {EditorConfig} config stored in helpers
+   */
+  public lookupRoute(route: string): EditorConfig {
+    if (!route.startsWith("/")) {
+      route = "/" + route;
+    }
+
+    let item = this.allRoutes[route];
+    if (item) return item;
+    const schema = this.pathToSchemas[route.substring(1)];
+    if (schema) {
+      const serviceConfig = schema.params.services?.[this.appName];
+      const configs: DBEditorConfig[] = Array.isArray(schema.params.editor)
+        ? schema.params.editor
+        : typeof schema.params.editor === "object"
+        ? [schema.params.editor]
+        : [{}];
+
+      for (let config of configs) {
+        const route = new EditorConfig(this, serviceConfig, schema, config);
+        this.allRoutes[route.rootPath] = item = route;
+      }
+    } else {
+      this.allRoutes[route] = item = null;
+    }
+    return item;
+  }
+
+  public sortFields(fields: EditorField[]): EditorField[] {
+    fields = fields.filter((it) => !it.optional);
+    const unsorted = fields.filter((it) => !it.sort);
+    let sorted = fields.filter((it) => !!it.sort);
+
+    while (sorted.length) {
+      let updated = false;
+      const remains: typeof sorted = [];
+      for (let field of sorted) {
+        let inserted = false;
+        for (let part of field.sort.split("|")) {
+          const sign = part[0];
+          const remain = part.slice(1);
+          const r = fields.findIndex((it) => it.path === remain);
+          if (r === -1) continue;
+
+          if (sign === "<") {
+            unsorted.splice(r, 0, field);
+          } else {
+            unsorted.splice(r + 1, 0, field);
+          }
+          inserted = true;
+          updated = true;
+          break;
+        }
+        if (!inserted) {
+          remains.push(field);
+          continue;
+        }
+      }
+      sorted = remains;
+      if (!updated && sorted.length) {
+        unsorted.push(...remains);
+        break;
+      }
+    }
+
+    return unsorted;
   }
 }

@@ -1,8 +1,10 @@
-const schema = {
+import { SchemaDefExt } from "../feathers/schema";
+
+const schema: SchemaDefExt = {
   name: { type: String },
   email: { type: String, index: { unique: true } },
-  password: { type: String, require: true },
-  createdAt: { type: Date, default: Date, $editor: { props: { readonly: true } } },
+  password: { type: String, required: true },
+  createdAt: { type: Date, default: Date, $editor: { props: { readOnly: true } } },
 
   bookmarks: [{ type: "id", ref: "Artefact" }],
   collections: [{ type: "id", ref: "Artefact" }],

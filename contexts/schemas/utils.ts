@@ -27,7 +27,7 @@ export function isSortable(type: string) {
 }
 
 export function isEnum(field: SchemaFieldJson) {
-  return lookupType(field.type) === "string" && !!!field.params?.enum;
+  return lookupType(field.type) === "string" && !!field.params?.enum;
 }
 
 export function getDefaultHeaders(config: DBEditorConfig, def: SchemaDefJson): SchemaFieldJsonWithPath[] {
@@ -76,7 +76,7 @@ export function resolveField(def: SchemaDefJson, fieldName: string, resolveArray
 }
 
 export function resolveRootPath(config: DBEditorConfig, serviceConfig: SchemaDefParamsService) {
-  return `/${config.path || serviceConfig.path}/`;
+  return `/${config.path || serviceConfig.path}`;
 }
 
 export function getHeaderFields(def: SchemaDefJson): SchemaFieldJson[] {

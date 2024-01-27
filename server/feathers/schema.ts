@@ -69,7 +69,7 @@ export interface EditorConfig {
   };
   defaultSort?: string;
   defaultSortDesc?: boolean;
-  roles: string | string[];
+  roles?: string | string[];
   [key: string]: any;
 }
 
@@ -81,7 +81,6 @@ export interface EditorGroupOptions {
 }
 
 export interface EditorFieldOptions {
-  sizes?: string[];
   gp?: string;
   type?: string;
   hidden?: boolean;
@@ -165,7 +164,7 @@ interface IndexOpts {
  */
 export type SchemaDefExt = SchemaDefinition & {
   $indexes?: readonly (readonly [IndexDefinition, IndexOpts])[];
-  indexes: ({ keys: IndexDefinition } & IndexOpts)[];
+  indexes?: ({ keys: IndexDefinition } & IndexOpts)[];
   $services?: ServiceDefs;
   $params?: SchemaDefParams;
   $inner?: {
@@ -240,9 +239,9 @@ interface SchemaFieldOpts {
   minLength?: number;
   maxLength?: number;
 
-  // Number
-  min?: number;
-  max?: number;
+  // Number or Date
+  min?: number | Date;
+  max?: number | Date;
 }
 
 interface SchemaObjectOpts {

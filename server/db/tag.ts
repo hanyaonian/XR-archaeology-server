@@ -1,6 +1,8 @@
-const schema = {
-  name: { type: String },
-  createdAt: { type: Date, default: Date, $editor: { props: { multiLine: true } } },
+import { SchemaDefExt } from "../feathers/schema";
+
+const schema: SchemaDefExt = {
+  name: { type: String, required: true, index: true },
+  createdAt: { type: Date, default: Date },
 
   $services: {
     services: {

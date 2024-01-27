@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FormEvent, ReactNode, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useState } from "react";
 
 export type EditDialogProps<P = {}> = {
   modalId: string;
@@ -8,13 +8,14 @@ export type EditDialogProps<P = {}> = {
   origin?: P;
   save: (item: P, origin?: P) => Promise<P | boolean | undefined | null>;
   schema?: any;
+  editor?: (item: any, setItem: (item: any) => void) => ReactNode;
 };
 
 function EditDialog<T>(props: EditDialogProps<T>) {
   const [loading, setLoading] = useState(false);
   const [item, setItem] = useState<T>(props.source);
 
-  const cancel = (e) => {
+  const cancel = () => {
     props.modalResult(false);
   };
 
@@ -26,48 +27,53 @@ function EditDialog<T>(props: EditDialogProps<T>) {
       if (!res) return;
       props.modalResult(res || true);
     } catch (error) {
+      alert(`saving Error: ${error}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const renderAttributes = () => {
-    let item = props.schema || props.source || {};
-    return _.map(item, (value, key) => {
-      let res: JSX.Element;
-      const type = typeof value;
-      console.log(key, value);
-      switch (type) {
-        case "string":
-          // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
-          res = <textarea defaultValue={value || ""}></textarea>;
-          break;
-        case "number":
-          res = <input defaultValue={value || 0} type="number" />; // TODO: what to do with undefined?
-          break;
-        case "boolean":
-          res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
-        default:
-          console.log();
-          res = <div>TODO: {typeof type == "function" ? type : ""}</div>;
-          break;
-      }
+  const renderAttributes = useCallback(() => {
+    if (props.editor && typeof props.editor === "function") {
+      return props.editor(item, setItem);
+    } else {
+      let item = props.schema || props.source || {};
+      return _.map(item, (value, key) => {
+        let res: JSX.Element;
+        const type = typeof value;
+        console.log(key, value);
+        switch (type) {
+          case "string":
+            // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
+            res = <textarea defaultValue={value || ""}></textarea>;
+            break;
+          case "number":
+            res = <input defaultValue={value || 0} type="number" />; // TODO: what to do with undefined?
+            break;
+          case "boolean":
+            res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
+          default:
+            console.log();
+            res = <div>TODO: {typeof type == "function" ? type : ""}</div>;
+            break;
+        }
 
-      return (
-        <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key}>
-          {/* TODO: translate key to label */}
-          <label>{key}</label>
-          {res}
-        </div>
-      );
-    });
-  };
+        return (
+          <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key}>
+            {/* TODO: translate key to label */}
+            <label>{key}</label>
+            {res}
+          </div>
+        );
+      });
+    }
+  }, [item, props.editor]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formElement = e.target as HTMLFormElement;
     const isValid = formElement.checkValidity();
-
+    console.log("handle submit");
     const firstInvalidField = formElement.querySelector(":invalid") as HTMLInputElement;
     firstInvalidField?.focus();
 

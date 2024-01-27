@@ -8,18 +8,18 @@ export const SchemasStore = createContext<SchemaHelper>(undefined);
 export const SchemasProvider = ({ children }: PropsWithChildren) => {
   const feathers = useFeathersContext();
 
-  const helper = new SchemaHelper(feathers);
+  const [helper, setHelper] = useState<SchemaHelper>(undefined);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    let helper = new SchemaHelper(feathers);
     helper.init().then(() => {
-      console.log("load schema success");
-      console.log(helper.pageList);
-      console.log(helper.pathToEdit);
-      console.log(helper.routers);
+      setLoaded(true);
+      setHelper(helper);
     });
   }, []);
 
-  return <SchemasStore.Provider value={helper}>{children}</SchemasStore.Provider>;
+  return <SchemasStore.Provider value={helper}>{loaded ? children : <div>Loading Schemas</div>}</SchemasStore.Provider>;
 };
 
 export const useSchemasContext = () => {

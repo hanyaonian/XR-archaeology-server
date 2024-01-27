@@ -70,6 +70,7 @@ export class EditorConfig {
   };
   defaultSort?: string;
   defaultSortDesc?: boolean;
+  defaultValue?: any;
   paginate: boolean;
   [key: string]: any;
 
@@ -101,6 +102,8 @@ export class EditorConfig {
 
     let jsonFields = def?.schema?.fields || [];
     this.fields = jsonFields.map((it) => this.convertField(it)).filter((it) => !!it);
+
+    this.updateDefaultValue();
   }
 
   /**
@@ -112,7 +115,7 @@ export class EditorConfig {
     if (!editor && field.params.$editor) {
       editor = field.params.$editor || {};
     }
-    editor = {};
+    editor = editor || {};
     const type = lookupType(field.type);
     let header: DataTableHeader = {
       value: field.path || field.name,
@@ -121,6 +124,7 @@ export class EditorConfig {
     };
     header.hideEmpty = editor.hideEmpty;
 
+    header.flex = editor.headerFlex ?? 1;
     let needSuffix = false;
     switch (type) {
       case "array":
@@ -167,6 +171,7 @@ export class EditorConfig {
       case "id":
         const path = this.parent.getRefPath(field);
         const table = this.parent.getRefTable(field);
+        console.log(`get header with type id ${field.name}`, path, table);
         if (path && table) {
           if (path === "attachments") {
             if (field.params?.fileType === "image") {
@@ -177,12 +182,17 @@ export class EditorConfig {
           } else {
             let overridedFormat = false;
             header.source = path;
-            header.linkSource = this.parent.getEditorPath(path);
+            header.source = path;
+            header.linkSource = this.parent.getEditorPath(path) ?? null;
+            if (!header.linkSource) header.noLink = true;
+            else header.linkSource = header.linkSource.substring(1);
+            header.trailingSlash = false;
+
             if (field.params.$editor) {
               let editor = field.params.$editor;
               header.limit = editor.headerLimit;
               header.unique = editor.headerUnique;
-              header.flex = editor.headerFlex ?? 1;
+
               if (editor.objectFormat) {
                 header.path = null;
                 overridedFormat = true;
@@ -218,7 +228,25 @@ export class EditorConfig {
         }
 
         break;
-
+      case "array":
+        if (typeof field.type === "object") {
+          const itype = field.type.itemType;
+          Object.assign(
+            header,
+            this.getHeader(
+              {
+                ...field,
+                params: <any>field.type.options,
+                type: itype,
+              },
+              editor
+            ),
+            {
+              multiple: true,
+            }
+          );
+        }
+        break;
       default:
         break;
     }
@@ -248,6 +276,7 @@ export class EditorConfig {
     let component = "";
     let inner: EditorField[];
     let needSuffix = false;
+    if (field.params?.required) props.required = true;
     switch (type) {
       case "boolean":
         component = "checkbox";
@@ -255,7 +284,6 @@ export class EditorConfig {
       case "number":
       case "string":
         if (isEnum(field)) {
-          // TODO create object picker
           component = (field.params?.enum?.length > 20 && !editor.props?.picker) || editor.props?.list ? "object-picker-list" : "object-picker-new";
           props.items = field.params?.enum;
         } else {
@@ -271,6 +299,7 @@ export class EditorConfig {
       case "date":
         component = "date-picker";
         props["date-time"] = !(field.params?.dateOnly ?? false);
+        break;
       case "id":
         const ref = field.params?.ref;
         if (ref === "Attachment") {
@@ -281,7 +310,7 @@ export class EditorConfig {
           const refTable = this.parent.getRefTable(field);
           const path = this.parent.getRefPath(field);
           if (path) {
-            component = editor?.props?.picker ? "editor-object-picker-new" : "editor-object-picker-list";
+            component = editor?.props?.picker ? "object-picker-new" : "object-picker-list";
             props.path = path;
             const nameField = getNameField(refTable);
             const nameFields = getNameFields(refTable);
@@ -359,7 +388,7 @@ export class EditorConfig {
     }
     const name = getFieldName(field, editor);
     if (readonlyHeaders.indexOf(name) !== -1) {
-      props.readonly = true;
+      props.readOnly = true;
     }
     const result: EditorField = {
       component,
@@ -381,7 +410,7 @@ export class EditorConfig {
       return null;
     }
 
-    if (result.props?.readonly) {
+    if (result.props?.readOnly) {
       result.props.clearable = false;
     }
 
@@ -389,5 +418,14 @@ export class EditorConfig {
       return null;
     }
     return result;
+  }
+
+  private updateDefaultValue() {
+    // gather default values
+    let defaultValue = {};
+    for (let field of this.fields) {
+      defaultValue[field.path] = field.defaultValue;
+    }
+    this.defaultValue = defaultValue;
   }
 }

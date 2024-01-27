@@ -10,30 +10,54 @@ export interface GUIHeader {
   order: number;
 }
 
+export interface DataTablePopObj {
+  path: string;
+  populate?: DataTablePop[];
+}
+export type DataTablePop = string | DataTablePopObj;
+
 export interface DataTableHeader {
   text?: string;
+  /** item's key */
   value?: string;
-
-  itemKey?: string;
-
+  idProperty?: string;
+  /**
+   * mongoose populate
+   */
+  populate?: DataTablePop[];
+  /**
+   * Path to name fields/columns when the field is referring to
+   * another table
+   */
   path?: string;
   paths?: string[];
 
-  // header type
+  /** Determine columns/cell components type */
   type?: string;
 
   noLink?: boolean;
-  // determines the schema to access
+  /**
+   *  Determines the schema/table to access
+   */
   source?: string;
-  // determines the url/pathname of source
+  /**
+   *  Determines the schema/table to access
+   */
   linkSource?: string;
+  trailingSlash?: boolean;
+  direct?: boolean;
 
   sortable?: boolean;
   sortField?: string;
 
-  // Determines if is array
+  /**
+   * Determines if it is array
+   */
   multiple?: boolean;
   hideEmpty?: boolean;
+
+  /** Determines if field is object(embedded) */
+  objectOnly?: boolean;
 
   inner?: DataTableHeader[];
   // key is the value of enum, value is the translated name of the enum
@@ -61,10 +85,10 @@ export interface EditorField {
   header?: DataTableHeader;
 
   // TODO convert component into enum
-  // To determine the input component of the field
+  /**  To determine the input component of the field */
   component?: string;
-  // For nested structure schema or object, especially array of ref objectID
+  /** For nested structure schema or object, especially array of ref objectID */
   inner?: EditorField[];
-  // component props
+  /** component props */
   props?: Record<string, any>;
 }

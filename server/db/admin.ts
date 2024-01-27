@@ -1,4 +1,6 @@
-const schema = {
+import { SchemaDefExt } from "../feathers/schema";
+
+const schema: SchemaDefExt = {
   name: String,
   email: { type: String },
   password: { type: String },

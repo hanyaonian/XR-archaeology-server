@@ -1,6 +1,8 @@
-const schema = {
-  name: { type: String },
-  desc: { type: String, $editor: { props: { multiLine: true }, headerFlex: 4 } },
+import { SchemaDefExt } from "../feathers/schema";
+
+const schema: SchemaDefExt = {
+  name: { type: String, required: true },
+  desc: { type: String, $editor: { props: { multiLine: true }, headerFlex: 2 } },
   location: String,
   date: String,
   tags: [{ type: "id", ref: "Tag" }],
@@ -19,7 +21,7 @@ const schema = {
 
   $params: {
     editor: {
-      headers: ["name", "desc", "latitude", "longitude", "createdAt"],
+      headers: ["name", "desc", "tags", "latitude", "longitude", "createdAt"],
       icon: "MdStar",
       name: "Artefact",
     },

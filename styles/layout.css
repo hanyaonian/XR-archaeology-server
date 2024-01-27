@@ -131,7 +131,10 @@
 }
 
 .data-table-container {
-  @apply w-full text-sm text-left rtl:text-right text-gray-500 flex flex-col !important;
+  @apply shadow-md rounded-md bg-white;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
 
 .data-table-row {
@@ -144,7 +147,7 @@
 }
 
 .data-table-header {
-  @apply text-xs text-gray-700 !important;
+  @apply text-xs text-gray-700 bg-white !important;
 }
 
 .data-table-item-index {

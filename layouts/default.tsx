@@ -5,46 +5,19 @@ import { MdMenu, MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useHeaderContext } from "@/contexts/header";
-
-const menus = [
-  {
-    href: "/",
-    title: "Dashboard",
-    action: "MdHome",
-  },
-  {
-    href: "/appUsers",
-    title: "App Users",
-    action: "MdOutlinePerson",
-  },
-  {
-    href: "/artefact",
-    title: "Artefact",
-  },
-  {
-    href: "/tags",
-    title: "Tags",
-    action: "MdTag",
-  },
-  {
-    href: "/attachments",
-    title: "Attachments",
-    action: "MdUploadFile",
-  },
-  {
-    href: "/admins",
-    title: "Admins",
-    action: "MdAccountCircle",
-  },
-];
+import { useSchemasContext } from "@/contexts/schemas";
+import { GUIHeader } from "@/components/editor/def";
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
   const [mini, setMini] = useState<boolean>(false);
   const [isNavHovering, setNavHovering] = useState<boolean>(false);
   const miniReal = useMemo(() => mini && !isNavHovering, [mini, isNavHovering]);
   const { state: headerState, setTitle } = useHeaderContext();
+  const { query } = useRouter();
 
-  const { pathname } = useRouter();
+  const { pageList } = useSchemasContext();
+
+  const menus: GUIHeader[] = [...(pageList ?? [])];
 
   const toggleNavbar = () => {
     setMini((value) => !value);
@@ -54,14 +27,14 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
     <div className="flex flex-col flex-auto h-full w-full bg-gray-50">
       <div className="grid-container">
         {/* header */}
-        <div className={`col-start-2  row-start-1 h-16 sticky top-0`}>
-          <div className="flex flex-row items-center">
-            <button onClick={toggleNavbar} className="p-2 text-center center rounded-full hover:bg-gray-200">
+        <div className="col-start-2 row-start-1 sticky top-0 z-10 gap-x-2">
+          <div className="flex flex-row h-16 items-center px-6 ">
+            <button onClick={toggleNavbar} className="p-2 text-center center rounded-full">
               <MdMenu size={24} />
             </button>
             <p>{headerState.title}</p>
             <div className="flex-grow" />
-            <div>
+            <div className="flex flex-row ">
               {headerState.actions.map((action) => {
                 let icon = action.icon;
                 if (!icon.startsWith("Md")) icon = "Md" + (icon[0].toUpperCase() + icon.slice(1));
@@ -74,7 +47,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                       action.action?.();
                     }}
                     title={action.altText || action.name}
-                    className="h-9 w-9 flex center"
+                    className="h-9 w-9 flex center rounded-full hover:bg-gray-200"
                   >
                     <IconComponent size={24} />
                   </button>
@@ -107,9 +80,11 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                     <div className="flex-col">
                       {menus.map((item, index) => {
                         const IconComponent = (item.action && Icons[item.action]) || Icons.MdStar;
+                        const href = item.href.replace(/\//g, "");
+
                         return (
-                          <div key={index} className={`navbar-item ${pathname === item.href ? "navbar-item-active" : ""}`}>
-                            <Link href={item.href} onClick={() => setTitle(item.title)}>
+                          <div key={index} className={`navbar-item ${query.schema === href ? "navbar-item-active" : ""}`}>
+                            <Link href={item.href || href} onClick={() => setTitle(item.title)}>
                               <div className="flex flex-row items-center gap-x-2">
                                 <div className="!h-6 !w-6 place-self-center place-content-center self-center">
                                   <IconComponent size={24} />

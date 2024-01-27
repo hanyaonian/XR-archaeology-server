@@ -1,4 +1,6 @@
-const schema = {
+import { SchemaDefExt } from "../feathers/schema";
+
+const schema: SchemaDefExt = {
   name: { type: String, index: true }, //filename
   size: Number, //file size
   mime: String, // file mime, e.g. png, jpg and mp4
@@ -9,7 +11,7 @@ const schema = {
 
   thumb: { type: Buffer, contentType: String },
 
-  uploadDate: { type: Date, default: Date, index: true, $editor: { props: { multiLine: true } } }, // upload date
+  uploadDate: { type: Date, default: Date, index: true }, // upload date
   width: Number, // image width
   height: Number, // image height
   duration: Number, // video duration
