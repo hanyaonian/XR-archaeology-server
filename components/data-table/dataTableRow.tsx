@@ -262,7 +262,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
   };
 
   return (
-    <div role="listitem" key={index}>
+    <div role="listitem" key={index} className="w-full">
       <div
         className="flex flex-row py-2 relative items-center break-words"
         onMouseEnter={() => {

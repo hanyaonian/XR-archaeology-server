@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { PropsWithChildren, useMemo, useRef, useState, isValidElement, cloneElement, Children } from "react";
 // The icon/action name refers to here
 import * as Icons from "react-icons/md";
 import { MdMenu, MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons/md";
@@ -7,13 +7,23 @@ import { useRouter } from "next/router";
 import { useHeaderContext } from "@/contexts/header";
 import { useSchemasContext } from "@/contexts/schemas";
 import { GUIHeader } from "@/components/editor/def";
+import DialogHost, { ComponentType } from "@/components/dialogHost";
 
-export default function DefaultLayout({ children }: { children: React.ReactNode }) {
+export interface OpenDialogProps {
+  component: Promise<ComponentType | any> | ComponentType;
+  props: any;
+  className?: string;
+}
+
+export type OpenDialog = (props: OpenDialogProps) => Promise<void | any>;
+
+export default function DefaultLayout({ children }: PropsWithChildren) {
   const [mini, setMini] = useState<boolean>(false);
   const [isNavHovering, setNavHovering] = useState<boolean>(false);
   const miniReal = useMemo(() => mini && !isNavHovering, [mini, isNavHovering]);
   const { state: headerState, setTitle } = useHeaderContext();
   const { query } = useRouter();
+  const dialogsRef = useRef(null);
 
   const { pageList } = useSchemasContext();
 
@@ -23,9 +33,27 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
     setMini((value) => !value);
   };
 
+  function openDialog(props: OpenDialogProps) {
+    console.log("call open dialog");
+    return new Promise((resolve, reject) => {
+      if (dialogsRef.current) {
+        return dialogsRef.current.openDialog({ ...props, resolve, reject });
+      }
+    });
+  }
+
+  const childrenWithProps = Children.map(children, (child) => {
+    if (isValidElement(child)) {
+      return cloneElement(child as any, { openDialog });
+    } else {
+      return child;
+    }
+  });
+
   return (
     <div className="flex flex-col h-full w-full bg-gray-50">
       <div className="flex-auto flex flex-col h-screen max-w-full relative">
+        <DialogHost ref={dialogsRef} />
         <div className="grid-container">
           {/* header */}
           <div className="col-start-2 row-start-1 sticky top-0 z-10 gap-x-2">
@@ -44,7 +72,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                   return (
                     <button
                       key={action.name}
-                      onClick={(e) => {
+                      onClick={() => {
                         action.action?.();
                       }}
                       title={action.altText || action.name}
@@ -104,7 +132,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
 
-          <main className="col-start-2 row-start-2 relative flex flex-col mx-4 my-6 overflow-hidden">{children}</main>
+          <main className="col-start-2 row-start-2 relative flex flex-col mx-4 my-6 overflow-hidden">{childrenWithProps}</main>
         </div>
       </div>
     </div>

@@ -234,5 +234,25 @@ textarea:user-invalid {
 }
 
 .page-control button {
-  @apply mx-1 rounded-full size-10;
+  @apply mx-1 rounded-full size-10 bg-gray-100;
+}
+
+.media-dialog {
+  height: calc(100% - 140px) !important;
+  width: 80%;
+}
+
+.media-dialog .item-container {
+  min-width: 150px;
+  max-width: calc(100% / 3);
+  height: 150px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+  @apply rounded;
+}
+
+.media-dialog .active {
+  border: solid 4px theme(colors.blue.500);
 }

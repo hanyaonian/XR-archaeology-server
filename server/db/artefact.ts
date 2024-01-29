@@ -11,6 +11,11 @@ const schema: SchemaDefExt = {
   width: { type: Number, min: 0 },
   length: { type: Number, min: 0 },
   height: { type: Number, min: 0 },
+  file: {
+    object: { type: "id", ref: "Attachment", fileType: "model" },
+    material: { type: "id", ref: "Attachment", fileType: "application" },
+    texture: { type: "id", ref: "Attachment", fileType: "image" },
+  },
   createdAt: { type: Date, default: Date },
 
   $services: {

@@ -1,7 +1,7 @@
 import { NextPageWithLayout } from "./_app";
 
-import { ChangeEvent, ChangeEventHandler, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import DefaultLayout from "@/layouts/default";
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import DefaultLayout, { OpenDialog } from "@/layouts/default";
 import DataTable from "@/components/data-table/dataTable";
 import { EditorField } from "@/components/editor/def";
 import { EditorConfig } from "@/contexts/schemas/def";
@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import _ from "lodash";
 import moment from "moment";
 
-const Page: NextPageWithLayout = () => {
+const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
   const { query, reload } = useRouter();
   const schemas = useSchemasContext();
   const { setActions } = useHeaderContext();
@@ -29,6 +29,7 @@ const Page: NextPageWithLayout = () => {
   const [fields, setFields] = useState<EditorField[]>([]);
 
   const tableRef = useRef(null);
+  const [openMedia, setOpenMedia] = useState(false);
 
   useEffect(() => {
     initConfig();
@@ -70,59 +71,127 @@ const Page: NextPageWithLayout = () => {
   const renderEditor = useCallback(
     (item: any, setItem: (item: any) => void) => {
       return fields.map((field) => {
-        return computeComponent(field.component, {
-          label: field.name,
-          key: field.path,
-          props: field.props ?? {},
-          defaultValue: item?.[field.path] ?? field.defaultValue,
-          // todo change props from event to value
-          onChange: (e: ChangeEvent<HTMLInputElement>) => {
-            const value = e.target.value;
-            if (item) {
-              setItem((item: any) => _.set(item, field.path, value));
-            } else console.warn("error: suppose item should not be null");
+        return computeComponent(field, {
+          item: item,
+          onChange: (value: any) => {
+            const newItem = { ...item, [field.path]: value };
+            setItem(newItem);
           },
-          type: field.type,
-          readOnly: field.props.readOnly,
-          required: field.props.required,
         });
       });
     },
     [fields]
   );
 
-  function computeComponent(component: string, props: any) {
+  function computeComponent(field: EditorField, { item, onChange }: { item: any; onChange?: (value: any) => void }) {
     let result: JSX.Element;
-    switch (component) {
+    let defaultValue = item?.[field.path] ?? field.defaultValue;
+    let props = field.props;
+
+    switch (field.component) {
       case "text-field":
-        if (props.props.multiLine) {
-          result = <textarea {...props} />;
+        if (field.props.multiLine) {
+          result = (
+            <textarea
+              defaultValue={defaultValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                onChange(value);
+              }}
+            />
+          );
         } else {
-          result = <input {...props} />;
+          result = (
+            <input
+              defaultValue={defaultValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                onChange(value);
+              }}
+            />
+          );
         }
         break;
       case "date-picker":
-        let defaultValue = typeof props.defaultValue === "string" ? moment(props.defaultValue).format("YYYY-MM-DDTHH:MM") : "";
-        result = <input {...props} defaultValue={defaultValue} type="datetime-local" />;
+        let value = typeof defaultValue === "string" ? moment(defaultValue).format("YYYY-MM-DDTHH:MM") : "";
+        result = (
+          <input
+            defaultValue={value}
+            type="datetime-local"
+            onChange={(e) => {
+              const value = e.target.value;
+              onChange(value);
+            }}
+          />
+        );
         break;
       case "checkbox":
         result = <input type="checkbox" />;
         break;
-      case "object-picker-new":
-      case "object-picker-list":
+      case "group-object":
+        if (field.inner) {
+          result = (
+            <div className="bg-gray-50 rounded-md p-4">
+              {field.inner.map((f) =>
+                computeComponent(f, {
+                  item: defaultValue,
+                  onChange: (v) => {
+                    defaultValue[f.path] = v;
+                    onChange(defaultValue);
+                  },
+                })
+              )}
+            </div>
+          );
+        }
+
+        break;
       case "file-picker":
       case "image-picker":
+        result = (
+          <div className="flex">
+            <div className="flex-grow">{defaultValue}</div>
+            <button
+              type="button"
+              className="rounded py-2 px-4 min-w-24 border-2"
+              onClick={async () => {
+                // return list of attachments selected
+                let res = await openDialog({
+                  component: import("@/components/dialogs/mediaDialog"),
+                  props: { type: field.schema?.params?.fileType ? `${field.schema?.params?.fileType}/*` : undefined },
+                  className: "media-dialog",
+                });
+
+                if (!res.length) return;
+                const isMulti = !!field.props?.multiple;
+
+                if (field.props.attachmentId) {
+                  res = res.map((it) => it._id);
+                }
+                onChange(isMulti ? res : res[0]);
+              }}
+            >
+              Upload
+            </button>
+          </div>
+        );
+        break;
+      case "object-picker-new":
+      case "object-picker-list":
       case "uploader":
-      case "group-object":
       case "editor-list":
       default:
-        result = <div>TODO: {component}</div>;
+        result = (
+          <div>
+            TODO: {field.component} | value: {defaultValue} | type: {field.type}
+          </div>
+        );
         break;
     }
     return (
-      <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={props.key}>
+      <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={field.path}>
         {/* TODO: translate key to label */}
-        <label>{props.label}</label>
+        <label>{field.name}</label>
         {result}
       </div>
     );
@@ -141,6 +210,7 @@ const Page: NextPageWithLayout = () => {
         noPaginate={typeof config.paginate === "boolean" && !config.paginate}
         headers={headers}
         editor={renderEditor}
+        openDialog={openDialog}
       />
     );
   } else {

@@ -176,6 +176,9 @@ export class EditorConfig {
           if (path === "attachments") {
             if (field.params?.fileType === "image") {
               header.type = "thumb";
+            } else if (field.params?.fileType === "model") {
+              // TODO convert header type to handle model
+              return null;
             } else {
               return null;
             }

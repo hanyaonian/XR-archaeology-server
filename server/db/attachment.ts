@@ -3,7 +3,7 @@ import { SchemaDefExt } from "../feathers/schema";
 const schema: SchemaDefExt = {
   name: { type: String, index: true }, //filename
   size: Number, //file size
-  mime: String, // file mime, e.g. png, jpg and mp4
+  mime: String, // file mime, e.g. image/png, image/jpg and video/mp4
   type: { type: String, index: true }, // video | image | audio | model | other
   source: { type: String, index: true }, // path of parent
   parent: { type: String, index: true },

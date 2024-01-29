@@ -1,15 +1,15 @@
 import _ from "lodash";
 import { FormEvent, ReactNode, useCallback, useState } from "react";
+import { DialogProps } from "./basicDialog";
 
-export type EditDialogProps<P = {}> = {
-  modalId: string;
-  modalResult: (item: P | boolean) => void;
-  source?: P;
-  origin?: P;
-  save: (item: P, origin?: P) => Promise<P | boolean | undefined | null>;
+export interface EditDialogProps<T> extends DialogProps<T> {
+  source?: T;
+  origin?: T;
+  save: (item: T, origin?: T) => Promise<T | boolean | undefined | null>;
   schema?: any;
   editor?: (item: any, setItem: (item: any) => void) => ReactNode;
-};
+  deleteItem?: (item?: T) => void;
+}
 
 function EditDialog<T>(props: EditDialogProps<T>) {
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,6 @@ function EditDialog<T>(props: EditDialogProps<T>) {
     setLoading(true);
     try {
       const res = await props.save(item, props.origin);
-
       if (!res) return;
       props.modalResult(res || true);
     } catch (error) {
@@ -41,7 +40,6 @@ function EditDialog<T>(props: EditDialogProps<T>) {
       return _.map(item, (value, key) => {
         let res: JSX.Element;
         const type = typeof value;
-        console.log(key, value);
         switch (type) {
           case "string":
             // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
@@ -53,7 +51,6 @@ function EditDialog<T>(props: EditDialogProps<T>) {
           case "boolean":
             res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
           default:
-            console.log();
             res = <div>TODO: {typeof type == "function" ? type : ""}</div>;
             break;
         }
@@ -98,7 +95,7 @@ function EditDialog<T>(props: EditDialogProps<T>) {
               <div>
                 <div className="flex flex-row rounded-xl bg-white p-4">
                   <p className="grow-0 shrink-0">Delete this item?</p>
-                  <button className="text-red-500 flex flex-auto justify-end">
+                  <button className="text-red-500 flex flex-auto justify-end" type="button" onClick={() => props.deleteItem?.(item)}>
                     <p className="text-right">Delete...</p>
                   </button>
                 </div>

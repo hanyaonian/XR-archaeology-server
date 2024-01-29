@@ -2,6 +2,7 @@ import feathers, { Application } from "@feathersjs/feathers";
 
 declare module "@feathersjs/feathers" {
   interface Application {
+    apiURL: string;
     /**
      *
      * @param url registered service path, especially for attachments

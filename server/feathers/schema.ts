@@ -223,8 +223,10 @@ interface SchemaFieldOpts {
   index?: IndexOpts;
   enum?: string[];
   ref?: string;
+  // attachment
   fileType?: string;
   dateOnly?: boolean;
+  // direct mongoose query
   filter?: any;
   $editor?: EditorFieldOptions;
   default?: any;

@@ -2,10 +2,9 @@ import _, { head, update } from "lodash";
 import { useFeathersContext } from "@/contexts/feathers";
 import { useEffect, useState, useMemo, useRef, ReactNode, forwardRef, useImperativeHandle, useCallback, useLayoutEffect } from "react";
 import DataTableRow from "./dataTableRow";
-import DialogHost, { openDialog } from "../dialogHost";
-import { useHeaderContext } from "@/contexts/header";
+import DialogHost from "../dialogHost";
 import { DataTableHeader } from "../editor/def";
-import { Paginated } from "@feathersjs/feathers";
+import { OpenDialog } from "@/layouts/default";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -20,10 +19,11 @@ import { Paginated } from "@feathersjs/feathers";
  * @param idProperty specifies the unique id of the object. Default as [_id]
  * @param editor determines the rendered inputs according to the editing object
  */
-export type DataTableProps<T> = {
+export interface DataTableProps<T> {
   path: string;
   headers?: DataTableHeader[];
   noPaginate?: boolean;
+  query?: any;
 
   // tool bar settings
   canEdit?: boolean;
@@ -33,12 +33,14 @@ export type DataTableProps<T> = {
   default?: T | (() => T);
   idProperty?: keyof T;
   editor?: ReactNode | ((item: T, setItem: (item: T) => void) => ReactNode);
-};
+  renderItem?: ReactNode | ((props: any) => ReactNode);
+
+  openDialog?: OpenDialog;
+}
 
 const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(props: DataTableProps<T>, ref) {
   const feathers = useFeathersContext();
   const service = feathers.service(props.path);
-  const dialogsRef = useRef<DialogHost>();
 
   /** Observable data, only for data that is displayed in table */
   const [data, setData] = useState<T[]>([]);
@@ -67,7 +69,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   const [clientHeight, setClientHeight] = useState(null);
 
   // query and params
-  const [query, setQuery] = useState({});
+  const [query, setQuery] = useState(props.query || {});
   const [param, setParam] = useState({});
 
   // sync data executor
@@ -109,7 +111,6 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   useEffect(() => {
     setPageMax((max) => {
-      console.log(`total ${total}`);
       return Math.max(1, Math.ceil(total / pageCount));
     });
   }, [total]);
@@ -132,7 +133,6 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   const syncData = () => {
     if (executor) {
-      console.log("[INFO] executing");
       return executor;
     }
     executor = syncDataCore();
@@ -147,8 +147,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         ...(props.noPaginate ? {} : { $limit: pageCount }),
         $skip: pageStart,
       };
-      console.log("number of data in each page", pageCount, pageMax);
-      console.log(`start fetching from: ${cursor + pageStart}, assume ${pageCount} items`);
+
       q = JSON.parse(JSON.stringify(q));
 
       const offsetIndex = cursor ? data.length : 0;
@@ -187,8 +186,6 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       throw error;
     } finally {
       executor = null;
-
-      console.log("Done syncing", cursor);
     }
   };
 
@@ -221,7 +218,6 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   };
 
   const save = async (item: any, origin?: any) => {
-    console.log(data.length);
     try {
       const editId = _.get(item, props.idProperty || "_id");
       let res: any;
@@ -265,20 +261,18 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       _.unset(newItem, props.idProperty || "_id");
     }
 
-    if (dialogsRef.current) {
-      const result = await openDialog({
-        context: dialogsRef.current,
-        component: import("@/components/dialogs/editDialog"),
-        props: {
-          source: newItem,
-          origin,
-          save,
-          editor: props.editor,
-        },
-        className: "edit-dialog",
-      });
-      return result;
-    }
+    const result = await props.openDialog?.({
+      component: import("@/components/dialogs/editDialog"),
+      props: {
+        source: newItem,
+        origin,
+        save,
+        editor: props.editor,
+        deleteItem,
+      },
+      className: "edit-dialog",
+    });
+    return result;
   };
 
   const deleteItemCore = useCallback(
@@ -304,8 +298,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   const deleteItem = useCallback(
     (item?: any) => {
-      openDialog({
-        context: dialogsRef.current,
+      props.openDialog?.({
         component: import("@components/dialogs/deleteDialog"),
         props: { deleteItemCore, item },
         className: "w-3/5",
@@ -314,11 +307,33 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     [data]
   );
 
+  const renderItem = (item: T, index: number) => {
+    if (props.renderItem) {
+      if (typeof props.renderItem === "function") {
+        return props.renderItem({ item, index, ...props });
+      } else {
+        return props.renderItem;
+      }
+    } else {
+      return (
+        <DataTableRow
+          key={index}
+          index={index}
+          item={item}
+          headers={headers}
+          gridTemplateColumns={gridTemplateColumns}
+          editItem={editItem}
+          deleteItem={deleteItem}
+          {...props}
+        />
+      );
+    }
+  };
+
   const gridTemplateColumns: string = `repeat(${columnCount}, minmax(0, 1fr))`;
 
   return (
     <div className="w-full h-full relative flex flex-col">
-      <DialogHost ref={dialogsRef} />
       <div className="data-table-container w-full h-full flex flex-col">
         <div className="flex-grow overflow-hidden h-full">
           {/* Pre-header */}
@@ -345,19 +360,8 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
               </div>
             </div>
             {/* Rows */}
-            <div role="group">
-              {data.map((item, index) => (
-                <DataTableRow
-                  key={index}
-                  index={index}
-                  item={item}
-                  headers={headers}
-                  gridTemplateColumns={gridTemplateColumns}
-                  editItem={editItem}
-                  deleteItem={deleteItem}
-                  {...props}
-                />
-              ))}
+            <div role="group" className="flex flex-wrap">
+              {data.map(renderItem)}
               <div style={{ height: stickyHeaderRef.current?.clientHeight ?? 0 }}></div>
             </div>
           </div>

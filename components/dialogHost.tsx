@@ -20,24 +20,6 @@ type DialogProps<P = {}> = {
   reject: (reason?: any) => void;
 };
 
-/**
- * Opens a dialog in `context`
- * @param props `context` determines the `DialogHost` for `openDialog`.
- * `component` determines the children components wrapped by the dialog. It accepts
- * functional component and import of file by using `import`. It is important
- * that the component using `import` must be exported as default.
- * `props` specifies property of the `component`. `className` determines the css style of
- * the dialog.
- */
-export function openDialog(props: { context?: DialogHost; component: Promise<ComponentType | any> | ComponentType; props: any; className?: string }) {
-  console.log("call open dialog");
-  return new Promise((resolve, reject) => {
-    if (props.context) {
-      return props.context.openDialog({ ...props, resolve, reject });
-    }
-  });
-}
-
 interface IDialogItem<P = {}> {
   readonly key: string;
   component?: Promise<ComponentType | any> | ComponentType;
@@ -58,7 +40,7 @@ class DialogItem<P = {}> implements IDialogItem {
   public className?: string;
 
   constructor(component?: ComponentType, props?: P, loading = false, hide?: (result?: any, error?: any) => void, className?: string) {
-    this.key = uuid();
+    this.key = `${uuid()}${new Date().getTime()}`;
     this._show = true;
     this.component = component;
     this.props = props;
@@ -102,7 +84,12 @@ class DialogHost extends Component<{}, DialogHostState> {
       }
       setTimeout(() => {
         const idx = this.state.dialogs.indexOf(item);
-        idx !== -1 && this.setState((state) => ({ dialogs: state.dialogs.splice(idx, 1) }));
+        idx !== -1 &&
+          this.setState((state) => {
+            let dialogs = state.dialogs;
+            dialogs.splice(idx, 1);
+            return { ...state, dialogs: dialogs };
+          });
       }, 500);
     };
     item = new DialogItem(null, props.props, false, hide, props.className);
@@ -126,7 +113,6 @@ class DialogHost extends Component<{}, DialogHostState> {
     } else if (props.component instanceof Function) {
       item.component = props.component;
     }
-
     this.setState((state) => ({
       dialogs: [...state.dialogs, item],
     }));
