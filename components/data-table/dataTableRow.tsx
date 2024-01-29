@@ -34,9 +34,8 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
 
   useEffect(() => {
     if (fetchItems.length) {
-      const finalize = (res?: any) => {
+      const finalize = () => {
         const index = pendingFetch.indexOf(fetchPromise);
-
         index !== -1 && setPendingFetch((items) => items.splice(index, 1));
       };
       const fetchPromise = (async () => {
@@ -263,7 +262,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
   };
 
   return (
-    <div>
+    <div role="listitem" key={index}>
       <div
         className="flex flex-row py-2 relative items-center break-words"
         onMouseEnter={() => {

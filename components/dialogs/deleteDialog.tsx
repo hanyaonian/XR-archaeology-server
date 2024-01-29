@@ -13,6 +13,7 @@ function DeleteDialog<T extends { _id?: string; name?: string }>({ item, deleteI
     setDeleting(true);
     try {
       if (!item) return;
+      console.log("call deleteItemCore in dialog");
       await deleteItemCore(item);
       props.modalResult(true);
     } catch (error) {
@@ -27,7 +28,11 @@ function DeleteDialog<T extends { _id?: string; name?: string }>({ item, deleteI
       <h2 className="text-2xl">Confirm Delete?</h2>
       <p>Name: {item && (item?.name ?? item._id ?? item.toString())}</p>
       <div className="flex flex-row justify-between items-center mt-4">
-        <button disabled={isDeleting} onClick={deleteItem} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 min-w-24 rounded">
+        <button
+          disabled={isDeleting}
+          onClick={() => deleteItem()}
+          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 min-w-24 rounded"
+        >
           Delete
         </button>
         <button onClick={() => props.modalResult(false)} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 min-w-24 rounded">

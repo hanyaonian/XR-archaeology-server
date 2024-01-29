@@ -133,7 +133,6 @@
 .data-table-container {
   @apply shadow-md rounded-md bg-white;
   position: relative;
-  width: 100%;
   overflow: hidden;
 }
 
@@ -221,4 +220,19 @@ textarea:user-invalid {
   scrollbar-color: #828282 transparent;
   scrollbar-width: thin;
   overscroll-behavior: contain;
+}
+
+.out-range {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+.page-control .active {
+  background: theme(colors.blue.500);
+  color: white;
+}
+
+.page-control button {
+  @apply mx-1 rounded-full size-10;
 }
