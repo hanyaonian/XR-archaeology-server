@@ -171,11 +171,9 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       // store.splice(offsetIndex, store.length - offsetIndex);
       setTotal(paged.total);
 
-      if (offsetIndex >= paged.total) return;
       if (!cursor) {
-        store.splice(0, store.length);
         setData((data) => {
-          data.splice(0, data.length);
+          data.splice(0, data.length + 1);
           return data;
         });
       }
