@@ -35,13 +35,7 @@ const schema: SchemaDefExt = {
     },
   },
 
-  $params: {
-    editor: {
-      headers: ["name", "size", "type", "date"],
-      name: "Attachments",
-      icon: "MdUploadFile",
-    },
-  },
+  $params: { editor: false },
 };
 
 export default schema;

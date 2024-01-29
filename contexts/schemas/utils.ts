@@ -32,15 +32,15 @@ export function isEnum(field: SchemaFieldJson) {
 
 export function getDefaultHeaders(config: DBEditorConfig, def: SchemaDefJson): SchemaFieldJsonWithPath[] {
   const fields = def?.schema?.fields || [];
-
-  if (config.headers?.length) {
-    return config.headers.map((fieldName) => resolveField(def, fieldName, true)).filter((it) => !!it);
+  const headers = config?.headers ?? [];
+  if (headers.length) {
+    return headers.map((fieldName) => resolveField(def, fieldName, true)).filter((it) => !!it);
   } else {
     return fields.filter((it) => {
       const type = lookupType(it.type);
       if (type === "object") return false;
       if (it.params?.index) return true;
-      if (config.headers.indexOf(it.name) !== -1) return true;
+      if (headers.indexOf(it.name) !== -1) return true;
       return false;
     });
   }
