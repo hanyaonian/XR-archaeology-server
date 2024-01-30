@@ -1,4 +1,4 @@
-import { SchemaDefExt } from "../feathers/schema";
+import type { SchemaDefExt } from "../feathers/schema";
 
 const schema: SchemaDefExt = {
   name: String,

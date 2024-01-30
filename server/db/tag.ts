@@ -1,4 +1,4 @@
-import { SchemaDefExt } from "../feathers/schema";
+import type { SchemaDefExt } from "../feathers/schema";
 
 const schema: SchemaDefExt = {
   name: { type: String, required: true, index: true },
@@ -13,7 +13,7 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "createdAt"],
-      name: "Tag",
+      name: "Tags",
       icon: "MdTag",
     },
   },

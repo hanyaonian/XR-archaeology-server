@@ -149,7 +149,7 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       {/* menu */}
       {showMenu && (
         <div>
-          <div className="absolute left-0 right-0 top-10 scrollable object-picker-menu">{items.map(renderMenuItem)}</div>
+          <div className="absolute left-0 right-0 top-10 scrollable object-picker-menu z-20">{items.map(renderMenuItem)}</div>
         </div>
       )}
     </div>

@@ -2,7 +2,7 @@ import { getThumbURL } from "@/components/dialogs/mediaDialog";
 import { useFeathersContext } from "@/contexts/feathers";
 import { OpenDialog } from "@/layouts/default";
 import { useEffect, useState } from "react";
-import { MdClear } from "react-icons/md";
+import { MdAdd, MdClear } from "react-icons/md";
 
 export interface ImagePickerProps<T extends Record<string, any>, K extends keyof T> {
   idProperty?: K;
@@ -53,7 +53,7 @@ function ImagePicker<T extends Record<string, any>, K extends keyof T>(props: Im
     e.preventDefault();
     let res = await props.openDialog?.({
       component: import("@/components/dialogs/mediaDialog"),
-      props: { type: props.type ?? "image/*" },
+      props: { type: props.type ?? "image/*", multiple: multiple },
       className: "media-dialog",
     });
     if (!res) return;
@@ -80,26 +80,29 @@ function ImagePicker<T extends Record<string, any>, K extends keyof T>(props: Im
   };
 
   return (
-    <div className="flex">
-      <div className="flex-grow scrollable overflow-x-auto overflow-y-hidden">
-        <div className="flex gap-x-2 h-full items-center relative">
-          {(items || []).map((item, index) => (
-            <div key={index} className="size-36 overflow-hidden relative cursor-pointer ">
-              <img src={getThumbURL(item, feathers)} className="w-full h-full object-contain" onClick={pickFile} />
-              <button
-                type="button"
-                className="absolute top-1 left-1 pointer-events-auto rounded-full p-2 text-white bg-gray-500 hover:bg-gray-800"
-                onClick={() => removeItem(item)}
-              >
-                <MdClear size={14} />
-              </button>
-            </div>
-          ))}
+    <div className="flex overflow-hidden w-full">
+      <div className={`basis-0 overflow-hidden ${multiple ? "flex-grow" : ""}`}>
+        <div className="scrollable overflow-x-auto overflow-y-hidden">
+          <div className="flex whitespace-nowrap gap-x-2 items-center">
+            {(items || []).map((item, index) => (
+              <div key={index} className="!size-32 overflow-hidden relative cursor-pointer flex center flex-shrink-0 flex-grow-0">
+                <img src={getThumbURL(item, feathers)} className="w-full h-full object-contain" onClick={pickFile} />
+                <button
+                  type="button"
+                  className="absolute top-1 left-1 pointer-events-auto rounded-full p-2 text-white bg-gray-500 hover:bg-gray-800"
+                  onClick={() => removeItem(item)}
+                >
+                  <MdClear size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
       {(!items || !items.length || multiple) && (
-        <button type="button" className="rounded py-2 px-4 min-w-24 border-2" onClick={pickFile}>
-          Upload
+        <button type="button" className="rounded !size-32 border-2 flex center flex-shrink-0 flex-grow-0" onClick={pickFile}>
+          <MdAdd size={36} />
         </button>
       )}
     </div>

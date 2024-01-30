@@ -51,7 +51,7 @@ function FilePicker<T extends Record<string, any>, K extends keyof T>(props: Fil
   const pickFile = async () => {
     let res = await props.openDialog?.({
       component: import("@/components/dialogs/mediaDialog"),
-      props: { type: props.type ?? "image/*" },
+      props: { type: props.type ?? "image/*", multiple: multiple },
       className: "media-dialog",
     });
     if (!res) return;
@@ -79,22 +79,25 @@ function FilePicker<T extends Record<string, any>, K extends keyof T>(props: Fil
 
   return (
     <div className="flex">
-      <div className="flex-grow scrollable overflow-x-auto overflow-y-hidden ">
-        <div className="flex gap-x-2 h-full items-center">
-          {(items || []).map((item, index) => (
-            <div key={index} className="bg-gray-50 border-gray-200 border-2 flex rounded items-center gap-x-3 chip">
-              <div className="py-2 px-4 cursor-pointer" onClick={pickFile}>
-                {item[nameProperty]}
+      <div className={`basis-0 overflow-hidden ${multiple ? "flex-grow" : ""}`}>
+        <div className="scrollable overflow-x-auto overflow-y-hidden ">
+          <div className="flex whitespace-nowrap gap-x-2 h-full items-center">
+            {(items || []).map((item, index) => (
+              <div key={index} className="bg-gray-50 border-gray-200 border-2 flex rounded items-center gap-x-3 chip">
+                <div className="py-2 px-4 cursor-pointer" onClick={pickFile}>
+                  {item[nameProperty]}
+                </div>
+                <button type="button" className="flex center size-5 mr-2" onClick={() => removeItem(item)}>
+                  <MdClear size={14} />
+                </button>
               </div>
-              <button type="button" className="flex center size-5 mr-2" onClick={() => removeItem(item)}>
-                <MdClear size={14} />
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
+
       {(!items || !items.length || multiple) && (
-        <button type="button" className="rounded py-2 px-4 min-w-24 border-2" onClick={pickFile}>
+        <button type="button" className="rounded py-2 px-4 min-w-24 border-2 flex-shrink-0 flex-grow-0" onClick={pickFile}>
           Upload
         </button>
       )}

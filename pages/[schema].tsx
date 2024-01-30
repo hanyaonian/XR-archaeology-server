@@ -157,6 +157,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
         );
         break;
       case "image-picker":
+      case "uploader":
         result = (
           <ImagePicker
             openDialog={openDialog}
@@ -171,9 +172,9 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
       case "object-picker-list":
       case "object-picker-new":
         const multiple = field.component === "object-picker-list";
-        result = <ObjectPickerList path={field.path} defaultValue={defaultValue} onChange={onChange} multiple={multiple} />;
+        result = <ObjectPickerList path={field.props.path} defaultValue={defaultValue} onChange={onChange} multiple={multiple} />;
         break;
-      case "uploader":
+
       case "editor-list":
       default:
         result = (

@@ -1,20 +1,20 @@
 import { MdAdd, MdFilePresent, MdRefresh } from "react-icons/md";
 import DataTable from "../data-table/dataTable";
 import { DialogProps } from "./basicDialog";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFeathersContext } from "@/contexts/feathers";
 import { v4 as uuid } from "uuid";
 import _ from "lodash";
 import moment from "moment";
 import { Application } from "@feathersjs/feathers";
 
-export interface MediaLibraryProps<T> extends DialogProps<T> {
+export interface MediaLibraryProps extends DialogProps<any> {
   type?: string; // default image/*
   multiple?: boolean;
 }
 
-export interface MediaProps<T> {
-  item?: T;
+export interface MediaProps {
+  item?: any;
   index?: number;
   [key: string]: any;
 }
@@ -39,32 +39,43 @@ export function getThumbURL(item: any, feathers: Application) {
   }
 }
 
-function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
+function MediaDialog(props: MediaLibraryProps) {
   const uploadRef = useRef(null);
   const feathers = useFeathersContext();
+  const multiple = props.multiple ?? false;
   const [file, setFile] = useState<File>();
-  const [selectItem, setSelectItem] = useState<any | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [curItem, setCurItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
 
   const cancel = () => {
-    props.modalResult?.(false);
+    props.modalResult(false);
   };
 
   const save = async () => {
-    if (!selectItem) {
-      cancel();
-      return;
-    }
     setLoading(true);
     try {
-      const res = (await feathers.service("attachments").find({ query: { _id: selectItem._id, $limit: 100 } })).data;
-      if (!res.length) {
+      const chunks = _.chunk(selectedItems, 20);
+
+      const resps = await Promise.all(
+        _.map(chunks, (chunk) =>
+          feathers.service("attachments").find({
+            query: {
+              _id: { $in: chunk },
+              $limit: 100,
+            },
+          })
+        )
+      );
+      const results = _.flatten(_.map(resps, (r) => r.data));
+      if (!results.length) {
         cancel();
         return;
       }
-      props.modalResult(res);
+      console.log(results);
+      props.modalResult(results);
     } catch (error) {
-      alert("Fail to set attachment");
+      alert(`Fail to find attachments ${error}`);
       console.warn(`Fail to patch attachment ${error}`);
     } finally {
       setLoading(false);
@@ -72,43 +83,57 @@ function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
   };
 
   const pickItem = (item: any) => {
-    setSelectItem((it) => {
-      if (it?._id === item._id) return null;
-      else return item;
-    });
+    const index = selectedItems.indexOf(item._id);
+    if (multiple) {
+      setSelectedItems((items) => {
+        if (index !== -1) {
+          items.splice(index, 1);
+        } else {
+          items.push(item._id);
+        }
+        return items;
+      });
+      setCurItem(item);
+    } else {
+      setSelectedItems(index !== -1 ? [] : [item._id]);
+      setCurItem((cur) => (item._id === cur?._id ? null : item));
+    }
   };
 
-  const renderItem = (props: MediaProps<any>) => {
-    const type = props.item.type;
-    let content: JSX.Element;
-    if (type === "image") {
-      content = (
-        <div className="w-full h-full relative">
-          <img src={getThumbURL(props.item, feathers)} className="w-full h-full object-contain" />
-          <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-black bg-opacity-60 text-white p-1">
-            <p>{props.item.name}</p>
+  const renderItem = useCallback(
+    (props: MediaProps) => {
+      const type = props.item.type;
+      let content: JSX.Element;
+      if (type === "image") {
+        content = (
+          <div className="w-full h-full relative">
+            <img src={getThumbURL(props.item, feathers)} className="w-full h-full object-contain" />
+            <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-black bg-opacity-60 text-white p-1">
+              <p>{props.item.name}</p>
+            </div>
           </div>
+        );
+      } else {
+        content = (
+          <div className="flex flex-col items-center justify-center w-full h-full relative">
+            <MdFilePresent size={64} className="mb-4" />
+            <p className="absolute bottom-3 h-1/4 left-2 right-2 text-center">{props.item.name}</p>
+          </div>
+        );
+      }
+      const isActive = selectedItems.indexOf(props.item._id) !== -1;
+      return (
+        <div
+          className={`item-container break-words text-wrap text-clip ${isActive ? "active" : ""}`}
+          key={props.index}
+          onClick={() => pickItem(props.item)}
+        >
+          {content}
         </div>
       );
-    } else {
-      content = (
-        <div className="flex flex-col items-center justify-center w-full h-full relative">
-          <MdFilePresent size={64} className="mb-4" />
-          <p className="absolute bottom-3 h-1/4 left-2 right-2 text-center">{props.item.name}</p>
-        </div>
-      );
-    }
-    const isActive = selectItem?._id === props.item._id;
-    return (
-      <div
-        className={`item-container break-words text-wrap text-clip ${isActive ? "active" : ""}`}
-        key={props.index}
-        onClick={() => pickItem(props.item)}
-      >
-        {content}
-      </div>
-    );
-  };
+    },
+    [selectedItems]
+  );
 
   const getMimeType = () => {
     if (!props.type || props.type === "*" || props.type === "*/*") {
@@ -174,20 +199,20 @@ function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
   }, [file]);
 
   const getHeaders = () => {
-    if (!selectItem) return [];
+    if (!curItem) return [];
     return [
-      { title: "ID", value: selectItem._id },
-      { title: "Name", value: selectItem.name },
-      { title: "Date", value: moment(selectItem.date).format("lll") },
-      { title: "Source", value: selectItem.src },
-      { title: "MIME", value: selectItem.mime },
-      ...(selectItem.width
+      { title: "ID", value: curItem._id },
+      { title: "Name", value: curItem.name },
+      { title: "Date", value: moment(curItem.date).format("lll") },
+      { title: "Source", value: curItem.src },
+      { title: "MIME", value: curItem.mime },
+      ...(curItem.width
         ? [
-            { title: "Width", value: selectItem.width },
-            { title: "Height", value: selectItem.height },
+            { title: "Width", value: curItem.width },
+            { title: "Height", value: curItem.height },
           ]
         : []),
-      ...(selectItem.duration ? [{ title: "Duration", value: selectItem.duration }] : []),
+      ...(curItem.duration ? [{ title: "Duration", value: curItem.duration }] : []),
     ];
   };
 
@@ -204,7 +229,7 @@ function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
                 <button className="h-9 w-9 flex center rounded-full hover:bg-gray-200" onClick={handleOnUploadPress}>
                   <MdAdd size={24} />
                 </button>
-                <input type="file" ref={uploadRef} multiple={props.multiple ?? false} hidden onChange={uploadFile} />
+                <input type="file" ref={uploadRef} multiple hidden onChange={uploadFile} />
               </div>
             </div>
             {/* TODO grid table selector*/}

@@ -1,4 +1,4 @@
-import { SchemaDefExt } from "../feathers/schema";
+import type { SchemaDefExt } from "../feathers/schema";
 
 const schema: SchemaDefExt = {
   name: { type: String, required: true },
@@ -28,7 +28,7 @@ const schema: SchemaDefExt = {
     editor: {
       headers: ["name", "desc", "tags", "latitude", "longitude", "createdAt"],
       icon: "MdStar",
-      name: "Artefact",
+      name: "Artefacts",
     },
   },
 };
