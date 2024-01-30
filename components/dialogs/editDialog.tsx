@@ -2,16 +2,15 @@ import _ from "lodash";
 import { FormEvent, ReactNode, useCallback, useState } from "react";
 import { DialogProps } from "./basicDialog";
 
-export interface EditDialogProps<T> extends DialogProps<T> {
+export interface EditDialogProps<T> {
   source?: T;
   origin?: T;
   save: (item: T, origin?: T) => Promise<T | boolean | undefined | null>;
-  schema?: any;
-  editor?: (item: any, setItem: (item: any) => void) => ReactNode;
+  editor?: ReactNode | ((item: any, setItem: (item: any) => void) => ReactNode);
   deleteItem?: (item?: T) => void;
 }
 
-function EditDialog<T>(props: EditDialogProps<T>) {
+function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
   const [loading, setLoading] = useState(false);
   const [item, setItem] = useState<T>(props.source);
 
@@ -35,34 +34,6 @@ function EditDialog<T>(props: EditDialogProps<T>) {
   const renderAttributes = useCallback(() => {
     if (props.editor && typeof props.editor === "function") {
       return props.editor(item, setItem);
-    } else {
-      let item = props.schema || props.source || {};
-      return _.map(item, (value, key) => {
-        let res: JSX.Element;
-        const type = typeof value;
-        switch (type) {
-          case "string":
-            // Note: Always text area seems to be better to all type or u can add an attr in interfaces.tsx and use that for if else
-            res = <textarea defaultValue={value || ""}></textarea>;
-            break;
-          case "number":
-            res = <input defaultValue={value || 0} type="number" />; // TODO: what to do with undefined?
-            break;
-          case "boolean":
-            res = <input defaultValue={value || 0} type="checkbox" />; // TODO: what to do with undefined?
-          default:
-            res = <div>TODO: {typeof type == "function" ? type : ""}</div>;
-            break;
-        }
-
-        return (
-          <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={key}>
-            {/* TODO: translate key to label */}
-            <label>{key}</label>
-            {res}
-          </div>
-        );
-      });
     }
   }, [item, props.editor]);
 

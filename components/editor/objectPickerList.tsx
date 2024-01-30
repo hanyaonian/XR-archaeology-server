@@ -39,7 +39,11 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       return defaultValue
         .map((value) => {
           if (typeof value === "string") {
-            return items.find((it) => it[idProperty] === value);
+            const res = items.find((it) => it[idProperty] === value);
+            if (!res) {
+              return value;
+            }
+            return res;
           } else {
             return value;
           }
@@ -126,14 +130,19 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       <div className="object-picker scrollable" onClick={() => setShowMenu((show) => !show)}>
         {/* chip */}
         <div className="flex gap-x-2">
-          {(selectedItems || []).map((item, index) => (
-            <div key={index} className="bg-gray-50 flex rounded items-center gap-x-3 px-2 chip">
-              {nameFields.length ? <div>{item[nameFields[0].name]}</div> : <div>{item["name"]}</div>}
-              <button type="button" onClick={() => pickItem(item)}>
-                <MdClear size={14} />
-              </button>
-            </div>
-          ))}
+          {(selectedItems || []).map((item, index) => {
+            let name = nameFields.length ? item[nameFields[0].name] : item["name"];
+            const isDeleted = name === undefined || name === null;
+            name ??= "[DELETED]";
+            return (
+              <div key={index} className="bg-gray-50 flex rounded items-center gap-x-3 px-2 chip">
+                <div className={`${isDeleted ? "text-gray-500" : ""}`}>{name}</div>
+                <button type="button" onClick={() => pickItem(item)}>
+                  <MdClear size={14} />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { ReactNode, Component } from "react";
 import _ from "lodash";
 import Dialog from "./dialogs/basicDialog";
 
-export type ComponentType = <P>(props: P) => ReactNode;
+export type ComponentType = (props: any) => ReactNode;
 
 /**
  * @param component specifies what component to be rendered in the dialog.
@@ -12,15 +12,15 @@ export type ComponentType = <P>(props: P) => ReactNode;
  * @param props: property of the `component`
  * @param className: css style className of the dialog
  */
-type DialogProps<P = {}> = {
+interface DialogProps<P> {
   component: Promise<ComponentType | any> | ComponentType;
   props: P;
   className?: string;
   resolve: (value: unknown) => void;
   reject: (reason?: any) => void;
-};
+}
 
-interface IDialogItem<P = {}> {
+interface IDialogItem<P extends {}> {
   readonly key: string;
   component?: Promise<ComponentType | any> | ComponentType;
   readonly show?: boolean;
@@ -30,7 +30,7 @@ interface IDialogItem<P = {}> {
   className?: string;
 }
 
-class DialogItem<P = {}> implements IDialogItem {
+class DialogItem<P extends {}> implements IDialogItem<P> {
   public key: string;
   private _show: boolean;
   public component?: ComponentType;
@@ -62,7 +62,7 @@ class DialogItem<P = {}> implements IDialogItem {
 }
 
 type DialogHostState = {
-  dialogs: DialogItem[];
+  dialogs: DialogItem<any>[];
 };
 
 class DialogHost extends Component<{}, DialogHostState> {
@@ -72,8 +72,8 @@ class DialogHost extends Component<{}, DialogHostState> {
     this.openDialog = this.openDialog.bind(this);
     this.modalResult = this.modalResult.bind(this);
   }
-  public openDialog(props: DialogProps) {
-    let item: DialogItem;
+  public openDialog(props: DialogProps<any>) {
+    let item: DialogItem<any>;
     const hide = (result?: any, error?: any) => {
       if (!item.show) return;
       item.show = false;
@@ -99,6 +99,7 @@ class DialogHost extends Component<{}, DialogHostState> {
         .then((component) => {
           item.loading = false;
           item.component = component.default || component;
+          // set dialog loading as false
           this.setState((state) => ({
             dialogs: _.map(state.dialogs, (dialog) => {
               if (dialog.key === item.key) return item;

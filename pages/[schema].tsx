@@ -11,9 +11,11 @@ import { useRouter } from "next/router";
 import _ from "lodash";
 import moment from "moment";
 import ObjectPickerList from "@/components/editor/objectPickerList";
+import FilePicker from "@/components/editor/filePicker";
+import ImagePicker from "@/components/editor/imagePicker";
 
 const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
-  const { query, reload } = useRouter();
+  const { query } = useRouter();
   const schemas = useSchemasContext();
   const { setActions } = useHeaderContext();
 
@@ -28,9 +30,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
   const headers = useMemo(() => config?.headers ?? [], [config]);
 
   const [fields, setFields] = useState<EditorField[]>([]);
-
   const tableRef = useRef(null);
-  const [openMedia, setOpenMedia] = useState(false);
 
   useEffect(() => {
     initConfig();
@@ -40,7 +40,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     setActions([
       ...(canImport ? [{ icon: "uploadFile", altText: "import", name: "import", action: () => {} }] : []),
       ...(canExport ? [{ icon: "download", altText: "export", name: "Export" }] : []),
-      { icon: "refresh", altText: "refresh", name: "refresh", action: reload },
+      { icon: "refresh", altText: "refresh", name: "refresh", action: tableRef.current?.refresh },
       ...(canCreate
         ? [
             {
@@ -69,20 +69,17 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     console.log("headers", config.headers);
   }
 
-  const renderEditor = useCallback(
-    (item: any, setItem: (item: any) => void) => {
-      return fields.map((field) => {
-        return computeComponent(field, {
-          item: item,
-          onChange: (value: any) => {
-            const newItem = { ...item, [field.path]: value };
-            setItem(newItem);
-          },
-        });
+  const renderEditor = (item: any, setItem: (item: any) => void) => {
+    return fields.map((field) => {
+      return computeComponent(field, {
+        item: item,
+        onChange: (value: any) => {
+          const newItem = { ...item, [field.path]: value };
+          setItem(newItem);
+        },
       });
-    },
-    [fields]
-  );
+    });
+  };
 
   function computeComponent(field: EditorField, { item, onChange }: { item: any; onChange?: (value: any) => void }) {
     let result: JSX.Element;
@@ -148,41 +145,33 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
 
         break;
       case "file-picker":
-      case "image-picker":
         result = (
-          <div className="flex">
-            <div className="flex-grow">{defaultValue}</div>
-            <button
-              type="button"
-              className="rounded py-2 px-4 min-w-24 border-2"
-              onClick={async () => {
-                // return list of attachments selected
-                let res = await openDialog({
-                  component: import("@/components/dialogs/mediaDialog"),
-                  props: { type: field.schema?.params?.fileType ? `${field.schema?.params?.fileType}/*` : undefined },
-                  className: "media-dialog",
-                });
-
-                if (!res.length) return;
-                const isMulti = !!field.props?.multiple;
-
-                if (field.props.attachmentId) {
-                  res = res.map((it) => it._id);
-                }
-                onChange(isMulti ? res : res[0]);
-              }}
-            >
-              Upload
-            </button>
-          </div>
+          <FilePicker
+            openDialog={openDialog}
+            defaultValue={defaultValue}
+            onChange={onChange}
+            multiple={field.props?.multiple}
+            returnObject={!!!field.props.attachmentId}
+            type={field.schema?.params?.fileType}
+          />
         );
         break;
-
-      case "object-picker-list":
-        result = <ObjectPickerList path={field.path} defaultValue={defaultValue} onChange={onChange} />;
+      case "image-picker":
+        result = (
+          <ImagePicker
+            openDialog={openDialog}
+            defaultValue={defaultValue}
+            onChange={onChange}
+            multiple={field.props?.multiple}
+            returnObject={!!!field.props.attachmentId}
+            type={field.schema?.params?.fileType}
+          />
+        );
         break;
+      case "object-picker-list":
       case "object-picker-new":
-        result = <ObjectPickerList path={field.path} defaultValue={defaultValue} multiple={false} onChange={onChange} />;
+        const multiple = field.component === "object-picker-list";
+        result = <ObjectPickerList path={field.path} defaultValue={defaultValue} onChange={onChange} multiple={multiple} />;
         break;
       case "uploader":
       case "editor-list":

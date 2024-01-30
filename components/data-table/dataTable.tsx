@@ -1,10 +1,10 @@
-import _, { head, update } from "lodash";
+import _ from "lodash";
 import { useFeathersContext } from "@/contexts/feathers";
 import { useEffect, useState, useMemo, useRef, ReactNode, forwardRef, useImperativeHandle, useCallback, useLayoutEffect } from "react";
 import DataTableRow from "./dataTableRow";
-import DialogHost from "../dialogHost";
 import { DataTableHeader } from "../editor/def";
 import { OpenDialog } from "@/layouts/default";
+import { EditDialogProps } from "@/components/dialogs/editDialog";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -47,7 +47,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   /** Store cached data */
   const store: T[] = []; // TODO
 
-  const [headers, setHeaders] = useState<DataTableHeader[]>([]);
+  const [headers, setHeaders] = useState<DataTableHeader[]>(props.headers || []);
 
   /** Current page number */
   const [curPage, setCurPage] = useState(0);
@@ -64,8 +64,8 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   var cursor: number = 0;
 
   const scrollRef = useRef(null);
-  const stickyHeaderRef = useRef(null);
 
+  const [stickyHeaderHeight, setStickyHeaderHeight] = useState(null);
   const [clientHeight, setClientHeight] = useState(null);
 
   // query and params
@@ -88,8 +88,8 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   useLayoutEffect(() => {
     function handleResize() {
-      const clientHeight = scrollRef.current.clientHeight;
-      setClientHeight(clientHeight);
+      const { clientHeight: scrollHeight } = scrollRef.current;
+      setClientHeight(scrollHeight);
     }
     function onScroll() {
       const { scrollTop, scrollTopMax } = scrollRef.current;
@@ -102,7 +102,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       window.removeEventListener("resize", handleResize);
       scrollRef.current.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [scrollRef.current]);
 
   useEffect(() => {
     setHeaders(props.headers ?? []);
@@ -115,20 +115,28 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     });
   }, [total]);
 
+  useEffect(() => {
+    console.log(`should render`);
+  }, [data]);
+
   // pass public methods to parent
   useImperativeHandle(ref, () => {
-    return { editItem };
+    return { editItem, refresh };
   });
 
   const reset = () => {
     cursor = 0;
     setTotal(0);
     executor = null;
-    setCurPage((pageStart = 0));
-
-    syncData().then(() => {
-      updateCurrentPage();
+    setData((data) => {
+      data.splice(0, data.length);
+      return data;
     });
+    syncData();
+  };
+
+  const refresh = () => {
+    reset();
   };
 
   const syncData = () => {
@@ -197,7 +205,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   const updateCurrentPage = () => {
     const view: HTMLElement = scrollRef.current;
-    const headerSize = stickyHeaderRef.current?.clientHeight ?? 0;
+    const headerSize = stickyHeaderHeight ?? 0;
     if (view) {
       const rect = view.getBoundingClientRect();
       const items = Array.from(view.querySelectorAll("[role=group] [role=listitem]"));
@@ -222,7 +230,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       const service = feathers.service(props.path);
       if (editId) {
         res = await service.patch(editId, item);
-        _.assign(item, res);
+
         setData((data) => {
           const index = _.findIndex(data, (it) => it[props.idProperty] === res[props.idProperty]);
           index !== -1 && data.splice(index, 1, res);
@@ -271,9 +279,10 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         save,
         editor: props.editor,
         deleteItem,
-      },
+      } as EditDialogProps<typeof newItem>,
       className: "edit-dialog",
     });
+
     return result;
   };
 
@@ -287,7 +296,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         setData((data) => {
           const index = data.findIndex((it) => _.get(item, idProperty) === _.get(it, idProperty));
           index !== -1 && data.splice(index, 1);
-          console.log("list remains", data.length);
+          console.log("[UPDATE STATE] list remains", data.length);
           return data;
         });
       } catch (error) {
@@ -345,7 +354,14 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
           </div>
           <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
             {/* Header */}
-            <div className="data-table-header flex flex-row sticky top-0 z-30 " ref={stickyHeaderRef}>
+            <div
+              className="data-table-header flex flex-row sticky top-0 z-30 "
+              ref={(node) => {
+                if (node) {
+                  setStickyHeaderHeight(node.clientHeight);
+                }
+              }}
+            >
               <div className="data-table-item-index border-b border-gray-200" />
               <div className="border-b border-gray-200 data-table-row" style={{ gridTemplateColumns: gridTemplateColumns }}>
                 {headers.map((header, index) => (
@@ -364,14 +380,14 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
             {/* Rows */}
             <div role="group" className="flex flex-wrap">
               {data.map(renderItem)}
-              <div style={{ height: stickyHeaderRef.current?.clientHeight ?? 0 }}></div>
+              <div style={{ height: stickyHeaderHeight, width: "100%" }}></div>
             </div>
           </div>
         </div>
       </div>
       {/* Paginate */}
-      <div className="place-self-center mt-4">
-        <div className="data-table-container page-control py-5 px-8">
+      <div className="place-self-center mt-4 mb-1">
+        <div className="data-table-container page-control py-4 px-8">
           <button className={`${curPage - 1 <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 2)}>
             {curPage - 1}
           </button>

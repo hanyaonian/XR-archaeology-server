@@ -1,4 +1,4 @@
-import { PropsWithChildren, useMemo, useRef, useState, isValidElement, cloneElement, Children } from "react";
+import { PropsWithChildren, useMemo, useRef, useState, isValidElement, cloneElement, Children, ReactElement } from "react";
 // The icon/action name refers to here
 import * as Icons from "react-icons/md";
 import { MdMenu, MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons/md";
@@ -10,7 +10,7 @@ import { GUIHeader } from "@/components/editor/def";
 import DialogHost, { ComponentType } from "@/components/dialogHost";
 
 export interface OpenDialogProps {
-  component: Promise<ComponentType | any> | ComponentType;
+  component: Promise<ComponentType | any> | ComponentType | ReactElement;
   props: any;
   className?: string;
 }

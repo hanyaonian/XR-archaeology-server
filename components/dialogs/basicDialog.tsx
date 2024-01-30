@@ -1,8 +1,8 @@
 import { ForwardedRef, ReactNode, forwardRef, useState } from "react";
 import { ComponentType } from "../dialogHost";
-import { compact } from "lodash";
+import _, { compact } from "lodash";
 
-interface BasicDialogProps<P = {}, T = {}> {
+interface BasicDialogProps<P extends Record<string, any>, T = {}> {
   modalId: string;
   children?: ComponentType | ReactNode | undefined;
   modalResult: ({ id, result }: { id: string; result?: T }) => void;
@@ -15,7 +15,7 @@ export interface DialogProps<T> {
   modalResult: (item: T | boolean) => void;
 }
 
-function BasicDialog<P, T>(
+function BasicDialog<P extends Record<string, any>, T>(
   { modalId, modalResult, children, props: childProps, className }: BasicDialogProps<P, T>,
   ref: ForwardedRef<HTMLDialogElement>
 ) {
@@ -33,13 +33,13 @@ function BasicDialog<P, T>(
   if (children instanceof Function) {
     Component = children;
   } else {
-    Component = ({}) => children;
+    Component = (props: any) => children;
   }
   return (
-    <dialog aria-modal ref={ref} className={className}>
+    <dialog ref={ref} className={className}>
       <Component {...{ modalId, modalResult: returnResult, ...childProps }} />
     </dialog>
   );
 }
 
-export default forwardRef<HTMLDialogElement, BasicDialogProps>(BasicDialog);
+export default forwardRef<HTMLDialogElement, BasicDialogProps<any, any>>(BasicDialog);

@@ -6,6 +6,7 @@ import { useFeathersContext } from "@/contexts/feathers";
 import { v4 as uuid } from "uuid";
 import _ from "lodash";
 import moment from "moment";
+import { Application } from "@feathersjs/feathers";
 
 export interface MediaLibraryProps<T> extends DialogProps<T> {
   type?: string; // default image/*
@@ -27,6 +28,15 @@ function regEscape(text) {
         return `\\${c}`;
     }
   });
+}
+
+export function getThumbURL(item: any, feathers: Application) {
+  if (!feathers.apiURL) return;
+  if (typeof item === "string") {
+    return `${feathers.apiURL}/attachments/${item}.jpeg`;
+  } else if (item._id) {
+    return `${feathers.apiURL}/attachments/${item._id}.jpeg`;
+  }
 }
 
 function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
@@ -68,19 +78,13 @@ function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
     });
   };
 
-  const getThumbURL = (item: any) => {
-    if (feathers.apiURL && item._id) {
-      return `${feathers.apiURL}/attachments/${item._id}.jpeg`;
-    }
-  };
-
   const renderItem = (props: MediaProps<any>) => {
     const type = props.item.type;
     let content: JSX.Element;
     if (type === "image") {
       content = (
         <div className="w-full h-full relative">
-          <img src={getThumbURL(props.item)} className="w-full h-full object-contain" />
+          <img src={getThumbURL(props.item, feathers)} className="w-full h-full object-contain" />
           <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-black bg-opacity-60 text-white p-1">
             <p>{props.item.name}</p>
           </div>
@@ -89,14 +93,18 @@ function MediaDialog<T extends any>(props: MediaLibraryProps<T>) {
     } else {
       content = (
         <div className="flex flex-col items-center justify-center w-full h-full relative">
-          <MdFilePresent size={64} className="mb-2" />
-          <p className="absolute bottom-2 h-1/4">{props.item.name}</p>
+          <MdFilePresent size={64} className="mb-4" />
+          <p className="absolute bottom-3 h-1/4 left-2 right-2 text-center">{props.item.name}</p>
         </div>
       );
     }
     const isActive = selectItem?._id === props.item._id;
     return (
-      <div className={`item-container ${isActive ? "active" : ""}`} key={props.index} onClick={() => pickItem(props.item)}>
+      <div
+        className={`item-container break-words text-wrap text-clip ${isActive ? "active" : ""}`}
+        key={props.index}
+        onClick={() => pickItem(props.item)}
+      >
         {content}
       </div>
     );
