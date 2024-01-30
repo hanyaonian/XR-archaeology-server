@@ -198,11 +198,12 @@ label {
 }
 
 input,
-textarea {
+textarea,
+.object-picker {
   @apply text-sm w-full rounded px-4 py-2;
   border: unset;
   box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
-    rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    theme(colors.gray.300) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
   outline-color: theme(colors.blue.500);
   min-height: 32px;
 }
@@ -255,4 +256,30 @@ textarea:user-invalid {
 
 .media-dialog .active {
   border: solid 4px theme(colors.blue.500);
+}
+
+.object-picker {
+  overflow-y: hidden;
+  overflow-x: auto;
+  justify-items: center;
+}
+
+.object-picker-menu {
+  max-height: theme(height.96);
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: center;
+  background: theme(colors.gray.50);
+  @apply shadow-sm rounded gap-y-2;
+}
+
+.object-picker-menu .item {
+  display: flex;
+  padding: theme(spacing.2);
+  cursor: pointer;
+  @apply hover:bg-gray-200 gap-x-2;
+}
+
+.object-picker-menu .item-active {
+  color: theme(colors.green.500);
 }

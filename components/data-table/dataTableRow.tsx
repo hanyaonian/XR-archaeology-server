@@ -28,7 +28,7 @@ type FetchItem = {
 function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, deleteItem, ...props }: DataTableRowProps<T>) {
   const [showActions, setShowActions] = useState(false);
   const [fetchItems, setFetchItems] = useState<FetchItem[]>([]);
-  const [pendingFetch, setPendingFetch] = useState<Promise<void>[]>([]);
+  const pendingFetch: Promise<void>[] = [];
   const [fetchCache, setFetchCache] = useState<Record<string, any>>({});
   const feathers = useFeathersContext();
 
@@ -36,7 +36,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
     if (fetchItems.length) {
       const finalize = () => {
         const index = pendingFetch.indexOf(fetchPromise);
-        index !== -1 && setPendingFetch((items) => items.splice(index, 1));
+        index !== -1 && pendingFetch.splice(index, 1);
       };
       const fetchPromise = (async () => {
         const fetches = fetchItems;
@@ -78,7 +78,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
         );
       })();
       fetchPromise.then(finalize, finalize);
-      setPendingFetch((items) => [...items, fetchPromise]);
+      pendingFetch.push(fetchPromise);
     }
   }, [fetchItems]);
 
@@ -246,7 +246,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
       default:
         res = (
           <div
-            key={`i${header.value}`}
+            key={`${header.value}_${value}`}
             className="data-table-cell first:font-medium first:text-gray-900"
             style={{ gridColumn: `span ${header.flex ?? 1} / span ${header.flex ?? 1} ` }}
           >

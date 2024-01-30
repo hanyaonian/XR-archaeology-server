@@ -10,6 +10,7 @@ import { useSchemasContext } from "@/contexts/schemas";
 import { useRouter } from "next/router";
 import _ from "lodash";
 import moment from "moment";
+import ObjectPickerList from "@/components/editor/objectPickerList";
 
 const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
   const { query, reload } = useRouter();
@@ -176,8 +177,13 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
           </div>
         );
         break;
-      case "object-picker-new":
+
       case "object-picker-list":
+        result = <ObjectPickerList path={field.path} defaultValue={defaultValue} onChange={onChange} />;
+        break;
+      case "object-picker-new":
+        result = <ObjectPickerList path={field.path} defaultValue={defaultValue} multiple={false} onChange={onChange} />;
+        break;
       case "uploader":
       case "editor-list":
       default:

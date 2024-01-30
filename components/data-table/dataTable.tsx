@@ -223,8 +223,12 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       if (editId) {
         res = await service.patch(editId, item);
         _.assign(item, res);
-        if (origin) {
-        }
+        setData((data) => {
+          const index = _.findIndex(data, (it) => it[props.idProperty] === res[props.idProperty]);
+          index !== -1 && data.splice(index, 1, res);
+          console.log(`update item at ${index}`);
+          return data;
+        });
       } else {
         res = await service.create(item);
         let results = Array.isArray(res) ? res : [res];
@@ -238,7 +242,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
           }
         }
       }
-      console.log("Setting success");
+      console.log("Setting success", res);
       return res;
     } catch (error) {
       alert(`Setting failed: ${error}`);
@@ -315,7 +319,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     } else {
       return (
         <DataTableRow
-          key={index}
+          key={`${index}${item[props.idProperty]}`}
           index={index}
           item={item}
           headers={headers}

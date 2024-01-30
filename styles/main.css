@@ -581,6 +581,10 @@ video {
   top: 0px;
 }
 
+.top-10 {
+  top: 2.5rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -954,6 +958,11 @@ video {
   padding: 1.5rem;
 }
 
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
@@ -1322,7 +1331,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+.object-picker {
   width: 100%;
   border-radius: 0.25rem;
   padding-left: 1rem;
@@ -1333,7 +1343,7 @@ textarea {
   line-height: 1.25rem;
   border: unset;
   box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
-    rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    #d1d5db 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
   outline-color: #3b82f6;
   min-height: 32px;
 }
@@ -1392,6 +1402,42 @@ textarea:user-invalid {
 
 .media-dialog .active {
   border: solid 4px #3b82f6;
+}
+
+.object-picker {
+  overflow-y: hidden;
+  overflow-x: auto;
+  justify-items: center;
+}
+
+.object-picker-menu {
+  max-height: 24rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: center;
+  background: #f9fafb;
+  row-gap: 0.5rem;
+  border-radius: 0.25rem;
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.object-picker-menu .item {
+  display: flex;
+  padding: 0.5rem;
+  cursor: pointer;
+  -moz-column-gap: 0.5rem;
+       column-gap: 0.5rem;
+}
+
+.object-picker-menu .item:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
+.object-picker-menu .item-active {
+  color: #22c55e;
 }
 
 .first\:font-medium:first-child {
