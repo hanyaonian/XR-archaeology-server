@@ -5,6 +5,7 @@ import { SchemaFieldJson } from "@/server/feathers/schema";
 import _ from "lodash";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { MdClear } from "react-icons/md";
+import DataList from "../data-list";
 
 export interface ObjectPickerListProps<T extends Record<string, any>, K extends keyof T> {
   path: string;
@@ -111,9 +112,9 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
     props.onChange(multiple ? res : res[0]);
   };
 
-  const renderMenuItem = (item: T) => {
-    const index = selectedItems.findIndex((it) => it[idProperty] === item[idProperty]);
-    const isActive = index !== -1;
+  const renderMenuItem = ({ item, index }: { item: T; index: number }) => {
+    const idx = selectedItems.findIndex((it) => it[idProperty] === item[idProperty]);
+    const isActive = idx !== -1;
     return (
       <div key={item[idProperty]} className={`item ${isActive ? "item-active" : ""}`} onClick={() => pickItem(item)}>
         {nameFields.map((field) => (
@@ -149,7 +150,9 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       {/* menu */}
       {showMenu && (
         <div>
-          <div className="absolute left-0 right-0 top-10 scrollable object-picker-menu z-20">{items.map(renderMenuItem)}</div>
+          <div className="absolute left-0 right-0 top-10 object-picker-menu z-20">
+            <DataList path={props.path} renderItem={renderMenuItem} />
+          </div>
         </div>
       )}
     </div>

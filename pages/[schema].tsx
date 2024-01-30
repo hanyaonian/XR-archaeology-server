@@ -96,6 +96,8 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
                 const value = e.target.value;
                 onChange(value);
               }}
+              required={field.props.required}
+              readOnly={field.props.readOnly}
             />
           );
         } else {
@@ -106,6 +108,13 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
                 const value = e.target.value;
                 onChange(value);
               }}
+              type={field.props.type === "string" ? "text" : field.props.type}
+              required={field.props.required}
+              readOnly={field.props.readOnly}
+              maxLength={field.props?.maxLength}
+              minLength={field.props?.minLength}
+              min={field.props?.min}
+              max={field.props?.max}
             />
           );
         }
@@ -120,6 +129,8 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
               const value = e.target.value;
               onChange(value);
             }}
+            required={field.props.required}
+            readOnly={field.props.readOnly}
           />
         );
         break;
