@@ -20,7 +20,12 @@ const schema: SchemaDefExt = {
 
   $services: {
     services: {
-      artefacts: {},
+      artifacts: {},
+    },
+    public: {
+      artifacts: {
+        hooks_Auth: ["readOnlyHooks"],
+      },
     },
   },
 
@@ -28,7 +33,7 @@ const schema: SchemaDefExt = {
     editor: {
       headers: ["name", "desc", "tags", "latitude", "longitude", "createdAt"],
       icon: "MdStar",
-      name: "Artefacts",
+      name: "Artifacts",
     },
   },
 };

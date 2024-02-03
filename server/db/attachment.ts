@@ -1,3 +1,4 @@
+import attachments from "../feathers/attachments";
 import type { SchemaDefExt } from "../feathers/schema";
 
 const schema: SchemaDefExt = {
@@ -32,6 +33,11 @@ const schema: SchemaDefExt = {
   $services: {
     services: {
       attachments: {},
+    },
+    public: {
+      attachments: {
+        hooks_Auth: ["readOnlyHooks"],
+      },
     },
   },
 

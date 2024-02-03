@@ -7,6 +7,7 @@ import { RequireContext } from "./feathers";
 import _ from "lodash";
 import path from "path";
 import db from "./db";
+import * as hooks from "./hooks";
 
 export type ServiceDefOpts =
   | Service<any>
@@ -172,14 +173,34 @@ export default function (
         }
         _.each(item, (value, key) => {
           if (key.startsWith("hooks")) {
-            value = value instanceof Function ? value(app) : value;
-            if (!value) return;
-            service.hooks(value);
+            const hookArray = Array.isArray(value) ? value : [value];
+            for (let hook of hookArray) {
+              let hookStrOrObj = typeof hook === "function" ? hook(app, args) : hook;
+              if (!hookStrOrObj) return;
+              let hooksParams = [];
+              if (Array.isArray(hookStrOrObj)) {
+                hooksParams = hookStrOrObj.slice(1);
+                hookStrOrObj = hookStrOrObj[0];
+              }
+              if (typeof hookStrOrObj === "string") {
+                let v = hooks[hookStrOrObj];
+                if (!v) {
+                  throw new Error(`Cannot resolve hook ${hookStrOrObj}`);
+                }
+
+                v = v instanceof Function ? v(app, ...hooksParams) : v;
+                hookStrOrObj = v;
+              }
+              if (hookStrOrObj instanceof Function || typeof hookStrOrObj !== "object") {
+                throw new Error(`Hook should be object ${path}`);
+              }
+              service.hooks(hookStrOrObj);
+            }
           }
         });
-        if (item.handlers) {
+        if (handlers) {
           service.hooks({
-            before: item.handlers,
+            before: handlers,
           });
         }
         if (item.setup) {

@@ -8,6 +8,11 @@ const schema: SchemaDefExt = {
     services: {
       tags: {},
     },
+    public: {
+      tags: {
+        hooks_Auth: ["readOnlyHooks"],
+      },
+    },
   },
 
   $params: {

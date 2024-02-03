@@ -14,6 +14,9 @@ const schema: SchemaDefExt = {
     services: {
       locations: {},
     },
+    public: {
+      locations: {},
+    },
   },
   $params: {
     editor: {

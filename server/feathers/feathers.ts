@@ -13,10 +13,10 @@ import _ from "lodash";
 import handler from "./handler";
 import dbInit, { db, DB, schemas } from "./db";
 import attachments, { AttachmentOpts } from "./attachments";
-
 import { SchemaDef } from "./schema";
 import { MongoClient } from "mongodb";
 import mongoose, { Mongoose } from "mongoose";
+import auth, { AuthOpts } from "./auth";
 
 declare module "@feathersjs/feathers" {
   interface Application<Services = any, Settings = any> {
@@ -40,6 +40,7 @@ export interface ApiOpts {
 }
 
 export interface FeathersOpts {
+  auth?: boolean | AuthOpts;
   attachments?: boolean | AttachmentOpts;
   rest?: boolean | RestOpts;
   socketio?:
@@ -179,7 +180,7 @@ export default function (
       })
     );
   }
-
+  if (props.auth) app.configure(auth(typeof props.auth === "object" ? props.auth : {}));
   if (props.rest) {
     app.configure((app) => {
       app.use(function (req, res, next) {
