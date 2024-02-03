@@ -2,11 +2,11 @@ import db from "@mfeathers/db";
 import service from "feathers-mongoose";
 import { disallow, discard, iff, isProvider, setField } from "feathers-hooks-common";
 import * as local from "@feathersjs/authentication-local";
-import { HookContext } from "@feathersjs/feathers";
+import { HookContext, NextFunction } from "@feathersjs/feathers";
 import * as authentication from "@feathersjs/authentication";
 
 import _ from "lodash";
-import configs from "@configs";
+import { errors } from "@feathersjs/errors";
 
 let def = service({
   Model: db.User,
@@ -19,6 +19,11 @@ export const hooks = {
     create: [
       iff(isProvider("external"), discard("userID", "verified", "verifyToken", "verifyTrial", "verifyTime", "resetToken", "resetTrial", "resetTime")),
       local.hooks.hashPassword("password"),
+      async (hook: HookContext, next: NextFunction) => {
+        const existUser = await hook.app.service("users").find(hook.params);
+        if (existUser) throw new errors.GeneralError("User is already registered");
+        await next();
+      },
     ],
     patch: [
       iff(isProvider("external"), discard("password")),
@@ -35,14 +40,6 @@ export const hooks = {
 export const hooks2 = {
   before: {
     get: [
-      (hook: HookContext) => {
-        if (configs.internal[hook.id]) {
-          hook.result = {
-            id: hook.id,
-            internal: true,
-          };
-        }
-      },
       authentication.authenticate("jwt"),
       setField({ from: "params.user._id", as: "params.query._id" }),
       (hook: HookContext) => {

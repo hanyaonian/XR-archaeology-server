@@ -291,7 +291,7 @@ export default function (auth: AuthOpts) {
       }
     }
     authOpts.authStrategies = strategies;
-    console.log(`authentication`, authOpts);
+
     app.set("authentication", authOpts);
 
     app.on("connection", (connection) => {
@@ -334,9 +334,6 @@ export default function (auth: AuthOpts) {
     app.use("/authentication", authentication);
     app.service("authentication").hooks({
       before: {
-        create(hook) {
-          console.log(hook.arguments);
-        },
         remove(hook) {
           if (!hook.params.authentication) {
             hook.result = {};
@@ -350,7 +347,7 @@ export default function (auth: AuthOpts) {
             hook.params.connection.authenticated = true;
             hook.params.connection.user = hook.result.user;
 
-            // app.emit("login", hook.result, hook.params);
+            app.emit("login", hook.result, hook.params);
           }
         },
         remove(hook) {
@@ -360,7 +357,7 @@ export default function (auth: AuthOpts) {
             hook.params.connection.authentication = null;
             hook.params.connection.authenticated = false;
 
-            // app.emit("logout", hook.result, hook.params);
+            app.emit("logout", hook.result, hook.params);
           }
           hook.result = {};
         },

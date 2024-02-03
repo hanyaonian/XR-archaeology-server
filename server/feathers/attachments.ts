@@ -261,7 +261,6 @@ export default (opts: AttachmentOpts) =>
     // feathersId, rather than id, is to prevent the conflict from feathers-mongoose service
     app.get("/attachments/:feathersId", async (req: Request, res: Response, next: NextFunction) => {
       let id = req.params.feathersId;
-      console.log(id);
       let acceptWebp = false;
       let size: string;
       if (path.extname(id)) {
