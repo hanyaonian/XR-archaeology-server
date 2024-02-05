@@ -1,4 +1,4 @@
-import { useFeathersContext } from "@/contexts/feathers";
+import { useFeathers } from "@/contexts/feathers";
 import { OpenDialog } from "@/layouts/default";
 import { useEffect, useState } from "react";
 import { MdClear } from "react-icons/md";
@@ -21,7 +21,7 @@ function FilePicker<T extends Record<string, any>, K extends keyof T>(props: Fil
   const nameProperty = props.nameProperty || "name";
   const [items, setItems] = useState<T[] | null>(null);
 
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
 
   useEffect(() => {
     initFile();
@@ -79,7 +79,7 @@ function FilePicker<T extends Record<string, any>, K extends keyof T>(props: Fil
 
   return (
     <div className="flex">
-      <div className={`basis-0 overflow-hidden ${multiple ? "flex-grow" : ""}`}>
+      <div className={`basis-0 ${multiple ? "flex-grow overflow-hidden" : ""}`}>
         <div className="scrollable overflow-x-auto overflow-y-hidden ">
           <div className="flex whitespace-nowrap gap-x-2 h-full items-center">
             {(items || []).map((item, index) => (

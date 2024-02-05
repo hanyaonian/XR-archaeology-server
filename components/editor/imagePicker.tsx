@@ -1,5 +1,5 @@
 import { getThumbURL } from "@/components/dialogs/mediaDialog";
-import { useFeathersContext } from "@/contexts/feathers";
+import { useFeathers } from "@/contexts/feathers";
 import { OpenDialog } from "@/layouts/default";
 import { useEffect, useState } from "react";
 import { MdAdd, MdClear } from "react-icons/md";
@@ -22,7 +22,7 @@ function ImagePicker<T extends Record<string, any>, K extends keyof T>(props: Im
   const nameProperty = props.nameProperty || "name";
   const [items, setItems] = useState<T[] | null>(null);
 
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
 
   useEffect(() => {
     initFile();
@@ -81,7 +81,7 @@ function ImagePicker<T extends Record<string, any>, K extends keyof T>(props: Im
 
   return (
     <div className="flex overflow-hidden w-full">
-      <div className={`basis-0 overflow-hidden ${multiple ? "flex-grow" : ""}`}>
+      <div className={`basis-0 ${multiple ? "flex-grow overflow-hidden " : ""}`}>
         <div className="scrollable overflow-x-auto overflow-y-hidden">
           <div className="flex whitespace-nowrap gap-x-2 items-center">
             {(items || []).map((item, index) => (

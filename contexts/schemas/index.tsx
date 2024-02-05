@@ -1,12 +1,12 @@
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
-import { useFeathersContext } from "../feathers";
+import { useFeathers } from "../feathers";
 
 import _ from "lodash";
 import { SchemaHelper } from "./schemaHelper";
 
 export const SchemasStore = createContext<SchemaHelper>(undefined);
 export const SchemasProvider = ({ children }: PropsWithChildren) => {
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
 
   const [helper, setHelper] = useState<SchemaHelper>(undefined);
   const [loaded, setLoaded] = useState(false);

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { useFeathersContext } from "@/contexts/feathers";
+import { useFeathers } from "@/contexts/feathers";
 import { useEffect, useState, useMemo, useRef, ReactNode, forwardRef, useImperativeHandle, useCallback, useLayoutEffect } from "react";
 import { DataTableHeader } from "./editor/def";
 import { OpenDialog } from "@/layouts/default";
@@ -39,7 +39,7 @@ export interface DataListProps<T> {
 }
 
 const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props: DataListProps<T>, ref) {
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
   const service = feathers.service(props.path);
 
   /** Observable data, only for data that is displayed in table */

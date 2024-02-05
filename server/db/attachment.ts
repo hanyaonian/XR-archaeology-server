@@ -2,7 +2,7 @@ import attachments from "../feathers/attachments";
 import type { SchemaDefExt } from "../feathers/schema";
 
 const schema: SchemaDefExt = {
-  name: { type: String, index: true }, //filename
+  name: { type: String, index: true, unique: true }, //filename
   size: Number, //file size in bytes
   mime: String, // file mime, e.g. image/png, image/jpg and video/mp4
   type: { type: String, index: true }, // video | image | audio | model | other

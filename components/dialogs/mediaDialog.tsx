@@ -2,7 +2,7 @@ import { MdAdd, MdFilePresent, MdRefresh } from "react-icons/md";
 import DataTable from "../data-table/dataTable";
 import { DialogProps } from "./basicDialog";
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useFeathersContext } from "@/contexts/feathers";
+import { useFeathers } from "@/contexts/feathers";
 import { v4 as uuid } from "uuid";
 import _ from "lodash";
 import moment from "moment";
@@ -41,9 +41,9 @@ export function getThumbURL(item: any, feathers: Application) {
 
 function MediaDialog(props: MediaLibraryProps) {
   const uploadRef = useRef(null);
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
   const multiple = props.multiple ?? false;
-  const [file, setFile] = useState<File>();
+  const [files, setFiles] = useState<FileList>();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [curItem, setCurItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
@@ -151,52 +151,54 @@ function MediaDialog(props: MediaLibraryProps) {
 
   const uploadFile = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) setFile(files[0]);
+    if (files) setFiles(files);
   };
 
   const handleUpload = async () => {
-    if (!file) return;
-    var data = new FormData();
-    data.append("file", file, file.name);
+    if (!files) return;
+    for (const file of files) {
+      var data = new FormData();
+      data.append("file", file, file.name);
 
-    const info = {
-      name: file.name,
-      size: file.size,
-      mime: file.type,
-      thumb: null,
-      id: uuid(),
-      success: false,
-      complete: false,
-      processing: true,
-      error: null,
-      progress: 0,
-    };
-    try {
-      console.log("start upload", data);
-      const response = await feathers.post("attachments/upload", data, {
-        onUploadProgress: (progressEvent) => {
-          info.progress = progressEvent.loaded / progressEvent.total;
-        },
-      });
-      console.log(response);
-      const rinfo = (response.data || {}).info || {};
-      _.assign(info, rinfo);
-      info.success = true;
-      info.complete = true;
-      info.progress = 1;
-      info.processing = false;
-    } catch (e) {
-      info.error = e.message;
-      info.complete = true;
-      info.processing = false;
-      console.warn("Upload attachment fails:", e);
-      alert("Upload attachment failed");
+      const info = {
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        thumb: null,
+        id: uuid(),
+        success: false,
+        complete: false,
+        processing: true,
+        error: null,
+        progress: 0,
+      };
+      try {
+        console.log("start upload", data);
+        const response = await feathers.post("attachments/upload", data, {
+          onUploadProgress: (progressEvent) => {
+            info.progress = progressEvent.loaded / progressEvent.total;
+          },
+        });
+        console.log(response);
+        const rinfo = (response.data || {}).info || {};
+        _.assign(info, rinfo);
+        info.success = true;
+        info.complete = true;
+        info.progress = 1;
+        info.processing = false;
+      } catch (e) {
+        info.error = e.message;
+        info.complete = true;
+        info.processing = false;
+        console.warn("Upload attachment fails:", e);
+        alert("Upload attachment failed");
+      }
     }
   };
 
   useEffect(() => {
     handleUpload();
-  }, [file]);
+  }, [files]);
 
   const getHeaders = () => {
     if (!curItem) return [];

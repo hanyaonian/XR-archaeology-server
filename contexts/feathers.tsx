@@ -61,8 +61,8 @@ export const FeathersProvider = ({ children, baseURL }: Props) => {
 
   return <FeathersContext.Provider value={feathers}>{children}</FeathersContext.Provider>;
 };
-export const useFeathersContext = () => {
+export const useFeathers = () => {
   const feathers = useContext(FeathersContext);
-  if (!feathers) throw new Error("useFeathersContext must be used inside FeathersProvider");
+  if (!feathers) throw new Error("useFeathers must be used inside FeathersProvider");
   return feathers;
 };

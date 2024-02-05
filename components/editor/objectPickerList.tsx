@@ -1,4 +1,4 @@
-import { useFeathersContext } from "@/contexts/feathers";
+import { useFeathers } from "@/contexts/feathers";
 import { useSchemasContext } from "@/contexts/schemas";
 import { getNameField, getNameFields } from "@/contexts/schemas/utils";
 import { SchemaFieldJson } from "@/server/feathers/schema";
@@ -25,7 +25,7 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
   const [selectedItems, setSelectedItems] = useState<T[] | null>(null);
 
   const schemas = useSchemasContext();
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
   const idProperty = props.idProperty ?? "_id";
   const multiple = props.multiple ?? true;
 

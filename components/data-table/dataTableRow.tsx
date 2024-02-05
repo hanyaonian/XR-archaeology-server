@@ -2,7 +2,7 @@ import _ from "lodash";
 import { DataTableHeader } from "../editor/def";
 import { useCallback, useEffect, useState } from "react";
 import { MdEdit, MdFileCopy, MdDelete } from "react-icons/md";
-import { useFeathersContext } from "@/contexts/feathers";
+import { useFeathers } from "@/contexts/feathers";
 import Link from "next/link";
 
 export type DataTableRowProps<T> = {
@@ -30,7 +30,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
   const [fetchItems, setFetchItems] = useState<FetchItem[]>([]);
   const pendingFetch: Promise<void>[] = [];
   const [fetchCache, setFetchCache] = useState<Record<string, any>>({});
-  const feathers = useFeathersContext();
+  const feathers = useFeathers();
 
   useEffect(() => {
     if (fetchItems.length) {
@@ -247,7 +247,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
         res = (
           <div
             key={`${header.value}_${value}`}
-            className="data-table-cell first:font-medium first:text-gray-900"
+            className="data-table-cell  max-h-80 first:font-medium first:text-gray-900"
             style={{ gridColumn: `span ${header.flex ?? 1} / span ${header.flex ?? 1} ` }}
           >
             {value.toString()}
