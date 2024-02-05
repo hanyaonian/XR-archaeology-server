@@ -56,14 +56,21 @@
   transition-property: width;
 }
 
-.nav-root:not(.mini-real) .navbar .navbar-item {
-  @apply px-8;
-}
-
 .navbar .navbar-item:hover::before {
   @apply transition-all;
-  transform-property: min-width;
   min-width: var(--nav-cur-width-padded);
+}
+
+.navbar-item .expanded {
+  @apply rotate-90;
+}
+
+.nav-root:not(.mini-real) {
+  .navbar {
+    .navbar-item .item-pad {
+      @apply px-2;
+    }
+  }
 }
 
 .mini-real .mini-hide {
@@ -123,7 +130,8 @@
 }
 
 .navbar-item {
-  @apply p-4 rounded relative !important;
+  @apply rounded relative !important;
+  @apply py-4;
 }
 
 .navbar-item-active {
@@ -216,6 +224,11 @@ textarea:user-invalid {
     theme(colors.red.500) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }
 
+input:placeholder-shown {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    theme(colors.gray.300) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
 .scrollable {
   -webkit-overflow-scrolling: touch;
   scrollbar-color: #828282 transparent;
@@ -282,4 +295,16 @@ textarea:user-invalid {
 
 .object-picker-menu .item-active {
   color: theme(colors.green.500);
+}
+
+.object-picker-new .item {
+  background: theme(colors.white);
+  display: flex;
+  justify-content: "center";
+  align-content: "center";
+  @apply drop-shadow p-3 rounded;
+}
+
+.object-picker-new .item-active {
+  @apply border-2 border-blue-500 !important;
 }

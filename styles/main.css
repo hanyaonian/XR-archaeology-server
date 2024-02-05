@@ -856,6 +856,10 @@ video {
   justify-content: space-between;
 }
 
+.gap-2 {
+  gap: 0.5rem;
+}
+
 .gap-3 {
   gap: 0.75rem;
 }
@@ -1068,6 +1072,10 @@ video {
   padding-bottom: 1rem;
 }
 
+.pl-4 {
+  padding-left: 1rem;
+}
+
 .pl-5 {
   padding-left: 1.25rem;
 }
@@ -1202,17 +1210,21 @@ video {
   transition-property: width;
 }
 
-.nav-root:not(.mini-real) .navbar .navbar-item {
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
 .navbar .navbar-item:hover::before {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-  transform-property: min-width;
   min-width: var(--nav-cur-width-padded);
+}
+
+.navbar-item .expanded {
+  --tw-rotate: 90deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.nav-root:not(.mini-real) .navbar .navbar-item .item-pad {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .mini-real .mini-hide {
@@ -1288,7 +1300,8 @@ video {
 .navbar-item {
   position: relative !important;
   border-radius: 0.25rem !important;
-  padding: 1rem !important;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .navbar-item-active {
@@ -1431,6 +1444,16 @@ textarea:user-invalid {
     #ef4444 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }
 
+input:-moz-placeholder-shown {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    #d1d5db 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
+input:placeholder-shown {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    #d1d5db 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
 .scrollable {
   -webkit-overflow-scrolling: touch;
   scrollbar-color: #828282 transparent;
@@ -1513,6 +1536,23 @@ textarea:user-invalid {
 
 .object-picker-menu .item-active {
   color: #22c55e;
+}
+
+.object-picker-new .item {
+  background: #fff;
+  display: flex;
+  justify-content: "center";
+  align-content: "center";
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  --tw-drop-shadow: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.object-picker-new .item-active {
+  border-width: 2px !important;
+  --tw-border-opacity: 1 !important;
+  border-color: rgb(59 130 246 / var(--tw-border-opacity)) !important;
 }
 
 .first\:font-medium:first-child {
