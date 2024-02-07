@@ -75,13 +75,14 @@ export class SchemaHelper {
 
   private updatePageList(routeList: EditorConfig[]) {
     const allMenu: GUIHeader[] = [];
+    const rootMenu: GUIHeader[] = [];
 
     for (const route of routeList) {
       if (!route.menu) continue;
-      const group = (route.group || "").split(".").filter((it) => !!it);
+      const groups = (route.group || "").split(".").filter((it) => !!it);
       const groupPath = [];
-      let curList: GUIHeader[] = [];
-      for (let groupKey of group) {
+      let curList: GUIHeader[] = rootMenu;
+      for (const groupKey of groups) {
         groupPath.push(groupKey);
         let groupItem = curList.find((it) => it.gpKey === groupKey);
         if (!groupItem) {
@@ -96,6 +97,7 @@ export class SchemaHelper {
               order: 0,
             })
           );
+          allMenu.push(groupItem);
         }
         curList = groupItem.items;
       }
@@ -119,8 +121,7 @@ export class SchemaHelper {
     _.forEach(allMenu.reverse(), (item) => {
       if (item.items) item.action = item.gpIcon || item.items[0].gpIcon;
     });
-
-    this.pageList = allMenu;
+    this.pageList = rootMenu;
   }
 
   public getRefTable(field: SchemaFieldJson) {

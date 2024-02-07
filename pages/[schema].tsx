@@ -1,6 +1,6 @@
 import { NextPageWithLayout } from "./_app";
 
-import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DefaultLayout, { OpenDialog } from "@/layouts/default";
 import DataTable from "@/components/data-table/dataTable";
 import { EditorField } from "@/components/editor/def";
@@ -9,10 +9,7 @@ import { useHeaderContext } from "@/contexts/header";
 import { useSchemasContext } from "@/contexts/schemas";
 import { useRouter } from "next/router";
 import _ from "lodash";
-import moment from "moment";
-import ObjectPickerList from "@/components/editor/objectPickerList";
-import FilePicker from "@/components/editor/filePicker";
-import ImagePicker from "@/components/editor/imagePicker";
+import { computeComponent } from "@/components/editor";
 
 const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
   const { query } = useRouter();
@@ -69,140 +66,18 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     console.log("headers", config.headers);
   }
 
-  const renderEditor = (item: any, setItem: (item: any) => void) => {
+  const renderEditor = (item: any, setItem: Dispatch<SetStateAction<any>>) => {
     return fields.map((field) => {
-      return computeComponent(field, {
+      return computeComponent({
+        field,
         item: item,
         onChange: (value: any) => {
-          const newItem = { ...item, [field.path]: value };
-          setItem(newItem);
+          setItem((item) => ({ ...item, [field.path]: value }));
         },
+        openDialog,
       });
     });
   };
-
-  function computeComponent(field: EditorField, { item, onChange }: { item: any; onChange?: (value: any) => void }) {
-    let result: JSX.Element;
-    let defaultValue = item?.[field.path] ?? field.defaultValue;
-    let props = field.props;
-
-    switch (field.component) {
-      case "text-field":
-        if (field.props.multiLine) {
-          result = (
-            <textarea
-              defaultValue={defaultValue}
-              onChange={(e) => {
-                const value = e.target.value;
-                onChange(value);
-              }}
-              required={field.props.required}
-              readOnly={field.props.readOnly}
-            />
-          );
-        } else {
-          result = (
-            <input
-              defaultValue={defaultValue}
-              onChange={(e) => {
-                const value = e.target.value;
-                onChange(value);
-              }}
-              type={field.props.type === "string" ? "text" : field.props.type}
-              required={field.props.required}
-              readOnly={field.props.readOnly}
-              maxLength={field.props?.maxLength}
-              minLength={field.props?.minLength}
-              min={field.props?.min}
-              max={field.props?.max}
-            />
-          );
-        }
-        break;
-      case "date-picker":
-        let value = typeof defaultValue === "string" ? moment(defaultValue).format("YYYY-MM-DDTHH:MM") : "";
-        result = (
-          <input
-            defaultValue={value}
-            type="datetime-local"
-            onChange={(e) => {
-              const value = e.target.value;
-              onChange(value);
-            }}
-            required={field.props.required}
-            readOnly={field.props.readOnly}
-          />
-        );
-        break;
-      case "checkbox":
-        result = <input type="checkbox" />;
-        break;
-      case "group-object":
-        if (field.inner) {
-          result = (
-            <div className="bg-gray-50 rounded-md p-4">
-              {field.inner.map((f) =>
-                computeComponent(f, {
-                  item: defaultValue,
-                  onChange: (v) => {
-                    defaultValue[f.path] = v;
-                    onChange(defaultValue);
-                  },
-                })
-              )}
-            </div>
-          );
-        }
-
-        break;
-      case "file-picker":
-        result = (
-          <FilePicker
-            openDialog={openDialog}
-            defaultValue={defaultValue}
-            onChange={onChange}
-            multiple={field.props?.multiple}
-            returnObject={!!!field.props.attachmentId}
-            type={field.schema?.params?.fileType}
-          />
-        );
-        break;
-      case "image-picker":
-      case "uploader":
-        result = (
-          <ImagePicker
-            openDialog={openDialog}
-            defaultValue={defaultValue}
-            onChange={onChange}
-            multiple={field.props?.multiple}
-            returnObject={!!!field.props.attachmentId}
-            type={field.schema?.params?.fileType}
-          />
-        );
-        break;
-      case "object-picker-list":
-      case "object-picker-new":
-        const multiple = field.component === "object-picker-list";
-        result = <ObjectPickerList path={field.props.path} defaultValue={defaultValue} onChange={onChange} multiple={multiple} />;
-        break;
-
-      case "editor-list":
-      default:
-        result = (
-          <div>
-            TODO: {field.component} | value: {defaultValue} | type: {field.type}
-          </div>
-        );
-        break;
-    }
-    return (
-      <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={field.path}>
-        {/* TODO: translate key to label */}
-        <label>{field.name}</label>
-        {result}
-      </div>
-    );
-  }
 
   if (config) {
     return (

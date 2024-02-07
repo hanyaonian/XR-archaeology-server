@@ -81,6 +81,7 @@ export class EditorConfig {
     this.filter = config.filer;
     this.icon = config.icon;
     this.group = config.group;
+    this.groupIcon = config.groupIcon;
     this.service = config.service || path;
     this.path = path;
     this.rootPath = resolveRootPath(config, serviceConfig);
@@ -288,7 +289,7 @@ export class EditorConfig {
       case "string":
         if (isEnum(field)) {
           component = (field.params?.enum?.length > 20 && !editor.props?.picker) || editor.props?.list ? "object-picker-list" : "object-picker-new";
-          props.items = field.params?.enum;
+          props.items = _.cloneDeep(field.params?.enum);
         } else {
           component = "text-field";
           if (type === "number") {

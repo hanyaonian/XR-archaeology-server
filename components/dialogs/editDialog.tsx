@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FormEvent, ReactNode, useCallback, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useRef, useState } from "react";
 import { DialogProps } from "./basicDialog";
 
 export interface EditDialogProps<T> {
@@ -13,6 +13,7 @@ export interface EditDialogProps<T> {
 function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
   const [loading, setLoading] = useState(false);
   const [item, setItem] = useState<T>(props.source);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const cancel = () => {
     props.modalResult(false);
@@ -37,23 +38,29 @@ function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
     }
   }, [item, props.editor]);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formElement = e.target as HTMLFormElement;
-    const isValid = formElement.checkValidity();
-    console.log("handle submit");
-    const firstInvalidField = formElement.querySelector(":invalid") as HTMLInputElement;
-    firstInvalidField?.focus();
+  const handleSubmit = async () => {
+    if (formRef.current) {
+      const formElement = formRef.current as HTMLFormElement;
+      const isValid = formElement.checkValidity();
 
-    if (isValid) {
-      await save();
-    } else {
-      alert("Invalid save");
+      const firstInvalidField = formElement.querySelector(":invalid") as HTMLInputElement;
+      firstInvalidField?.focus();
+      if (isValid) {
+        await save();
+      } else {
+        alert("Invalid save");
+      }
     }
   };
 
   return (
-    <form className="bg-slate-100 h-full" onSubmit={handleSubmit}>
+    <form
+      ref={formRef}
+      className="bg-slate-100 h-full"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") return false;
+      }}
+    >
       <div className="flex flex-col h-full">
         <div className="relative !flex-grow">
           <div className="scrollable overflow-auto absolute top-0 bottom-0 left-0 right-0">
@@ -75,9 +82,14 @@ function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 p-2">
-        <div className="flex flex-row justify-end items-center gap-3 backdrop-blur-sm z-10">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded" disabled={loading} type="submit">
+      <div className="absolute bottom-0 left-0 right-0">
+        <div className="flex flex-row justify-end items-center gap-3 backdrop-blur-sm z-10 p-2">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded"
+            disabled={loading}
+            type="button"
+            onClick={handleSubmit}
+          >
             Save
           </button>
           <button className="text-gray-400 hover:text-gray-600 hover:bg-slate-200 py-2 px-4 min-w-24 rounded" type="button" onClick={cancel}>

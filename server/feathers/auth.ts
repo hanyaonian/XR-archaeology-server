@@ -342,7 +342,6 @@ export default function (auth: AuthOpts) {
       },
       after: {
         create(hook) {
-          console.log(`create after ${hook}`);
           if (hook.params?.connection) {
             hook.params.connection.authenticated = true;
             hook.params.connection.user = hook.result.user;

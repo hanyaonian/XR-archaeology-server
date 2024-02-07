@@ -216,6 +216,11 @@ textarea,
   min-height: theme(height.10);
 }
 
+input:placeholder-shown {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    theme(colors.gray.300) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
 input:invalid,
 input:user-invalid,
 textarea:invalid,
@@ -224,9 +229,9 @@ textarea:user-invalid {
     theme(colors.red.500) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }
 
-input:placeholder-shown {
+input:focus-visible {
   box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
-    theme(colors.gray.300) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    theme(colors.red.500) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }
 
 .scrollable {
@@ -299,9 +304,6 @@ input:placeholder-shown {
 
 .object-picker-new .item {
   background: theme(colors.white);
-  display: flex;
-  justify-content: "center";
-  align-content: "center";
   @apply drop-shadow p-3 rounded;
 }
 

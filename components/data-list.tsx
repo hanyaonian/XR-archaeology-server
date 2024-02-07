@@ -30,6 +30,7 @@ export interface DataListProps<T> {
   canRemove?: boolean;
   canClone?: boolean;
 
+  items?: T[];
   default?: T | (() => T);
   idProperty?: keyof T;
   editor?: ReactNode | ((item: T, setItem: (item: T) => void) => ReactNode);
@@ -40,14 +41,13 @@ export interface DataListProps<T> {
 
 const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props: DataListProps<T>, ref) {
   const feathers = useFeathers();
-  const service = feathers.service(props.path);
 
   /** Observable data, only for data that is displayed in table */
-  const [data, setData] = useState<T[]>([]);
+  const [data, setData] = useState<T[]>(props.items ?? []);
   /** Store cached data */
   const store: T[] = []; // TODO
 
-  const [headers, setHeaders] = useState<DataTableHeader[]>(props.headers || []);
+  const headers: DataTableHeader[] = props.headers || [];
 
   /** Current page number */
   const [curPage, setCurPage] = useState(0);
@@ -105,9 +105,8 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
   }, [scrollRef.current]);
 
   useEffect(() => {
-    setHeaders(props.headers ?? []);
     reset();
-  }, [props, query]);
+  }, [query]);
 
   useEffect(() => {
     console.log(`should render`);
@@ -122,6 +121,7 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
     cursor = 0;
     executor = null;
     setData((data) => {
+      if (props.items) return props.items;
       data.splice(0, data.length);
       return data;
     });
@@ -141,7 +141,9 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
   };
 
   const syncDataCore = async () => {
+    if (!props.path) return;
     try {
+      const service = feathers.service(props.path);
       let q = {
         ...query,
         ...param,

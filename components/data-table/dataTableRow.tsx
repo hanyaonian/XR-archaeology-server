@@ -247,7 +247,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
         res = (
           <div
             key={`${header.value}_${value}`}
-            className="data-table-cell  max-h-80 first:font-medium first:text-gray-900"
+            className="data-table-cell first:font-medium first:text-gray-900"
             style={{ gridColumn: `span ${header.flex ?? 1} / span ${header.flex ?? 1} ` }}
           >
             {value.toString()}

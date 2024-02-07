@@ -1,6 +1,18 @@
 import _ from "lodash";
 import { useFeathers } from "@/contexts/feathers";
-import { useEffect, useState, useMemo, useRef, ReactNode, forwardRef, useImperativeHandle, useCallback, useLayoutEffect } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  ReactNode,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+  useLayoutEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import DataTableRow from "./dataTableRow";
 import { DataTableHeader } from "../editor/def";
 import { OpenDialog } from "@/layouts/default";
@@ -32,7 +44,7 @@ export interface DataTableProps<T> {
 
   default?: T | (() => T);
   idProperty?: keyof T;
-  editor?: ReactNode | ((item: T, setItem: (item: T) => void) => ReactNode);
+  editor?: ReactNode | ((item: T, setItem: Dispatch<SetStateAction<T>>) => ReactNode);
   renderItem?: ReactNode | ((props: any) => ReactNode);
 
   openDialog?: OpenDialog;
