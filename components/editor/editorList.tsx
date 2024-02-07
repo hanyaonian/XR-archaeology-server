@@ -62,7 +62,7 @@ export default function EditorList({ defaultItems, field, onChange, openDialog }
   }
 
   return (
-    <div className="rounded-md flex flex-col gap-y-10">
+    <div className="rounded-xl bg-white p-4 flex flex-col gap-y-10">
       <ul className="flex flex-col gap-y-8">
         {items.map((item, index) => (
           <li

@@ -66,7 +66,7 @@ function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
           <div className="scrollable overflow-auto absolute top-0 bottom-0 left-0 right-0">
             <div className="edit-content">
               {/* main content */}
-              <div className="rounded-xl bg-white p-4">
+              <div className="">
                 <div className="flex flex-col">{renderAttributes()}</div>
               </div>
               {/* Side bar */}

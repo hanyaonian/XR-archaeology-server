@@ -24,8 +24,30 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
   let result: JSX.Element;
   let defaultValue = item?.[field.path] ?? field.defaultValue;
   let props = field.props;
-  let options = field.schema.options;
+  let options = field.schema?.options;
   switch (field.component) {
+    case "editor-group":
+      result = (
+        <div className="rounded-xl bg-white p-4">
+          {field.default.map((f) =>
+            computeComponent({
+              field: f,
+              item: item,
+              onChange: (value) => {
+                item ??= {};
+                item[f.path] = value;
+                onChange(item);
+              },
+              openDialog,
+            })
+          )}
+        </div>
+      );
+      break;
+    case "editor-list":
+      result = <EditorList defaultItems={defaultValue} field={field} onChange={onChange} openDialog={openDialog} />;
+      break;
+
     case "text-field":
       result = (
         <TextField
@@ -36,6 +58,7 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
           readOnly={props.readOnly}
           maxLength={options?.maxLength}
           minLength={options?.minLength}
+          multiLine={props.multiLine}
           min={typeof options?.min === "number" ? options.min : undefined}
           max={typeof options?.max === "number" ? options.max : undefined}
           type={props?.type}
@@ -58,7 +81,11 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
       );
       break;
     case "checkbox":
-      result = <input key={key} type="checkbox" />;
+      result = (
+        <div className="flex justify-start">
+          <input key={key} type="checkbox" className="size-8" defaultValue={defaultValue} onChange={onChange} />
+        </div>
+      );
       break;
     case "group-object":
       if (field.inner) {
@@ -111,9 +138,7 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
     case "object-picker-new":
       result = <ObjectPickerNew path={props.path} inputValue={defaultValue} onChange={onChange} multiple={props.multiple} items={props?.items} />;
       break;
-    case "editor-list":
-      result = <EditorList defaultItems={defaultValue} field={field} onChange={onChange} openDialog={openDialog} />;
-      break;
+
     default:
       break;
   }

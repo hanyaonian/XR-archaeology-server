@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { DataTableHeader } from "../editor/def";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MdEdit, MdFileCopy, MdDelete } from "react-icons/md";
 import { useFeathers } from "@/contexts/feathers";
 import Link from "next/link";
@@ -27,60 +27,10 @@ type FetchItem = {
 
 function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, deleteItem, ...props }: DataTableRowProps<T>) {
   const [showActions, setShowActions] = useState(false);
-  const [fetchItems, setFetchItems] = useState<FetchItem[]>([]);
+  const fetchItems = useRef<FetchItem[] | null>(null);
   const pendingFetch: Promise<void>[] = [];
-  const [fetchCache, setFetchCache] = useState<Record<string, any>>({});
+  const fetchCache = useRef<Record<string, any>>({});
   const feathers = useFeathers();
-
-  useEffect(() => {
-    if (fetchItems.length) {
-      const finalize = () => {
-        const index = pendingFetch.indexOf(fetchPromise);
-        index !== -1 && pendingFetch.splice(index, 1);
-      };
-      const fetchPromise = (async () => {
-        const fetches = fetchItems;
-        setFetchItems([]);
-        const types = _.groupBy(fetches, (it) => it.prefix + it.source);
-        await Promise.all(
-          _.map(types, async (it, s) => {
-            const { header, prefix, idProperty, source } = it[0];
-            const service = feathers.service(source);
-            // Split fetching list into chunk of 100 (or less)
-            const chunks = _.chunk(it, 100);
-            for (let chunk of chunks) {
-              const ids = chunk.map((it) => it.id);
-
-              try {
-                const items = await service.find({
-                  query: {
-                    [idProperty]: {
-                      $in: ids,
-                    },
-                    $limit: 100,
-                    $populate: header.populate,
-                  },
-                });
-
-                for (let data of items.data) {
-                  const store = fetchCache[prefix + data[idProperty]];
-                  if (store) store.value = data;
-                  setFetchCache((cache) => {
-                    cache[prefix + data[idProperty]] = store;
-                    return cache;
-                  });
-                }
-              } catch (error) {
-                console.warn(`Error fetching ${source}: ${idProperty} = ${ids.join(",")}`, error);
-              }
-            }
-          })
-        );
-      })();
-      fetchPromise.then(finalize, finalize);
-      pendingFetch.push(fetchPromise);
-    }
-  }, [fetchItems]);
 
   const getValueByPath = (item: any, path: string | string[]) => {
     if (Array.isArray(path)) {
@@ -132,25 +82,21 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
 
         let sItem: any = null;
         if (header.source) {
-          sItem = fetchCache[prefix + value];
+          sItem = fetchCache.current[prefix + value];
 
           if (sItem === undefined) {
-            setFetchCache((cache) => {
-              cache[prefix + value] = { value: null };
-              return cache;
-            });
+            fetchCache.current = { ...fetchCache.current, [prefix + value]: { value: null } };
 
+            queuePending();
             if (value) {
-              setFetchItems((items) => [
-                ...items,
-                {
-                  source: header.source,
-                  header,
-                  prefix,
-                  id: value,
-                  idProperty,
-                },
-              ]);
+              fetchItems.current ??= [];
+              fetchItems.current.push({
+                source: header.source,
+                header,
+                prefix,
+                id: value,
+                idProperty,
+              });
             }
             if (objectOnly || header.objectOnly) return null;
           } else if (sItem?.value === null) {
@@ -187,8 +133,61 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
         return values.map((value) => (value === undefined ? "" : value)).join(",");
       }
     },
-    [fetchCache]
+    [fetchCache.current]
   );
+
+  function queuePending() {
+    if (!fetchItems.current) {
+      fetchItems.current = [];
+      const fetchPromise = (async () => {
+        await Promise.resolve();
+        const fetches = [...fetchItems.current];
+        fetchItems.current = null;
+        const types = _.groupBy(fetches, (it) => it.prefix + it.source);
+
+        await Promise.all(
+          _.map(types, async (it, s) => {
+            const { header, prefix, idProperty, source } = it[0];
+            const service = feathers.service(source);
+            // Split fetching list into chunk of 100 (or less)
+            const chunks = _.chunk(it, 100);
+            for (let chunk of chunks) {
+              const ids = chunk.map((it) => it.id);
+
+              try {
+                const items = await service.find({
+                  query: {
+                    [idProperty]: {
+                      $in: ids,
+                    },
+                    $limit: 100,
+                    $populate: header.populate,
+                  },
+                });
+
+                for (let data of items.data) {
+                  const store = fetchCache.current[prefix + data[idProperty]];
+
+                  if (store) {
+                    store.value = data;
+                    fetchCache.current = { ...fetchCache.current, [prefix + data[idProperty]]: store };
+                  }
+                }
+              } catch (error) {
+                console.warn(`Error fetching ${source}: ${idProperty} = ${ids.join(",")}`, error);
+              }
+            }
+          })
+        );
+      })();
+      const finalize = () => {
+        const index = pendingFetch.indexOf(fetchPromise);
+        index !== -1 && pendingFetch.splice(index, 1);
+      };
+      fetchPromise.then(finalize, finalize);
+      pendingFetch.push(fetchPromise);
+    }
+  }
 
   const getLink = (item: any, header: DataTableHeader) => {
     if (header.noLink || header.multiple) return;

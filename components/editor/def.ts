@@ -89,6 +89,8 @@ export interface EditorField {
   component?: string;
   /** For nested structure schema or object, especially array of ref objectID */
   inner?: EditorField[];
+  /** For [editor-group] to store default field defined in schema */
+  default?: EditorField[];
   /** component props */
   props?: Record<string, any>;
 }

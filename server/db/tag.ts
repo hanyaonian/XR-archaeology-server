@@ -20,7 +20,7 @@ const schema: SchemaDefExt = {
       headers: ["name", "createdAt"],
       name: "Tags",
       icon: "MdTag",
-      group: "Artifact",
+      group: "Archaeology",
     },
   },
 };

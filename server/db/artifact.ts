@@ -34,7 +34,7 @@ const schema: SchemaDefExt = {
       headers: ["name", "desc", "tags", "latitude", "longitude", "createdAt"],
       icon: "MdStar",
       name: "Artifacts",
-      group: "Artifact",
+      group: "Archaeology",
     },
   },
 };

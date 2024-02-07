@@ -1,5 +1,5 @@
 import { EditorField, GUIHeader } from "@/components/editor/def";
-import { SchemaDefJson, SchemaDefParamsService, EditorConfig as DBEditorConfig, SchemaFieldJson } from "@/server/feathers/schema";
+import { SchemaDefJson, SchemaDefParamsService, EditorConfig as DBEditorConfig, SchemaFieldJson, EditorGroupOptions } from "@/server/feathers/schema";
 import { Application } from "@feathersjs/feathers";
 import { EditorConfig } from "./def";
 import { resolveRootPath } from "./utils";
@@ -175,7 +175,7 @@ export class SchemaHelper {
     return item;
   }
 
-  public sortFields(fields: EditorField[]): EditorField[] {
+  public sortFields(fields: EditorField[], groupField = true): EditorField[] {
     fields = fields.filter((it) => !it.optional);
     const unsorted = fields.filter((it) => !it.sort);
     let sorted = fields.filter((it) => !!it.sort);
@@ -210,6 +210,102 @@ export class SchemaHelper {
         unsorted.push(...remains);
         break;
       }
+    }
+
+    if (groupField) {
+      const groupDict: Record<string, EditorField> = {};
+      const rootGroups: EditorField[] = [];
+
+      let hasGroupDef = false;
+      let hasNonGroupDef = false;
+      for (let item of unsorted) {
+        if (item.gp === undefined) {
+          hasNonGroupDef = true;
+        } else {
+          hasGroupDef = true;
+        }
+      }
+
+      for (let item of unsorted.slice()) {
+        if (item.component === "editor-group") continue;
+        if (!item.gp) {
+          if (item.component === "editor-list") {
+            rootGroups.push(item);
+            continue;
+          }
+          if (hasGroupDef) {
+            // add an advanced group
+            item.gp = "";
+          } else {
+            // add an empty group
+            item.gp = "adv";
+          }
+        }
+        if (!groupDict[item.gp]) {
+          const groupParts = item.gp.split(".");
+          if (groupParts.length > 1) {
+            let parent: EditorField;
+            for (let i = 0; i < groupParts.length; i++) {
+              const curPath = groupParts.slice(0, i + 1).join(".");
+              let curDict = groupDict[curPath];
+              if (!curDict) {
+                curDict = groupDict[curPath] = {
+                  component: "editor-group",
+                  props: {},
+                  default: [],
+                  path: curPath,
+                } as EditorField;
+                if (i === 0) {
+                  if (item.gp === "") {
+                    rootGroups.unshift(curDict);
+                  } else {
+                    rootGroups.push(curDict);
+                  }
+                }
+                if (parent) {
+                  parent.default.push(curDict);
+                }
+              }
+              if (i !== groupParts.length - 1) {
+                if (!curDict.group) curDict.group = {};
+                curDict.group.hasInnerGroup = true;
+              }
+              parent = curDict;
+            }
+          } else {
+            const curDict = (groupDict[item.gp] = {
+              component: "editor-group",
+              props: {},
+              default: [],
+              path: item.gp,
+            } as EditorField);
+            if (item.gp === "") {
+              rootGroups.unshift(curDict);
+            } else {
+              rootGroups.push(curDict);
+            }
+          }
+        }
+        groupDict[item.gp].default.push(item);
+      }
+      for (let [gpName, gp] of Object.entries(groupDict)) {
+        const gpConfig: EditorGroupOptions = _.merge({}, ..._.map(gp.default, (p) => p.group), gp.group);
+        if (gpConfig.name) {
+          gp.name = gpConfig.name;
+          //  gp.nameField = "label";
+        }
+        if (gpConfig.props) {
+          Object.assign(gp.props, gpConfig.props);
+        }
+
+        //  gp.displayPath = "groups." + gpName;
+        gp.inner = gp.default.filter((it) => it.group?.preview);
+        // gp.default = gp.default.filter((it) => !it.group?.preview);
+        if (gp.inner.length) {
+          gp.props.hasPreview = true;
+        }
+      }
+      return rootGroups;
     }
 
     return unsorted;
