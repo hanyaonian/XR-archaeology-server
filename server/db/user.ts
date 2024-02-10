@@ -3,8 +3,14 @@ import type { SchemaDefExt } from "../feathers/schema";
 import { MModel, MongoSchema } from "../feathers/schemas";
 
 const schema: SchemaDefExt = {
-  name: { type: String },
+  firstName: { type: String, index: true, required: true },
+  lastName: { type: String, index: true, required: true },
+  username: { type: String },
   email: { type: String, index: { unique: true } },
+  /** Stores both area code and mobile number */
+  phone: { type: String },
+  /** Store date in format of MM/YYYY */
+  dob: { type: Date },
   password: { type: String, minlength: 8, $editor: { hidden: true } },
   createdAt: { type: Date, default: Date, $editor: { props: { readOnly: true } } },
 

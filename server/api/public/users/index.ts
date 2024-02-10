@@ -6,7 +6,6 @@ import { HookContext, NextFunction } from "@feathersjs/feathers";
 import * as authentication from "@feathersjs/authentication";
 
 import _ from "lodash";
-import { errors } from "@feathersjs/errors";
 
 let def = service({
   Model: db.User,
@@ -19,10 +18,10 @@ export const hooks = {
     create: [
       iff(isProvider("external"), discard("userID", "verified", "verifyToken", "verifyTrial", "verifyTime", "resetToken", "resetTrial", "resetTime")),
       local.hooks.hashPassword("password"),
-      async (hook: HookContext, next: NextFunction) => {
-        const existUser = await hook.app.service("users").find(hook.params);
-        if (existUser) throw new errors.GeneralError("User is already registered");
-        await next();
+      (hook: HookContext) => {
+        const collections = hook.data?.collections || [];
+        const bookmarks = hook.data?.bookmarks || [];
+        hook.data = { ...hook.data, collections, bookmarks, createdAt: new Date() };
       },
     ],
     patch: [
