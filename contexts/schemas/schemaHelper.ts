@@ -1,4 +1,4 @@
-import { EditorField, GUIHeader } from "@/components/editor/def";
+import { EditorField, GUIHeader } from "@components/editor/def";
 import { SchemaDefJson, SchemaDefParamsService, EditorConfig as DBEditorConfig, SchemaFieldJson, EditorGroupOptions } from "@/server/feathers/schema";
 import { Application } from "@feathersjs/feathers";
 import { EditorConfig } from "./def";
@@ -155,7 +155,8 @@ export class SchemaHelper {
     }
 
     let item = this.allRoutes[route];
-    if (item) return item;
+    console.log("lookup", item);
+    if (item !== undefined) return item;
     const schema = this.pathToSchemas[route.substring(1)];
     if (schema) {
       const serviceConfig = schema.params.services?.[this.appName];

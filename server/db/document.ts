@@ -1,9 +1,7 @@
 import type { SchemaDefExt } from "../feathers/schema";
 
 const schema: SchemaDefExt = {
-  name: { type: String, index: true },
-  briefDesc: { type: String, $editor: { props: { multiLine: true } } },
-  desc: { type: String, $editor: { props: { multiLine: true } } },
+  name: { type: String, index: true, required: true },
   content: [
     {
       heading: { type: String },
@@ -11,10 +9,8 @@ const schema: SchemaDefExt = {
       images: [{ type: "id", ref: "Attachment", fileType: "image" }],
     },
   ],
-  thumbnails: [{ type: "id", ref: "Attachment", fileType: "image" }],
-
-  /** Difficulty of the route */
-  difficulty: { type: String, enum: ["Easy", "Moderate", "Difficult"], default: "Moderate" },
+  /** It is used to determine which page should this document be at the app */
+  page: { type: String },
 
   order: { type: Number, default: 0, min: 0, required: true },
 
@@ -22,10 +18,10 @@ const schema: SchemaDefExt = {
 
   $services: {
     services: {
-      routes: {},
+      documents: {},
     },
     public: {
-      routes: {
+      documents: {
         hooks_Auth: ["readOnlyHooks"],
       },
     },
@@ -33,10 +29,8 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "order"],
-      name: "Routes",
-      group: "Hike",
-      icon: "MdOutlineRoute",
-      groupIcon: "MdLandscape",
+      name: "Documents",
+      icon: "MdEditDocument",
     },
   },
 };

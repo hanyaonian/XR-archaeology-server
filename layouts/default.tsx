@@ -5,9 +5,9 @@ import { MdMenu } from "react-icons/md";
 import { useRouter } from "next/router";
 import { useHeaderContext } from "@/contexts/header";
 import { useSchemasContext } from "@/contexts/schemas";
-import { GUIHeader } from "@/components/editor/def";
-import DialogHost, { ComponentType } from "@/components/dialogHost";
-import Navbar from "@/components/navbar";
+import { GUIHeader } from "@components/editor/def";
+import DialogHost, { ComponentType } from "@components/dialogHost";
+import Navbar from "@components/navbar";
 
 export interface OpenDialogProps {
   component: Promise<ComponentType | any> | ComponentType | ReactElement;

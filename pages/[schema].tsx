@@ -2,17 +2,17 @@ import { NextPageWithLayout } from "./_app";
 
 import { Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DefaultLayout, { OpenDialog } from "@/layouts/default";
-import DataTable from "@/components/data-table/dataTable";
-import { EditorField } from "@/components/editor/def";
+import DataTable from "@components/data-table/dataTable";
+import { EditorField } from "@components/editor/def";
 import { EditorConfig } from "@/contexts/schemas/def";
 import { useHeaderContext } from "@/contexts/header";
 import { useSchemasContext } from "@/contexts/schemas";
 import { useRouter } from "next/router";
 import _ from "lodash";
-import { computeComponent } from "@/components/editor";
+import { computeComponent } from "@components/editor";
 
 const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
-  const { query } = useRouter();
+  const { query: routerQuery } = useRouter();
   const schemas = useSchemasContext();
   const { setActions } = useHeaderContext();
 
@@ -27,11 +27,13 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
   const headers = useMemo(() => config?.headers ?? [], [config]);
 
   const [fields, setFields] = useState<EditorField[]>([]);
+  const [query, setQuery] = useState({});
+
   const tableRef = useRef(null);
 
   useEffect(() => {
     initConfig();
-  }, [query]);
+  }, [routerQuery]);
 
   useEffect(() => {
     setActions([
@@ -52,7 +54,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
   }, [config]);
 
   function initConfig() {
-    const route = "/" + (typeof query.schema === "string" ? query.schema : query.schema[0]);
+    const route = "/" + (typeof routerQuery.schema === "string" ? routerQuery.schema : routerQuery.schema[0]);
     const config = schemas.lookupRoute(route);
 
     if (!config) {
@@ -62,8 +64,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     setConfig(config);
     const fields = schemas.sortFields(config.fields ?? []);
     setFields(fields);
-    console.log("fields", fields);
-    console.log("headers", config.headers);
+    setQuery((query) => _.merge(query, config.filter || {}));
   }
 
   const renderEditor = (item: any, setItem: Dispatch<SetStateAction<any>>) => {
@@ -88,6 +89,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
         canClone={canClone}
         canEdit={canPatch}
         canRemove={canRemove}
+        query={query}
         idProperty="_id"
         noPaginate={typeof config.paginate === "boolean" && !config.paginate}
         headers={headers}

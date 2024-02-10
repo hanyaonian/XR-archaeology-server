@@ -1,4 +1,4 @@
-import { DataTableHeader, EditorField } from "@/components/editor/def";
+import { DataTableHeader, EditorField } from "@components/editor/def";
 import {
   SchemaDefParamsService,
   EditorConfig as DBEditorConfig,
@@ -78,7 +78,8 @@ export class EditorConfig {
     const { path, paginate } = serviceConfig;
     this.name = config.name ?? (config.path || path);
 
-    this.filter = config.filer;
+    this.filter = config.filter;
+
     this.icon = config.icon;
     this.group = config.group;
     this.groupIcon = config.groupIcon;

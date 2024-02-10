@@ -3,7 +3,7 @@ import { useFeathers } from "@/contexts/feathers";
 import { useEffect, useState, useMemo, useRef, ReactNode, forwardRef, useImperativeHandle, useCallback, useLayoutEffect } from "react";
 import { DataTableHeader } from "./editor/def";
 import { OpenDialog } from "@/layouts/default";
-import { EditDialogProps } from "@/components/dialogs/editDialog";
+import { EditDialogProps } from "@components/dialogs/editDialog";
 import DataTableRow from "./data-table/dataTableRow";
 
 /**
@@ -91,7 +91,6 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
       if (scrollTop >= scrollTopMax) {
         // scroll to bottom
         syncData();
-        console.log("scroll to bottom");
       }
     }
 
@@ -107,10 +106,6 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
   useEffect(() => {
     reset();
   }, [query]);
-
-  useEffect(() => {
-    console.log(`should render`);
-  }, [data]);
 
   // pass public methods to parent
   useImperativeHandle(ref, () => {
@@ -238,7 +233,7 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
     }
 
     const result = await props.openDialog?.({
-      component: import("@/components/dialogs/editDialog"),
+      component: import("@components/dialogs/editDialog"),
       props: {
         source: newItem,
         origin,

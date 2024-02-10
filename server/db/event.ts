@@ -6,10 +6,11 @@ const schema: SchemaDefExt = {
   content: { type: String, $editor: { props: { multiLine: true } } },
   images: [{ type: "id", ref: "Attachment", fileType: "image" }],
 
-  venue: { type: "id", ref: "Venue" },
-  startDate: { type: Date },
+  venue: { type: "id", ref: "Attraction" },
+  startDate: { type: Date, required: true },
   endDate: { type: Date },
 
+  order: { type: Number, default: 0, min: 0 },
   createdAt: { type: Date, default: Date },
 
   $services: {
@@ -27,7 +28,6 @@ const schema: SchemaDefExt = {
       headers: ["name", "order"],
       name: "Event",
       icon: "MdEvent",
-      group: "Events",
       groupIcon: "MdEmojiEmotions",
     },
   },

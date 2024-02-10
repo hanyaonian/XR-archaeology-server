@@ -4,6 +4,7 @@ import { getNameField, getNameFields } from "@/contexts/schemas/utils";
 import { SchemaFieldJson } from "@/server/feathers/schema";
 import _ from "lodash";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { checkId, getId } from "./utils";
 
 export interface Props {
   path: string;
@@ -28,7 +29,7 @@ function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, requ
   const schemas = useSchemasContext();
   const feathers = useFeathers();
   const idProperty = props.idProperty ?? "_id";
-  const multiple = props.multiple ?? true;
+  const multiple = props.multiple ?? false;
 
   const [nameFields, setNameFields] = useState<SchemaFieldJson[]>([]);
   const [items, setItems] = useState(props.items ?? []);
@@ -74,14 +75,6 @@ function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, requ
     }
   };
 
-  function getId(item: any) {
-    return typeof item === "string" ? item : item[idProperty];
-  }
-
-  function checkId(a: any, b: any): boolean {
-    return getId(a) === getId(b);
-  }
-
   function toggle(item: any) {
     if (disabled || readOnly) return;
     if (multiple) {
@@ -101,7 +94,7 @@ function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, requ
 
   function isSelected(item: any): boolean {
     if (multiple) {
-      return !!inputValue?.find((it: any) => checkId(it, item));
+      return !!(inputValue ?? []).find((it: any) => checkId(it, item));
     } else {
       return checkId(inputValue, item);
     }

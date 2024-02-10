@@ -136,7 +136,16 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
       result = <ObjectPickerList path={props.path} defaultValue={defaultValue} onChange={onChange} multiple={props.multiple} items={props?.items} />;
       break;
     case "object-picker-new":
-      result = <ObjectPickerNew path={props.path} inputValue={defaultValue} onChange={onChange} multiple={props.multiple} items={props?.items} />;
+      result = (
+        <ObjectPickerNew
+          path={props.path}
+          inputValue={defaultValue}
+          onChange={onChange}
+          multiple={props.multiple}
+          items={props?.items}
+          required={props?.required}
+        />
+      );
       break;
 
     default:

@@ -40,7 +40,7 @@ function FilePicker<T extends Record<string, any>, K extends keyof T>(props: Fil
     const result = await feathers.service("attachments").find({
       query: { [idProperty]: { $in: list } },
     });
-    console.log(result);
+
     if (Array.isArray(result)) {
       setItems(result);
     } else {
@@ -50,7 +50,7 @@ function FilePicker<T extends Record<string, any>, K extends keyof T>(props: Fil
 
   const pickFile = async () => {
     let res = await props.openDialog?.({
-      component: import("@/components/dialogs/mediaDialog"),
+      component: import("@components/dialogs/mediaDialog"),
       props: { type: props.type ?? "image/*", multiple: multiple },
       className: "media-dialog",
     });

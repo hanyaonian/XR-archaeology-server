@@ -8,7 +8,7 @@ const schema: SchemaDefExt = {
   password: { type: String, minlength: 8, $editor: { hidden: true } },
   createdAt: { type: Date, default: Date, $editor: { props: { readOnly: true } } },
 
-  bookmarks: [{ type: "id", ref: "Artifact" }],
+  bookmarks: [{ type: "id", ref: "Attraction" }],
   collections: [{ type: "id", ref: "Artifact" }],
 
   resetRequired: { type: Boolean, default: false, $editor: "hidden" },

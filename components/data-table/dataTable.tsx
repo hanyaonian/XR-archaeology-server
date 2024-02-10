@@ -16,7 +16,7 @@ import {
 import DataTableRow from "./dataTableRow";
 import { DataTableHeader } from "../editor/def";
 import { OpenDialog } from "@/layouts/default";
-import { EditDialogProps } from "@/components/dialogs/editDialog";
+import { EditDialogProps } from "@components/dialogs/editDialog";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -284,7 +284,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     }
 
     const result = await props.openDialog?.({
-      component: import("@/components/dialogs/editDialog"),
+      component: import("@components/dialogs/editDialog"),
       props: {
         source: newItem,
         origin,

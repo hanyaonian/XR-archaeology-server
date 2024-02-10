@@ -4,7 +4,6 @@ import { computeComponent } from ".";
 import { OpenDialog } from "@/layouts/default";
 import { EditorField } from "./def";
 import { useRef, useState } from "react";
-import def from "@/server/feathers/configs";
 
 export interface Props {
   defaultItems: any[];
@@ -80,7 +79,7 @@ export default function EditorList({ defaultItems, field, onChange, openDialog }
                 <MdMenu />
               </div>
             )}
-            <div className="bg-slate-50 rounded-md p-4" style={editing ? { cursor: "move" } : {}}>
+            <div className="bg-slate-50 rounded-md p-4 w-full" style={editing ? { cursor: "move" } : {}}>
               {field.inner.map((f) =>
                 computeComponent({
                   field: f,

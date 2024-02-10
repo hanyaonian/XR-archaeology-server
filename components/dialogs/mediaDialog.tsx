@@ -11,6 +11,7 @@ import { Application } from "@feathersjs/feathers";
 export interface MediaLibraryProps extends DialogProps<any> {
   type?: string; // default image/*
   multiple?: boolean;
+  defaultValue?: string | string[];
 }
 
 export interface MediaProps {
@@ -44,7 +45,9 @@ function MediaDialog(props: MediaLibraryProps) {
   const feathers = useFeathers();
   const multiple = props.multiple ?? false;
   const [files, setFiles] = useState<FileList>();
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>(
+    Array.isArray(props.defaultValue) ? props.defaultValue : typeof props.defaultValue === "string" ? [props.defaultValue] : []
+  );
   const [curItem, setCurItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +75,7 @@ function MediaDialog(props: MediaLibraryProps) {
         cancel();
         return;
       }
-      console.log(results);
+
       props.modalResult(results);
     } catch (error) {
       alert(`Fail to find attachments ${error}`);
@@ -179,7 +182,7 @@ function MediaDialog(props: MediaLibraryProps) {
             info.progress = progressEvent.loaded / progressEvent.total;
           },
         });
-        console.log(response);
+
         const rinfo = (response.data || {}).info || {};
         _.assign(info, rinfo);
         info.success = true;
