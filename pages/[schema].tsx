@@ -27,7 +27,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
   const headers = useMemo(() => config?.headers ?? [], [config]);
 
   const [fields, setFields] = useState<EditorField[]>([]);
-  const [query, setQuery] = useState({});
+  const query = config?.filter ?? {};
 
   const tableRef = useRef(null);
 
@@ -61,10 +61,10 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
       console.warn(`Route not found ${route}`);
       return;
     }
-    setConfig(config);
+
     const fields = schemas.sortFields(config.fields ?? []);
     setFields(fields);
-    setQuery((query) => _.merge(query, config.filter || {}));
+    setConfig(config);
   }
 
   const renderEditor = (item: any, setItem: Dispatch<SetStateAction<any>>) => {

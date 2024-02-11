@@ -17,6 +17,8 @@ import DataTableRow from "./dataTableRow";
 import { DataTableHeader } from "../editor/def";
 import { OpenDialog } from "@/layouts/default";
 import { EditDialogProps } from "@components/dialogs/editDialog";
+import { MdArrowUpward } from "react-icons/md";
+import TableHeader from "./dataTableHeader";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -35,7 +37,9 @@ export interface DataTableProps<T> {
   path: string;
   headers?: DataTableHeader[];
   noPaginate?: boolean;
-  query?: any;
+  query?: Record<string, any>;
+  defaultSort?: string | string[];
+  defaultSortDesc?: boolean | boolean[];
 
   // tool bar settings
   canEdit?: boolean;
@@ -52,14 +56,13 @@ export interface DataTableProps<T> {
 
 const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(props: DataTableProps<T>, ref) {
   const feathers = useFeathers();
-  const service = feathers.service(props.path);
 
   /** Observable data, only for data that is displayed in table */
   const [data, setData] = useState<T[]>([]);
   /** Store cached data */
   const store: T[] = []; // TODO
 
-  const [headers, setHeaders] = useState<DataTableHeader[]>(props.headers || []);
+  const headers: DataTableHeader[] = props.headers || [];
 
   /** Current page number */
   const [curPage, setCurPage] = useState(0);
@@ -74,6 +77,17 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   /** Page start index. For scroll list jumping to pageIndex */
   var pageStart: number = 0;
   var cursor: number = 0;
+
+  /** sorting */
+  const [sort, setSort] = useState<string[]>([]);
+  const [sortDesc, setSortDesc] = useState<boolean[]>([]);
+  /** real sorting order based on sort and sortDesc */
+  const sortParams = useMemo(() => {
+    if (!sort.length) return undefined;
+    const params = _.fromPairs(sort.map((field, index) => [field, sortDesc[index] ? -1 : 1]));
+    if (!params._id) params._id = 1;
+    return params;
+  }, [sort, sortDesc]);
 
   const scrollRef = useRef(null);
 
@@ -110,6 +124,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     handleResize();
     window.addEventListener("resize", handleResize);
     scrollRef.current.addEventListener("scroll", onScroll);
+
     return () => {
       window.removeEventListener("resize", handleResize);
       scrollRef.current.removeEventListener("scroll", onScroll);
@@ -117,9 +132,12 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   }, [scrollRef.current]);
 
   useEffect(() => {
-    setHeaders(props.headers ?? []);
+    setQuery(props.query ?? {});
+  }, [props.query]);
+
+  useEffect(() => {
     reset();
-  }, [props, query]);
+  }, [props.path, query, sortParams]);
 
   useEffect(() => {
     setPageMax((max) => {
@@ -128,8 +146,13 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   }, [total]);
 
   useEffect(() => {
-    console.log(`should render`);
-  }, [data]);
+    if (props.defaultSort) {
+      const sort = Array.isArray(props.defaultSort) ? [...props.defaultSort] : [props.defaultSort];
+      const sortDesc = Array.isArray(props.defaultSortDesc) ? [...props.defaultSortDesc] : [props.defaultSortDesc];
+      setSort(sort);
+      setSortDesc(sortDesc);
+    }
+  }, [props.defaultSort, props.defaultSortDesc]);
 
   // pass public methods to parent
   useImperativeHandle(ref, () => {
@@ -140,10 +163,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     cursor = 0;
     setTotal(0);
     executor = null;
-    setData((data) => {
-      data.splice(0, data.length);
-      return data;
-    });
+
     syncData();
   };
 
@@ -165,6 +185,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         ...query,
         ...param,
         ...(props.noPaginate ? {} : { $limit: pageCount }),
+        $sort: sortParams,
         $skip: pageStart,
       };
 
@@ -174,7 +195,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
       // Assume service using paginated data
       /**  @type {Paginated} contains total, limit, skip and data */
-      let paged: any = await service.find({ query: q });
+      let paged: any = await feathers.service(props.path).find({ query: q });
       if (props.noPaginate) {
         paged = {
           total: paged.length,
@@ -192,10 +213,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       setTotal(paged.total);
 
       if (!cursor) {
-        setData((data) => {
-          data.splice(0, data.length + 1);
-          return data;
-        });
+        setData([]);
       }
       cursor += count;
       setData(paged.data);
@@ -206,6 +224,43 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       executor = null;
     }
   };
+
+  const toggleSort = useCallback(
+    (header: DataTableHeader, append?: boolean) => {
+      if (!header.sortable) return;
+      const field = header.sortField || header.value;
+      const newSort = [...sort];
+      const newSortDesc = [...sortDesc];
+      if (append) {
+        const index = newSort.indexOf(field);
+        if (index === -1) {
+          newSort.push(field);
+          newSortDesc.push(false);
+        } else {
+          if (newSortDesc[index] === false) {
+            newSortDesc.splice(index, 1, true);
+          } else {
+            newSort.splice(index, 1);
+            newSortDesc.splice(index, 1);
+          }
+        }
+      } else {
+        if (newSort.length === 1 && newSort[0] === field) {
+          if (newSortDesc[0] === false) newSortDesc.splice(0, newSortDesc.length, true);
+          else {
+            newSort.splice(0, newSort.length);
+            newSortDesc.splice(0, newSortDesc.length);
+          }
+        } else {
+          newSort.splice(0, newSort.length, field);
+          newSortDesc.splice(0, newSortDesc.length, false);
+        }
+      }
+      setSort(newSort);
+      setSortDesc(newSortDesc);
+    },
+    [sort, sortDesc]
+  );
 
   const goToPage = async (toPage: number) => {
     const toIndex = Math.max(0, Math.min((total || 0) - 1, toPage * pageCount));
@@ -242,13 +297,11 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       const service = feathers.service(props.path);
       if (editId) {
         res = await service.patch(editId, item);
-
-        setData((data) => {
-          const index = _.findIndex(data, (it) => it[props.idProperty] === res[props.idProperty]);
-          index !== -1 && data.splice(index, 1, res);
-          console.log(`update item at ${index}`);
-          return data;
-        });
+        const list = [...data];
+        const index = _.findIndex(list, (it) => it[props.idProperty] === res[props.idProperty]);
+        index !== -1 && list.splice(index, 1, res);
+        console.log(`update item at ${index}`);
+        setData(list);
       } else {
         res = await service.create(item);
         let results = Array.isArray(res) ? res : [res];
@@ -305,12 +358,12 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         const idProperty = props.idProperty || "_id";
         const id = _.get(item, idProperty);
         await service.remove(id);
-        setData((data) => {
-          const index = data.findIndex((it) => _.get(item, idProperty) === _.get(it, idProperty));
-          index !== -1 && data.splice(index, 1);
-          console.log("[UPDATE STATE] list remains", data.length);
-          return data;
-        });
+
+        const list = [...data];
+        const index = list.findIndex((it) => _.get(item, idProperty) === _.get(it, idProperty));
+        index !== -1 && list.splice(index, 1);
+        console.log("[UPDATE STATE] list remains", list.length);
+        setData(list);
       } catch (error) {
         alert("Delete item fails");
         console.warn(error);
@@ -377,15 +430,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
               <div className="data-table-item-index border-b border-gray-200" />
               <div className="border-b border-gray-200 data-table-row" style={{ gridTemplateColumns: gridTemplateColumns }}>
                 {headers.map((header, index) => (
-                  <div
-                    key={header.value}
-                    className="data-table-cell"
-                    style={{
-                      gridColumn: `span ${header.flex ?? 1} / span ${header.flex ?? 1}`,
-                    }}
-                  >
-                    {header.text}
-                  </div>
+                  <TableHeader key={index} header={header} sort={sort} sortDesc={sortDesc} toggleSort={toggleSort} />
                 ))}
               </div>
             </div>
