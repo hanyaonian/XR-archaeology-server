@@ -19,6 +19,9 @@ import { OpenDialog } from "@/layouts/default";
 import { EditDialogProps } from "@components/dialogs/editDialog";
 import TableHeader from "./dataTableHeader";
 import { MdOutlineEditNote } from "react-icons/md";
+import SearchMenu from "../editor/searchMenu";
+import { EditorConfig } from "@/contexts/schemas/def";
+import { useViewSetting } from "@/contexts/viewSettings";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -53,10 +56,13 @@ export interface DataTableProps<T> {
 
   openDialog?: OpenDialog;
   showViewSetting?: () => Promise<void>;
+  config: EditorConfig;
 }
 
 const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(props: DataTableProps<T>, ref) {
   const feathers = useFeathers();
+  const { state: settings } = useViewSetting();
+  const setting = settings[props.path];
 
   /** Observable data, only for data that is displayed in table */
   const [data, setData] = useState<T[]>([]);
@@ -425,10 +431,14 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
               </button>
             </div>
           </div>
+
           <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
+            <div className="mx-4">
+              <SearchMenu config={props.config} setting={setting} setQuery={setQuery} query={query} />
+            </div>
             {/* Header */}
             <div
-              className="data-table-header flex flex-row sticky top-0 z-30 "
+              className="data-table-header flex flex-row sticky top-0 z-10 "
               ref={(node) => {
                 if (node) {
                   setStickyHeaderHeight(node.clientHeight);

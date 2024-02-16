@@ -605,16 +605,16 @@ video {
   top: 2.5rem;
 }
 
+.top-14 {
+  top: 3.5rem;
+}
+
 .z-10 {
   z-index: 10;
 }
 
 .z-20 {
   z-index: 20;
-}
-
-.z-30 {
-  z-index: 30;
 }
 
 .col-span-12 {
@@ -654,6 +654,11 @@ video {
   margin-right: 0.25rem;
 }
 
+.mx-2 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
 .mx-4 {
   margin-left: 1rem;
   margin-right: 1rem;
@@ -675,10 +680,6 @@ video {
 
 .mb-4 {
   margin-bottom: 1rem;
-}
-
-.mb-6 {
-  margin-bottom: 1.5rem;
 }
 
 .mr-2 {
@@ -703,6 +704,10 @@ video {
 
 .grid {
   display: grid;
+}
+
+.contents {
+  display: contents;
 }
 
 .hidden {
@@ -946,6 +951,10 @@ video {
   row-gap: 0.5rem;
 }
 
+.gap-y-6 {
+  row-gap: 1.5rem;
+}
+
 .gap-y-8 {
   row-gap: 2rem;
 }
@@ -1100,6 +1109,11 @@ video {
   background-color: rgb(241 245 249 / var(--tw-bg-opacity));
 }
 
+.bg-slate-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(226 232 240 / var(--tw-bg-opacity));
+}
+
 .bg-slate-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(248 250 252 / var(--tw-bg-opacity));
@@ -1213,6 +1227,11 @@ video {
   line-height: 1.75rem;
 }
 
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -1245,6 +1264,12 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.shadow-md {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 .filter {
@@ -1697,17 +1722,20 @@ input:focus-visible {
   border-color: rgb(59 130 246 / var(--tw-border-opacity)) !important;
 }
 
-.first\:font-medium:first-child {
-  font-weight: 500;
+.search-field {
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+  border-radius: 0.25rem;
 }
 
-.first\:text-gray-900:first-child {
-  --tw-text-opacity: 1;
-  color: rgb(17 24 39 / var(--tw-text-opacity));
-}
-
-.last\:mb-0:last-child {
-  margin-bottom: 0px;
+.search-menu {
+  max-height: 24rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: center;
+  background: #fff;
+  row-gap: 0.5rem;
+  border-radius: 0.25rem;
 }
 
 .hover\:bg-blue-700:hover {
@@ -1756,6 +1784,10 @@ input:focus-visible {
 }
 
 @media (min-width: 768px) {
+
+  .md\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
 
   .md\:col-span-6 {
     grid-column: span 6 / span 6;

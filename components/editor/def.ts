@@ -94,3 +94,20 @@ export interface EditorField {
   /** component props */
   props?: Record<string, any>;
 }
+
+export interface SearchField {
+  name: string;
+  path: string;
+  edit: EditorField;
+  color?: string;
+  // available conditions
+  conds: string[];
+  // active condition
+  cond: string;
+  header: DataTableHeader;
+
+  /** For text field value on change */
+  value1: any;
+  /** For in-range searching */
+  value2: any;
+}

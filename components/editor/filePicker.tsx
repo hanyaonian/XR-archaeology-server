@@ -9,7 +9,7 @@ export interface FilePickerProps<T extends Record<string, any>, K extends keyof 
   defaultValue?: T | T[K] | (T | T[K])[];
   onChange?: (value: T | T[K] | (T | T[K])[]) => void;
   type?: string; // default "image/*"
-  openDialog: OpenDialog;
+  openDialog?: OpenDialog;
   multiple?: boolean;
   returnObject?: boolean;
 }

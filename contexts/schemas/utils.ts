@@ -10,6 +10,23 @@ import {
 import _ from "lodash";
 
 export const readonlyHeaders = ["modifiedBy", "modified", "createdBy", "createdAt", "_id"];
+const colors = ["green", "purple", "indigo", "blue", "teal", "orange"];
+
+function stringHash(text: string) {
+  var hash = 0,
+    i,
+    chr;
+  for (i = 0; i < text.length; i++) {
+    chr = text.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+export function getSearchColor(value: string) {
+  return colors[Math.abs(stringHash(value || "")) % colors.length];
+}
 
 export function lookupType(type: TypeKeyword | SchemaTypeJson) {
   return typeof type === "string" ? type : type.type;

@@ -4,6 +4,8 @@ export interface ViewSetting {
   headers?: string[];
   sort?: string[];
   sortDesc?: boolean[];
+  /** For saving search fields */
+  searchPin?: string[];
 }
 
 interface ViewSettingState {

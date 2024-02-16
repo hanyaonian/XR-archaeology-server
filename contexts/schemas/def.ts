@@ -1,4 +1,4 @@
-import { DataTableHeader, EditorField } from "@components/editor/def";
+import { DataTableHeader, EditorField, SearchField } from "@components/editor/def";
 import {
   SchemaDefParamsService,
   EditorConfig as DBEditorConfig,
@@ -16,6 +16,7 @@ import {
   getHeaderFieldsByName,
   getNameField,
   getNameFields,
+  getSearchColor,
   isEnum,
   isSortable,
   lookupType,
@@ -47,6 +48,10 @@ export class EditorConfig {
 
   // editor fields
   fields?: EditorField[];
+
+  searchFields: SearchField[];
+  // text search fields
+  textFields: string[];
 
   group?: string;
   groupIcon?: string;
@@ -112,6 +117,7 @@ export class EditorConfig {
       .filter((header) => !this.headers.find((it) => it.value === header.value && !!it));
 
     this.updateDefaultValue();
+    this.updateSearchFields();
   }
 
   /**
@@ -437,5 +443,68 @@ export class EditorConfig {
       defaultValue[field.path] = field.defaultValue;
     }
     this.defaultValue = defaultValue;
+  }
+
+  private updateSearchFields() {
+    const searchFields: SearchField[] = [];
+    const editFields = [...this.fields];
+    const textFields: string[] = [];
+
+    for (const field of editFields) {
+      if (!field) return;
+      const path = field.path;
+      let conds: string[] = [];
+      const f = _.cloneDeep(field);
+      f.props.readOnly = false;
+      switch (f.component) {
+        case "checkbox":
+          conds = ["eq", "ne"];
+          break;
+        case "text-field":
+          if (lookupType(f.schema.type) === "id") continue;
+          if (f.props.type === "number") conds = ["lt", "gt", "lte", "gte", "eq", "ne", "inRange"];
+          else {
+            conds = ["contains", "notContains"];
+            textFields.push(path);
+          }
+          break;
+        case "date-picker":
+          conds = ["inRange", "lt", "gt", "lte", "gte", "eq", "ne"];
+          break;
+        case "object-picker-list":
+        case "object-picker-new":
+          conds = ["in", "nin"];
+          break;
+
+        case "image-picker":
+        case "file-picker":
+        case "uploader":
+          continue;
+
+        default:
+          continue;
+      }
+      f.props.required = false;
+      f.props.clearable = true;
+      f.props.hideDetails = true;
+      const header = this.getHeader(f.schema);
+      if (header) {
+        if (f.props.multiple) header.multiple = true;
+        header.value = "";
+        searchFields.push({
+          name: field.name,
+          path: path,
+          edit: f,
+          conds,
+          cond: conds[0],
+          header,
+          color: getSearchColor(path),
+          value1: undefined,
+          value2: undefined,
+        });
+      }
+    }
+    this.searchFields = searchFields;
+    this.textFields = textFields;
   }
 }

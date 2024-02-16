@@ -67,7 +67,7 @@ function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
             <div className="edit-content">
               {/* main content */}
               <div className="">
-                <div className="flex flex-col">{renderAttributes()}</div>
+                <div className="flex flex-col gap-y-6">{renderAttributes()}</div>
               </div>
               {/* Side bar */}
               <div>

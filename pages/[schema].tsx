@@ -83,7 +83,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     return fields.map((field) => {
       return computeComponent({
         field,
-        item: item,
+        item,
         onChange: (value: any) => {
           setItem((item) => ({ ...item, [field.path]: value }));
         },
@@ -119,6 +119,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
         editor={renderEditor}
         openDialog={openDialog}
         showViewSetting={showViewSetting}
+        config={config}
       />
     );
   } else {

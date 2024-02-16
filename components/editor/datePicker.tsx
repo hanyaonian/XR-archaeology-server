@@ -10,13 +10,11 @@ export interface Props {
   readOnly?: boolean;
   min?: Date;
   max?: Date;
-  key?: string | number | null;
 }
 
-export default function DatePicker({ inputValue, onChange, required, readOnly, min, max, key }: Props) {
+export default function DatePicker({ inputValue, onChange, required, readOnly, min, max }: Props) {
   return (
     <input
-      key={key}
       value={inputValue || ""}
       onChange={(e) => {
         const value = e.target.value;

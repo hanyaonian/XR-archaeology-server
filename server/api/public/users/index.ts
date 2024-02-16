@@ -9,6 +9,7 @@ import _ from "lodash";
 
 let def = service({
   Model: db.User,
+  whitelist: ["$regex", "$options"],
 });
 
 export default def;

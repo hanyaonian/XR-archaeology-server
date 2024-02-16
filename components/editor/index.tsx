@@ -16,13 +16,14 @@ export interface Props {
   field: EditorField;
   item: any;
   onChange?: (value: any) => void;
-  openDialog: OpenDialog;
+  openDialog?: OpenDialog;
   key?: string | number | null | undefined;
+  showLabel?: boolean;
 }
 
-export function computeComponent({ field, item, onChange, openDialog, key }: Props) {
+export function computeComponent({ field, item, onChange, openDialog, key, showLabel }: Props) {
   let result: JSX.Element;
-  let defaultValue = item?.[field.path] ?? field.defaultValue;
+  let defaultValue = (typeof item === "object" ? item?.[field.path] : item) ?? field.defaultValue;
   let props = field.props;
   let options = field.schema?.options;
   switch (field.component) {
@@ -70,7 +71,6 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
       let value = typeof defaultValue === "string" ? moment(defaultValue).format("YYYY-MM-DDTHH:MM") : "";
       result = (
         <DatePicker
-          key={key}
           inputValue={value}
           onChange={onChange}
           required={props.required}
@@ -152,9 +152,9 @@ export function computeComponent({ field, item, onChange, openDialog, key }: Pro
       break;
   }
   return (
-    <div className="flex flex-col gap-y-2 mb-6 last:mb-0" key={field.path}>
+    <div className="flex flex-col gap-y-2 " key={`${field.path}_${key}`}>
       {/* TODO: translate key to label */}
-      <label>{field.name}</label>
+      {(showLabel ?? true) && <label>{field.name}</label>}
       {result}
     </div>
   );

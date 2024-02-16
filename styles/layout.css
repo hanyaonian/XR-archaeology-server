@@ -317,3 +317,17 @@ input:focus-visible {
 .object-picker-new .item-active {
   @apply border-2 border-blue-500 !important;
 }
+
+.search-field {
+  border: 1px solid theme(colors.gray.300);
+  @apply rounded box-border;
+}
+
+.search-menu {
+  max-height: theme(height.96);
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: center;
+  background: theme(colors.white);
+  @apply rounded gap-y-2;
+}

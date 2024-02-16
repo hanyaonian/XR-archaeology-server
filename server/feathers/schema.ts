@@ -622,7 +622,7 @@ export default {
               container._services[key][path] = {
                 default:
                   def.paginate === false
-                    ? service({ Model: model, multi: def.multi })
+                    ? service({ Model: model, multi: def.multi, whitelist: ["$regex", "$options"] })
                     : service({
                         Model: model,
                         paginate:
@@ -633,6 +633,7 @@ export default {
                               }
                             : def.paginate,
                         multi: def.multi,
+                        whitelist: ["$regex", "$options"],
                       }),
                 ...def,
               };

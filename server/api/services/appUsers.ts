@@ -7,6 +7,7 @@ let def = service({
     default: 10,
     max: 100,
   },
+  whitelist: ["$regex", "$options"],
 });
 
 export default def;
