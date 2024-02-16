@@ -31,21 +31,21 @@ function NavbarItem({ item, className }: Props) {
 
   return (
     <div>
-      <div className={`navbar-item ${query.schema === href ? "navbar-item-active" : ""} ${className}`} onClick={onClick}>
+      <div className={`navbar-item ${query.schema === href ? "navbar-item-active" : ""} ${className ?? ""}`} onClick={onClick}>
         <div role="button" onClick={onClick} className="item-pad">
           <div className="flex flex-row items-center gap-x-2">
             <div className="!h-6 !w-6 place-self-center place-content-center self-center">
               <IconComponent size={24} />
             </div>
             <span className="overflow-hidden grow shrink mini-hide text-clip whitespace-nowrap">{item.title}</span>
-            {hasChild && <MdOutlineChevronRight size={24} className={`mini-hide ${expand ? "expanded" : ""}`} />}
+            {hasChild && <MdOutlineChevronRight size={24} className={`transition ease-in-out delay-50 mini-hide ${expand ? "expanded" : ""}`} />}
           </div>
         </div>
       </div>
       {expand && (
-        <div>
+        <div className="navbar-group">
           {item.items.map((it, index) => (
-            <NavbarItem key={index} item={it} className="pl-4" />
+            <NavbarItem key={index} item={it} className="" />
           ))}
         </div>
       )}

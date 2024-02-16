@@ -60,7 +60,7 @@ export default function TextField({
         return (
           <input
             key={key}
-            value={inputValue || ""}
+            value={inputValue?.toString() ?? ""}
             onChange={(e) => {
               const value = e.target.value;
               try {

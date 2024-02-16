@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MdEdit, MdFileCopy, MdDelete } from "react-icons/md";
 import { useFeathers } from "@/contexts/feathers";
 import Link from "next/link";
+import { getThumbURL } from "../dialogs/mediaDialog";
 
 export type DataTableRowProps<T> = {
   index: number;
@@ -58,6 +59,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
   const getValue = useCallback(
     (item: any, header: DataTableHeader, objectOnly?: boolean) => {
       const value = header.value ? getValueByPath(item, header.value) : item;
+
       let list = header.multiple ? value || [] : [value];
 
       if (header.unique) {
@@ -107,7 +109,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
           }
         }
 
-        if (typeof value !== "boolean" && !value) {
+        if (typeof value !== "number" && typeof value !== "boolean" && !value) {
           return value;
         }
 
@@ -223,8 +225,16 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
 
     switch (header.type) {
       case "thumbURL":
+      case "thumbItem":
+        if (value) {
+          res = <img key={`${header.value}`} src={getThumbURL(value, feathers)} style={{ width: 50, padding: 1 }} />;
+        }
+        break;
       case "thumb":
-        // image
+        if (typeof value === "string" && value.indexOf(",") !== -1) {
+          value = value.split(",")[0];
+        }
+        res = <img key={`${header.value}`} src={getThumbURL(value, feathers)} style={{ width: 50, padding: 1 }} />;
         break;
       case "multi":
         // array
@@ -232,14 +242,15 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
           if (!value?.length) return;
           return (
             <div>
-              {(value || []).map((it) => (
-                <div>{(header.inner || []).map((h) => renderCell(it, h))}</div>
+              {(value || []).map((it, index) => (
+                <div key={index}>{(header.inner || []).map((h) => renderCell(it, h))}</div>
               ))}
             </div>
           );
         } else if (value) {
           // object
-          return <div>{(header.inner || []).map((h) => renderCell(value, h))}</div>;
+
+          return <div key={`${header.value}`}>{(header.inner || []).map((h) => renderCell(value, h))}</div>;
         }
         break;
       default:
@@ -255,7 +266,7 @@ function DataTableRow<T>({ index, headers, item, gridTemplateColumns, editItem, 
         break;
     }
     if (link) {
-      <Link href={link}>{res}</Link>;
+      return <Link href={link}>{res}</Link>;
     }
     return res;
   };

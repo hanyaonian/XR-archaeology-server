@@ -17,8 +17,8 @@ import DataTableRow from "./dataTableRow";
 import { DataTableHeader } from "../editor/def";
 import { OpenDialog } from "@/layouts/default";
 import { EditDialogProps } from "@components/dialogs/editDialog";
-import { MdArrowUpward } from "react-icons/md";
 import TableHeader from "./dataTableHeader";
+import { MdOutlineEditNote } from "react-icons/md";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -52,6 +52,7 @@ export interface DataTableProps<T> {
   renderItem?: ReactNode | ((props: any) => ReactNode);
 
   openDialog?: OpenDialog;
+  showViewSetting?: () => Promise<void>;
 }
 
 const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(props: DataTableProps<T>, ref) {
@@ -181,6 +182,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   const syncDataCore = async () => {
     try {
+      const list = [...data];
       let q = {
         ...query,
         ...param,
@@ -213,10 +215,12 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       setTotal(paged.total);
 
       if (!cursor) {
-        setData([]);
+        list.splice(0, list.length);
       }
       cursor += count;
-      setData(paged.data);
+      list.push(...paged.data);
+
+      setData(list);
     } catch (error) {
       console.warn("fetching error", error);
       throw error;
@@ -300,7 +304,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         const list = [...data];
         const index = _.findIndex(list, (it) => it[props.idProperty] === res[props.idProperty]);
         index !== -1 && list.splice(index, 1, res);
-        console.log(`update item at ${index}`);
+
         setData(list);
       } else {
         res = await service.create(item);
@@ -362,7 +366,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         const list = [...data];
         const index = list.findIndex((it) => _.get(item, idProperty) === _.get(it, idProperty));
         index !== -1 && list.splice(index, 1);
-        console.log("[UPDATE STATE] list remains", list.length);
+
         setData(list);
       } catch (error) {
         alert("Delete item fails");
@@ -415,7 +419,11 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
           {/* Pre-header */}
           <div className="flex flex-row justify-between mt-6 mx-6">
             <div className="flex">Total: {total} items</div>
-            <div></div>
+            <div>
+              <button type="button" onClick={props.showViewSetting} title="Header settings">
+                <MdOutlineEditNote size={24} />
+              </button>
+            </div>
           </div>
           <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
             {/* Header */}

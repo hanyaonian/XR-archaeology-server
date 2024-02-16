@@ -65,10 +65,17 @@
   @apply rotate-90;
 }
 
+.navbar .navbar-item .item-pad {
+  @apply px-4;
+}
+
 .nav-root:not(.mini-real) {
   .navbar {
     .navbar-item .item-pad {
-      @apply px-2;
+      @apply px-4;
+    }
+    .navbar-group .navbar-item .item-pad {
+      @apply pl-8;
     }
   }
 }

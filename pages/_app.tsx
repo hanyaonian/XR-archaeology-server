@@ -6,6 +6,7 @@ import Head from "next/head";
 import { FeathersProvider } from "@/contexts/feathers";
 import { HeaderProvider } from "@/contexts/header";
 import { SchemasProvider } from "@/contexts/schemas";
+import { ViewSettingProvider } from "@/contexts/viewSettings";
 
 // server-side only code: to configure server api URL
 MyApp.getInitialProps = async (ctx: NextPageContext) => {
@@ -39,7 +40,9 @@ export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLay
       </Head>
       <FeathersProvider baseURL={baseUrl.current}>
         <SchemasProvider>
-          <HeaderProvider>{getLayout(<Component {...pageProps} />)}</HeaderProvider>
+          <ViewSettingProvider>
+            <HeaderProvider>{getLayout(<Component {...pageProps} />)}</HeaderProvider>
+          </ViewSettingProvider>
         </SchemasProvider>
       </FeathersProvider>
     </>

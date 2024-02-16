@@ -155,7 +155,6 @@ export class SchemaHelper {
     }
 
     let item = this.allRoutes[route];
-    console.log("lookup", item);
     if (item !== undefined) return item;
     const schema = this.pathToSchemas[route.substring(1)];
     if (schema) {

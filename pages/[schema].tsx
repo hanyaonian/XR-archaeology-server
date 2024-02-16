@@ -10,21 +10,33 @@ import { useSchemasContext } from "@/contexts/schemas";
 import { useRouter } from "next/router";
 import _ from "lodash";
 import { computeComponent } from "@components/editor";
+import { useViewSetting } from "@/contexts/viewSettings";
 
 const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
   const { query: routerQuery } = useRouter();
+  const path = typeof routerQuery.schema === "string" ? routerQuery.schema : routerQuery.schema[0];
+
   const schemas = useSchemasContext();
   const { setActions } = useHeaderContext();
 
-  const [config, setConfig] = useState<EditorConfig>();
-  const canImport = useMemo(() => config?.import ?? false, [config]);
-  const canCreate = useMemo(() => config?.create ?? false, [config]);
-  const canPatch = useMemo(() => config?.patch ?? false, [config]);
-  const canClone = useMemo(() => config?.clone ?? false, [config]);
-  const canRemove = useMemo(() => config?.remove ?? false, [config]);
-  const canExport = useMemo(() => config?.export ?? false, [config]);
+  const { state: settings } = useViewSetting();
+  const setting = settings?.[path];
 
-  const headers = useMemo(() => config?.headers ?? [], [config]);
+  const [config, setConfig] = useState<EditorConfig>();
+  const canImport = config?.import ?? false;
+  const canCreate = config?.create ?? false;
+  const canPatch = config?.patch ?? false;
+  const canClone = config?.clone ?? false;
+  const canRemove = config?.remove ?? false;
+  const canExport = config?.export ?? false;
+
+  const headers = useMemo(
+    () =>
+      setting?.headers
+        ? [...(config?.headers ?? []), ...(config?.extraHeaders ?? [])].filter((it) => setting.headers.includes(it.value))
+        : config?.headers ?? [],
+    [setting, config]
+  );
 
   const [fields, setFields] = useState<EditorField[]>([]);
   const query = config?.filter ?? {};
@@ -37,8 +49,8 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
 
   useEffect(() => {
     setActions([
-      ...(canImport ? [{ icon: "uploadFile", altText: "import", name: "import", action: () => {} }] : []),
-      ...(canExport ? [{ icon: "download", altText: "export", name: "Export" }] : []),
+      // ...(canImport ? [{ icon: "uploadFile", altText: "import", name: "import", action: () => {} }] : []),
+      // ...(canExport ? [{ icon: "download", altText: "export", name: "Export" }] : []),
       { icon: "refresh", altText: "refresh", name: "refresh", action: tableRef.current?.refresh },
       ...(canCreate
         ? [
@@ -54,7 +66,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
   }, [config]);
 
   function initConfig() {
-    const route = "/" + (typeof routerQuery.schema === "string" ? routerQuery.schema : routerQuery.schema[0]);
+    const route = "/" + path;
     const config = schemas.lookupRoute(route);
 
     if (!config) {
@@ -80,6 +92,17 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     });
   };
 
+  const showViewSetting = useCallback(
+    async function showViewSetting() {
+      await openDialog({
+        component: import("@components/dialogs/viewSettingsDialog"),
+        props: { path, config },
+        className: "edit-dialog",
+      });
+    },
+    [path, config]
+  );
+
   if (config) {
     return (
       <DataTable
@@ -95,6 +118,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
         headers={headers}
         editor={renderEditor}
         openDialog={openDialog}
+        showViewSetting={showViewSetting}
       />
     );
   } else {

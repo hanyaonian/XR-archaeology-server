@@ -42,6 +42,9 @@ export class EditorConfig {
   }[];
   // data table header
   headers?: DataTableHeader[];
+  // hidden table headers
+  extraHeaders?: DataTableHeader[];
+
   // editor fields
   fields?: EditorField[];
 
@@ -104,6 +107,9 @@ export class EditorConfig {
 
     let jsonFields = def?.schema?.fields || [];
     this.fields = jsonFields.map((it) => this.convertField(it)).filter((it) => !!it);
+    this.extraHeaders = this.fields
+      .map((field) => this.getHeader(field.schema))
+      .filter((header) => !this.headers.find((it) => it.value === header.value && !!it));
 
     this.updateDefaultValue();
   }
@@ -173,7 +179,6 @@ export class EditorConfig {
       case "id":
         const path = this.parent.getRefPath(field);
         const table = this.parent.getRefTable(field);
-        console.log(`get header with type id ${field.name}`, path, table);
         if (path && table) {
           if (path === "attachments") {
             if (field.params?.fileType === "image") {
