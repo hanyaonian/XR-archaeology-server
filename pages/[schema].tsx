@@ -2,7 +2,7 @@ import { NextPageWithLayout } from "./_app";
 
 import { Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DefaultLayout, { OpenDialog } from "@/layouts/default";
-import DataTable from "@components/data-table/dataTable";
+import DataTable from "@/components/dataTable/dataTable";
 import { EditorField } from "@components/editor/def";
 import { EditorConfig } from "@/contexts/schemas/def";
 import { useHeaderContext } from "@/contexts/header";
@@ -51,7 +51,14 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
     setActions([
       // ...(canImport ? [{ icon: "uploadFile", altText: "import", name: "import", action: () => {} }] : []),
       // ...(canExport ? [{ icon: "download", altText: "export", name: "Export" }] : []),
-      { icon: "refresh", altText: "refresh", name: "refresh", action: tableRef.current?.refresh },
+      {
+        icon: "refresh",
+        altText: "refresh",
+        name: "refresh",
+        action: () => {
+          tableRef.current?.refresh?.();
+        },
+      },
       ...(canCreate
         ? [
             {

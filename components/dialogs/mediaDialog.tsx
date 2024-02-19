@@ -1,5 +1,5 @@
 import { MdAdd, MdFilePresent, MdRefresh } from "react-icons/md";
-import DataTable from "../data-table/dataTable";
+import DataTable from "../dataTable/dataTable";
 import { DialogProps } from "./basicDialog";
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFeathers } from "@/contexts/feathers";

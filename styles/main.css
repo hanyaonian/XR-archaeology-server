@@ -751,6 +751,10 @@ video {
   height: 4rem;
 }
 
+.h-4\/5 {
+  height: 80%;
+}
+
 .h-9 {
   height: 2.25rem;
 }
@@ -810,6 +814,10 @@ video {
   max-width: min-content;
 }
 
+.flex-1 {
+  flex: 1 1 0%;
+}
+
 .flex-auto {
   flex: 1 1 auto;
 }
@@ -861,6 +869,10 @@ video {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-text {
+  cursor: text;
 }
 
 .resize {
@@ -1484,6 +1496,21 @@ video {
   overflow: hidden;
 }
 
+.data-table-container .pre-header-actions button {
+  display: flex;
+  min-height: 2.25rem;
+  min-width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  fill: #374151;
+}
+
+.data-table-container .pre-header-actions button:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
+
 .data-table-row {
   position: relative !important;
   display: grid !important;
@@ -1513,7 +1540,7 @@ video {
 
 .data-table-item-index {
   display: flex;
-  width: 0.75rem;
+  min-width: 3rem;
   flex-grow: 0;
   align-items: center;
   justify-content: center;
@@ -1533,6 +1560,7 @@ dialog {
   overflow: hidden !important;
   border-radius: 1rem;
   width: auto;
+  position: relative;
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color) !important;
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
@@ -1550,6 +1578,7 @@ dialog.edit-dialog,
   margin-left: 100px;
   margin-right: 100px;
   overflow: hidden !important;
+  position: relative;
   border-radius: 1rem;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1583,7 +1612,7 @@ label {
   color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
-input,
+input:not([type="checkbox"]),
 textarea,
 .object-picker {
   width: 100%;
@@ -1639,6 +1668,11 @@ input:focus-visible {
 
 .page-control .active {
   background: #3b82f6;
+  color: white;
+}
+
+.page-control .active:hover {
+  background: #2563eb;
   color: white;
 }
 
@@ -1738,6 +1772,10 @@ input:focus-visible {
   border-radius: 0.25rem;
 }
 
+.batch-delete-dialog {
+  height: calc(100% - 140px) !important;
+}
+
 .hover\:bg-blue-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity));
@@ -1751,6 +1789,11 @@ input:focus-visible {
 .hover\:bg-gray-200:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-gray-600:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(75 85 99 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-gray-700:hover {

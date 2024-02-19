@@ -5,7 +5,7 @@ import { computeComponent } from ".";
 import { SearchField } from "./def";
 import _ from "lodash";
 import { query } from "express";
-import DataTableCell from "../data-table/dataTableCell";
+import DataTableCell from "../dataTable/dataTableCell";
 import { MdClear } from "react-icons/md";
 
 export interface Props {
@@ -89,6 +89,7 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
           };
           break;
         case "notContains":
+          const patternStr = `\\b(?:(?!${regEscape(field.value1.trim())})\\w)+\\b`;
           value = {
             $not: {
               $regex: regEscape(field.value1.trim()),
@@ -115,7 +116,7 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
 
   return (
     <div className="relative w-full">
-      <div className="search-field scrollable" onClick={() => setShowMenu((show) => !show)}>
+      <div className="search-field scrollable cursor-text" onClick={() => setShowMenu((show) => !show)}>
         <div className="flex gap-x-2 min-h-10 py-2 px-4">
           {currentSearch.map((field) => (
             <div key={field.path} style={{ backgroundColor: field.color }} className="text-white text-sm rounded p-2 flex flex-row gap-x-1">

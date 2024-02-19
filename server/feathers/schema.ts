@@ -633,7 +633,22 @@ export default {
                               }
                             : def.paginate,
                         multi: def.multi,
-                        whitelist: ["$regex", "$options"],
+                        whitelist: [
+                          "$regex",
+                          "$populate",
+                          "$options",
+                          "$gt",
+                          "$lt",
+                          "$ne",
+                          "$gte",
+                          "$lte",
+                          "$nearSphere",
+                          "$geometry",
+                          "$elemMatch",
+                          "$exists",
+                          "$size",
+                          "$not",
+                        ],
                       }),
                 ...def,
               };

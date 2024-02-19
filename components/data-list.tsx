@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef, ReactNode, forwardRef, useImperat
 import { DataTableHeader } from "./editor/def";
 import { OpenDialog } from "@/layouts/default";
 import { EditDialogProps } from "@components/dialogs/editDialog";
-import DataTableRow from "./data-table/dataTableRow";
+import DataTableRow from "./dataTable/dataTableRow";
 
 /**
  * @param path specifies which service should APIs access or the collection

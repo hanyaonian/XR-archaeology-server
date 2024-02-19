@@ -20,9 +20,9 @@ export type OpenDialog = (props: OpenDialogProps) => Promise<void | any>;
 export default function DefaultLayout({ children }: PropsWithChildren) {
   const [mini, setMini] = useState<boolean>(false);
   const [isNavHovering, setNavHovering] = useState<boolean>(false);
-  const miniReal = useMemo(() => mini && !isNavHovering, [mini, isNavHovering]);
-  const { state: headerState, setTitle } = useHeaderContext();
-  const { query } = useRouter();
+  const miniReal = mini && !isNavHovering;
+  const { state: headerState } = useHeaderContext();
+
   const dialogsRef = useRef(null);
 
   const { pageList } = useSchemasContext();
@@ -34,7 +34,6 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
   };
 
   function openDialog(props: OpenDialogProps) {
-    console.log("call open dialog");
     return new Promise((resolve, reject) => {
       if (dialogsRef.current) {
         return dialogsRef.current.openDialog({ ...props, resolve, reject });
@@ -42,13 +41,17 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
     });
   }
 
-  const childrenWithProps = Children.map(children, (child) => {
-    if (isValidElement(child)) {
-      return cloneElement(child as any, { openDialog });
-    } else {
-      return child;
-    }
-  });
+  const childrenWithProps = useMemo(
+    () =>
+      Children.map(children, (child) => {
+        if (isValidElement(child)) {
+          return cloneElement(child as any, { openDialog });
+        } else {
+          return child;
+        }
+      }),
+    []
+  );
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-50">

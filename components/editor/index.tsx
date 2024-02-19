@@ -29,7 +29,7 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
   switch (field.component) {
     case "editor-group":
       result = (
-        <div className="rounded-xl bg-white p-4">
+        <div className="flex flex-col rounded-xl bg-white p-4 gap-y-6">
           {field.default.map((f) =>
             computeComponent({
               field: f,
@@ -90,7 +90,7 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
     case "group-object":
       if (field.inner) {
         result = (
-          <div className="bg-slate-100 rounded-md p-4">
+          <div className="flex flex-col gap-y-6 bg-slate-100 rounded-md p-4">
             {field.inner.map((f) =>
               computeComponent({
                 field: f,

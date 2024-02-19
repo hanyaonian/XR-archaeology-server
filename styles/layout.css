@@ -151,6 +151,13 @@
   overflow: hidden;
 }
 
+.data-table-container .pre-header-actions button {
+  @apply min-w-9 min-h-9 flex justify-center items-center rounded-full fill-gray-700;
+}
+.data-table-container .pre-header-actions button:hover {
+  @apply bg-slate-100;
+}
+
 .data-table-row {
   @apply grid relative items-center text-left flex-auto gap-0 w-full !important;
 }
@@ -165,7 +172,7 @@
 }
 
 .data-table-item-index {
-  @apply w-3 flex items-center justify-center text-xs text-center flex-grow-0;
+  @apply min-w-12 flex items-center justify-center text-xs text-center flex-grow-0;
 }
 
 .center {
@@ -177,6 +184,7 @@ dialog {
   overflow: hidden !important;
   border-radius: theme(borderRadius.2xl);
   width: auto;
+  position: relative;
   @apply backdrop:bg-gray-700 backdrop:bg-opacity-20  shadow-md !important;
 }
 
@@ -187,6 +195,7 @@ dialog.edit-dialog,
   margin-left: 100px;
   margin-right: 100px;
   overflow: hidden !important;
+  position: relative;
   @apply rounded-2xl transition-all;
 }
 
@@ -212,7 +221,7 @@ label {
   @apply text-sm text-gray-600 flex items-center;
 }
 
-input,
+input:not([type="checkbox"]),
 textarea,
 .object-picker {
   @apply text-sm w-full rounded px-4 py-2;
@@ -256,6 +265,11 @@ input:focus-visible {
 
 .page-control .active {
   background: theme(colors.blue.500);
+  color: white;
+}
+
+.page-control .active:hover {
+  background: theme(colors.blue.600);
   color: white;
 }
 
@@ -330,4 +344,8 @@ input:focus-visible {
   align-items: center;
   background: theme(colors.white);
   @apply rounded gap-y-2;
+}
+
+.batch-delete-dialog {
+  height: calc(100% - 140px) !important;
 }

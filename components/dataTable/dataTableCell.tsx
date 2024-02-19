@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 import { DataTableHeader } from "../editor/def";
 import { useFeathers } from "@/contexts/feathers";
 import _ from "lodash";
@@ -19,11 +19,12 @@ export interface Props {
 }
 
 export default function DataTableCell({ item, header }: Props) {
-  const fetchItems = useRef<FetchItem[] | null>(null);
-  const pendingFetch: Promise<void>[] = [];
-  const fetchCache = useRef<Record<string, any>>({});
+  var fetchItems: FetchItem[] | null = null;
+  const [pendingFetch, setPendingFetch] = useState<Promise<void>[]>([]);
+  var fetchCache: Record<string, any> = {};
   const feathers = useFeathers();
-  const getValueByPath = (item: any, path: string | string[]) => {
+
+  const getValueByPath = useCallback((item: any, path: string | string[]) => {
     if (Array.isArray(path)) {
       for (let i = 0; i < path.length; i++) {
         const key = path[i];
@@ -44,97 +45,94 @@ export default function DataTableCell({ item, header }: Props) {
     } else {
       return _.get(item, path);
     }
-  };
+  }, []);
 
-  const getValue = useCallback(
-    (item: any, header: DataTableHeader, objectOnly?: boolean) => {
-      const value = header.value ? getValueByPath(item, header.value) : item;
+  const getValue = useCallback((item: any, header: DataTableHeader, objectOnly?: boolean) => {
+    const value = header.value ? getValueByPath(item, header.value) : item;
 
-      let list = header.multiple ? value || [] : [value];
+    let list = header.multiple ? value || [] : [value];
 
-      if (header.unique) {
-        list = Array.from(new Set(list));
-      }
+    if (header.unique) {
+      list = Array.from(new Set(list));
+    }
 
-      let limitReached = false;
+    let limitReached = false;
 
-      if (header.limit && list.length > header.limit) {
-        list = list.slice(0, header.limit);
-        limitReached = true;
-      }
+    if (header.limit && list.length > header.limit) {
+      list = list.slice(0, header.limit);
+      limitReached = true;
+    }
 
-      if (list && !Array.isArray(list)) {
-        list = [list];
-      }
+    if (list && !Array.isArray(list)) {
+      list = [list];
+    }
 
-      const values = list.map((value) => {
-        const pathList = header.paths ?? [header.path || "name"];
-        const prefix = pathList.join("/") + "_" || "";
-        const idProperty = header.idProperty || "_id";
+    const values = list.map((value) => {
+      const pathList = header.paths ?? [header.path || "name"];
+      const prefix = pathList.join("/") + "_" || "";
+      const idProperty = header.idProperty || "_id";
 
-        let sItem: any = null;
-        if (header.source) {
-          sItem = fetchCache.current[prefix + value];
+      let sItem: any = null;
+      if (header.source) {
+        sItem = fetchCache[prefix + value];
 
-          if (sItem === undefined) {
-            fetchCache.current = { ...fetchCache.current, [prefix + value]: { value: null } };
+        if (sItem === undefined) {
+          fetchCache = { ...fetchCache, [prefix + value]: { value: null } };
 
-            queuePending();
-            if (value) {
-              fetchItems.current ??= [];
-              fetchItems.current.push({
-                source: header.source,
-                header,
-                prefix,
-                id: value,
-                idProperty,
-              });
-            }
-            if (objectOnly || header.objectOnly) return null;
-          } else if (sItem?.value === null) {
-            if (objectOnly || header.objectOnly) return null;
-            sItem = null;
-          } else {
-            sItem = sItem?.value;
+          queuePending();
+          if (value) {
+            fetchItems ??= [];
+            fetchItems.push({
+              source: header.source,
+              header,
+              prefix,
+              id: value,
+              idProperty,
+            });
           }
-        }
-
-        if (typeof value !== "number" && typeof value !== "boolean" && !value) {
-          return value;
-        }
-
-        const result = pathList.map((path) => {
-          let cur = value;
-          if (sItem) {
-            cur = path !== null ? _.get(sItem, path) : sItem;
-          }
-          return cur;
-        });
-
-        if (objectOnly || header.objectOnly) {
-          return result[0];
+          if (objectOnly || header.objectOnly) return null;
+        } else if (sItem?.value === null) {
+          if (objectOnly || header.objectOnly) return null;
+          sItem = null;
         } else {
-          return result.filter((it) => typeof it === "number" || !!it).join("/");
+          sItem = sItem?.value;
         }
+      }
+
+      if (typeof value !== "number" && typeof value !== "boolean" && !value) {
+        return value;
+      }
+
+      const result = pathList.map((path) => {
+        let cur = value;
+        if (sItem) {
+          cur = path !== null ? _.get(sItem, path) : sItem;
+        }
+        return cur;
       });
 
       if (objectOnly || header.objectOnly) {
-        return header.multiple ? values : values[0];
+        return result[0];
       } else {
-        if (limitReached) values.push("...");
-        return values.map((value) => (value === undefined ? "" : value)).join(",");
+        return result.filter((it) => typeof it === "number" || !!it).join("/");
       }
-    },
-    [fetchCache.current]
-  );
+    });
 
-  function queuePending() {
-    if (!fetchItems.current) {
-      fetchItems.current = [];
+    if (objectOnly || header.objectOnly) {
+      return header.multiple ? values : values[0];
+    } else {
+      if (limitReached) values.push("...");
+      return values.map((value) => (value === undefined ? "" : value)).join(",");
+    }
+  }, []);
+
+  const queuePending = useCallback(() => {
+    if (!fetchItems) {
+      fetchItems = [];
       const fetchPromise = (async () => {
         await Promise.resolve();
-        const fetches = [...fetchItems.current];
-        fetchItems.current = null;
+        const fetches = [...fetchItems];
+        fetchItems = null;
         const types = _.groupBy(fetches, (it) => it.prefix + it.source);
 
         await Promise.all(
@@ -158,11 +156,11 @@ export default function DataTableCell({ item, header }: Props) {
                 });
 
                 for (let data of items.data) {
-                  const store = fetchCache.current[prefix + data[idProperty]];
+                  const store = fetchCache[prefix + data[idProperty]];
 
                   if (store) {
                     store.value = data;
-                    fetchCache.current = { ...fetchCache.current, [prefix + data[idProperty]]: store };
+                    fetchCache = { ...fetchCache, [prefix + data[idProperty]]: store };
                   }
                 }
               } catch (error) {
@@ -173,15 +171,17 @@ export default function DataTableCell({ item, header }: Props) {
         );
       })();
       const finalize = () => {
-        const index = pendingFetch.indexOf(fetchPromise);
-        index !== -1 && pendingFetch.splice(index, 1);
+        const list = [...pendingFetch];
+        const index = list.indexOf(fetchPromise);
+        index !== -1 && list.splice(index, 1);
+        setPendingFetch(list);
       };
       fetchPromise.then(finalize, finalize);
-      pendingFetch.push(fetchPromise);
+      setPendingFetch((fetch) => [...fetch, fetchPromise]);
     }
-  }
+  }, [pendingFetch, setPendingFetch]);
 
-  const getLink = (item: any, header: DataTableHeader) => {
+  const getLink = useCallback((item: any, header: DataTableHeader) => {
     if (header.noLink || header.multiple) return;
     let value, source: string;
     if (header.linkSource) {
@@ -204,7 +204,7 @@ export default function DataTableCell({ item, header }: Props) {
     }
     if (!value) return;
     return `${source}${header.trailingSlash ?? true ? "/" : ""}?editor=${value}`;
-  };
+  }, []);
 
   const objectOnly = header.type === "multi";
   let value = getValue(item, header, objectOnly);

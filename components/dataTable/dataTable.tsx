@@ -38,6 +38,7 @@ import { useViewSetting } from "@/contexts/viewSettings";
  */
 export interface DataTableProps<T> {
   path: string;
+  items?: T[];
   headers?: DataTableHeader[];
   noPaginate?: boolean;
   query?: Record<string, any>;
@@ -49,6 +50,8 @@ export interface DataTableProps<T> {
   canRemove?: boolean;
   canClone?: boolean;
 
+  showPreHeader?: boolean;
+
   default?: T | (() => T);
   idProperty?: keyof T;
   editor?: ReactNode | ((item: T, setItem: Dispatch<SetStateAction<T>>) => ReactNode);
@@ -56,34 +59,38 @@ export interface DataTableProps<T> {
 
   openDialog?: OpenDialog;
   showViewSetting?: () => Promise<void>;
-  config: EditorConfig;
+  config?: EditorConfig;
 }
 
-const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(props: DataTableProps<T>, ref) {
+const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ path, ...props }: DataTableProps<T>, ref) {
   const feathers = useFeathers();
   const { state: settings } = useViewSetting();
-  const setting = settings[props.path];
+  const setting = settings[path];
 
-  /** Observable data, only for data that is displayed in table */
+  const loaded = useRef(false);
+  const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState<T[]>([]);
-  /** Store cached data */
-  const store: T[] = []; // TODO
-
   const headers: DataTableHeader[] = props.headers || [];
 
   /** Current page number */
   const [curPage, setCurPage] = useState(0);
-  /** Number of items displayed in table */
-  var pageCount: number = 10;
 
   /** Total number of data */
   const [total, setTotal] = useState(0);
-  const [pageMax, setPageMax] = useState(1);
 
   // paginate
+  var limit = 10;
   /** Page start index. For scroll list jumping to pageIndex */
-  var pageStart: number = 0;
-  var cursor: number = 0;
+  var pageStart = 0;
+  var cursor = 0;
+
+  var executor: Promise<void> | null = null;
+
+  const pageMax = Math.max(1, Math.ceil(total / limit));
+
+  // query
+  const [query, setQuery] = useState(props.query || {});
 
   /** sorting */
   const [sort, setSort] = useState<string[]>([]);
@@ -101,13 +108,6 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   const [stickyHeaderHeight, setStickyHeaderHeight] = useState(null);
   const [clientHeight, setClientHeight] = useState(null);
 
-  // query and params
-  const [query, setQuery] = useState(props.query || {});
-  const [param, setParam] = useState({});
-
-  // sync data executor
-  var executor: Promise<void> | null = null;
-
   const rowSize = useMemo(() => Math.max(100, (headers.length ?? 1) * 22 + 66, 66), [headers]);
   /**  To determines the display grid column number. */
   const columnCount = useMemo(
@@ -121,8 +121,9 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
 
   useLayoutEffect(() => {
     function handleResize() {
-      const { clientHeight: scrollHeight } = scrollRef.current;
-      setClientHeight(scrollHeight);
+      const { clientHeight } = scrollRef.current;
+      setClientHeight(clientHeight);
+      limit = Math.max(10, Math.ceil(clientHeight / rowSize) + 3);
     }
     function onScroll() {
       const { scrollTop, scrollTopMax } = scrollRef.current;
@@ -139,18 +140,19 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   }, [scrollRef.current]);
 
   useEffect(() => {
-    setQuery(props.query ?? {});
+    reset();
+  }, [path]);
+
+  useEffect(() => {
+    setQuery(props.query || {});
   }, [props.query]);
 
   useEffect(() => {
-    reset();
-  }, [props.path, query, sortParams]);
-
-  useEffect(() => {
-    setPageMax((max) => {
-      return Math.max(1, Math.ceil(total / pageCount));
-    });
-  }, [total]);
+    setCurPage(0);
+    pageStart = 0;
+    resetData(false);
+    syncData().then(() => updateCurrentPage());
+  }, [query, sortParams]);
 
   useEffect(() => {
     if (props.defaultSort) {
@@ -161,79 +163,97 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     }
   }, [props.defaultSort, props.defaultSortDesc]);
 
-  // pass public methods to parent
-  useImperativeHandle(ref, () => {
-    return { editItem, refresh };
-  });
-
-  const reset = () => {
-    cursor = 0;
-    setTotal(0);
-    executor = null;
-
-    syncData();
-  };
-
-  const refresh = () => {
-    reset();
-  };
-
-  const syncData = () => {
-    if (executor) {
-      return executor;
-    }
+  function syncData() {
+    if (executor) return executor;
+    if (loaded.current) return Promise.resolve();
     executor = syncDataCore();
     return executor;
-  };
+  }
 
-  const syncDataCore = async () => {
-    try {
-      const list = [...data];
-      let q = {
-        ...query,
-        ...param,
-        ...(props.noPaginate ? {} : { $limit: pageCount }),
-        $sort: sortParams,
-        $skip: pageStart,
-      };
+  const syncDataCore = useCallback(
+    async function syncDataCore() {
+      setLoading(true);
+      try {
+        const list = [...data];
 
-      q = JSON.parse(JSON.stringify(q));
-
-      const offsetIndex = cursor ? data.length : 0;
-
-      // Assume service using paginated data
-      /**  @type {Paginated} contains total, limit, skip and data */
-      let paged: any = await feathers.service(props.path).find({ query: q });
-      if (props.noPaginate) {
-        paged = {
-          total: paged.length,
-          data: paged,
+        let q = {
+          ...query,
+          $sort: sortParams,
+          ...(props.noPaginate ? {} : { $limit: limit }),
+          $skip: cursor + pageStart,
         };
+        q = JSON.parse(JSON.stringify(q));
+
+        // Assume service using paginated data
+        /**  @type {Paginated} contains total, limit, skip and data */
+        let paged: any = await feathers.service(path).find({ query: q });
+
+        if (props.noPaginate) {
+          loaded.current = true;
+          paged = {
+            total: paged.length,
+            data: paged,
+          };
+        }
+
+        if (Array.isArray(paged)) {
+          console.warn(`Need no paginate for ${this.path}`);
+        }
+
+        let count = paged.data.length;
+        setTotal(paged.total);
+
+        if (!cursor) {
+          list.splice(0, list.length);
+        }
+
+        cursor += count;
+
+        list.push(...paged.data);
+        setData(list);
+
+        if (count === 0 || cursor >= paged.total) loaded.current = true;
+      } catch (error) {
+        loaded.current = true;
+        console.warn(error.message);
+        console.warn(error.stack);
+      } finally {
+        setLoading(false);
+        executor = null;
       }
-      if (Array.isArray(paged)) {
-        console.warn(`Need no paginate for ${props.path}`);
+    },
+    [data, query, sortParams]
+  );
+
+  function updatePageStart(newPageStart: number) {
+    pageStart = newPageStart;
+    resetData(false);
+    return syncData();
+  }
+
+  const resetData = useCallback(
+    function resetData(delay: boolean = false) {
+      cursor = 0;
+      loaded.current = false;
+      setTotal(0);
+      setLoading(false);
+      if (!delay) {
+        setData([]);
       }
-
-      let count = paged.data.length;
-
-      // todo set cache store & clipping data
-      // store.splice(offsetIndex, store.length - offsetIndex);
-      setTotal(paged.total);
-
-      if (!cursor) {
-        list.splice(0, list.length);
-      }
-      cursor += count;
-      list.push(...paged.data);
-
-      setData(list);
-    } catch (error) {
-      console.warn("fetching error", error);
-      throw error;
-    } finally {
       executor = null;
-    }
+    },
+    [setTotal, setLoading, setData]
+  );
+
+  const reset = () => {
+    if (!path) return;
+    syncData().then(() => updateCurrentPage());
   };
+
+  const refresh = useCallback(() => {
+    resetData();
+    syncData().then(() => updateCurrentPage());
+  }, []);
 
   const toggleSort = useCallback(
     (header: DataTableHeader, append?: boolean) => {
@@ -273,11 +293,9 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   );
 
   const goToPage = async (toPage: number) => {
-    const toIndex = Math.max(0, Math.min((total || 0) - 1, toPage * pageCount));
-    pageStart = toIndex;
-    syncData().then(() => {
-      updateCurrentPage();
-    });
+    const toIndex = Math.max(0, Math.min((total || 0) - 1, toPage * limit));
+
+    updatePageStart(toIndex).then(() => updateCurrentPage());
   };
 
   const updateCurrentPage = () => {
@@ -285,17 +303,16 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     const headerSize = stickyHeaderHeight ?? 0;
     if (view) {
       const rect = view.getBoundingClientRect();
-      const items = Array.from(view.querySelectorAll("[role=group] [role=listitem]"));
+      const items = Array.from(view.querySelectorAll("[role='group'] [role='listitem']"));
       const first =
         items.find((it) => (it as HTMLElement).getBoundingClientRect().bottom >= rect.top + headerSize) ||
         items.find((it) => (it as HTMLElement).getBoundingClientRect().top >= rect.top + headerSize);
       const item = first || items[items.length - 1];
-      const index = Number(item?.getAttribute("key") ?? "0");
-      const p = Math.min(pageMax - 1, Math.floor((index + pageStart) / pageCount));
+      const index = Number(item?.getAttribute("id") ?? "0");
+      const p = Math.min(pageMax - 1, Math.floor((index + pageStart) / limit));
 
       setCurPage((curPage) => {
-        if (curPage !== p) return p;
-        return curPage;
+        return curPage !== p ? p : curPage;
       });
     }
   };
@@ -304,27 +321,28 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     try {
       const editId = _.get(item, props.idProperty || "_id");
       let res: any;
-      const service = feathers.service(props.path);
+      const service = feathers.service(path);
+      const list = [...data];
       if (editId) {
         res = await service.patch(editId, item);
-        const list = [...data];
+
         const index = _.findIndex(list, (it) => it[props.idProperty] === res[props.idProperty]);
         index !== -1 && list.splice(index, 1, res);
-
-        setData(list);
       } else {
         res = await service.create(item);
         let results = Array.isArray(res) ? res : [res];
         for (const res of results) {
-          const oldItem = data.find((item) => item[props.idProperty] === res[props.idProperty]);
+          const oldItem = list.find((item) => item[props.idProperty] === res[props.idProperty]);
           if (oldItem) {
             _.assign(oldItem, res);
           } else {
             // todo, add item to top once done caching
-            setData((data) => [res, ...data]);
+            list.unshift(res);
           }
         }
       }
+      setData(list);
+
       console.log("Setting success", res);
       return res;
     } catch (error) {
@@ -336,7 +354,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
     const origin = clone ? null : item;
     if (item && item._id) {
       try {
-        item = await feathers.service(props.path).get(item._id);
+        item = await feathers.service(path).get(item._id);
       } catch (error) {
         console.warn("getting error", error);
       }
@@ -364,7 +382,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   const deleteItemCore = useCallback(
     async (item?: any) => {
       try {
-        const service = feathers.service(props.path);
+        const service = feathers.service(path);
         const idProperty = props.idProperty || "_id";
         const id = _.get(item, idProperty);
         await service.remove(id);
@@ -394,14 +412,15 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
   );
 
   const renderItem = (item: T, index: number) => {
+    let res;
     if (props.renderItem) {
       if (typeof props.renderItem === "function") {
-        return props.renderItem({ item, index, ...props });
+        res = props.renderItem({ item, index, ...props });
       } else {
-        return props.renderItem;
+        res = props.renderItem;
       }
     } else {
-      return (
+      res = (
         <DataTableRow
           key={`${index}${item[props.idProperty]}`}
           index={index}
@@ -414,7 +433,17 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
         />
       );
     }
+    return (
+      <div role="listitem" key={index} id={`${index}`} className="w-full">
+        {res}
+      </div>
+    );
   };
+
+  // pass public methods to parent
+  useImperativeHandle(ref, () => {
+    return { editItem, refresh };
+  });
 
   const gridTemplateColumns: string = `repeat(${columnCount}, minmax(0, 1fr))`;
 
@@ -423,14 +452,16 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>(pro
       <div className="data-table-container w-full h-full flex flex-col">
         <div className="flex-grow overflow-hidden h-full">
           {/* Pre-header */}
-          <div className="flex flex-row justify-between mt-6 mx-6">
-            <div className="flex">Total: {total} items</div>
-            <div>
-              <button type="button" onClick={props.showViewSetting} title="Header settings">
-                <MdOutlineEditNote size={24} />
-              </button>
+          {(props.showPreHeader ?? true) && (
+            <div className="flex flex-row justify-between mt-6 mx-6">
+              <div className="flex">Total: {total} items</div>
+              <div>
+                <button type="button" onClick={props.showViewSetting} title="Header settings">
+                  <MdOutlineEditNote size={24} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
             <div className="mx-4">
