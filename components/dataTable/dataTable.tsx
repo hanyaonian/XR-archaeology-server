@@ -214,15 +214,15 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
         if (count === 0 || cursor >= paged.total) loaded.current = true;
       } catch (error) {
-        loaded.current = true;
         console.warn(error.message);
         console.warn(error.stack);
+        loaded.current = true;
       } finally {
         setLoading(false);
         executor = null;
       }
     },
-    [data, query, sortParams]
+    [data, query, sortParams, path]
   );
 
   function updatePageStart(newPageStart: number) {
@@ -231,19 +231,16 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
     return syncData();
   }
 
-  const resetData = useCallback(
-    function resetData(delay: boolean = false) {
-      cursor = 0;
-      loaded.current = false;
-      setTotal(0);
-      setLoading(false);
-      if (!delay) {
-        setData([]);
-      }
-      executor = null;
-    },
-    [setTotal, setLoading, setData]
-  );
+  function resetData(delay: boolean = false) {
+    cursor = 0;
+    loaded.current = false;
+    setTotal(0);
+    setLoading(false);
+    if (!delay) {
+      setData([]);
+    }
+    executor = null;
+  }
 
   const reset = () => {
     if (!path) return;
@@ -340,7 +337,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
           }
         }
       }
-      console.log(editId, list.length, data.length);
+
       setData(list);
 
       console.log("Setting success", res);

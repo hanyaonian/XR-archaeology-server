@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext } from "react";
+import { createContext, PropsWithChildren, useContext, useLayoutEffect, useRef, useState } from "react";
 import { feathers, Application } from "@feathersjs/feathers";
 import fio from "@feathersjs/socketio-client";
 import socketio from "socket.io-client";
@@ -32,8 +32,6 @@ function createClient(baseURL?: string) {
   // Set up Socket.io client with the socket. Timeout as 30s
   let app: Application = feathers().configure(fio(socket, { timeout: 30000 }));
 
-  // TODO add authentication
-
   app.post = async function (url: string, data: any, params: any) {
     // authentication with token in header
     return fetch(`${apiURL}/${url}`, {
@@ -54,9 +52,9 @@ type Props = {
 
 export const FeathersContext = createContext<Application | undefined>(undefined);
 export const FeathersProvider = ({ children, baseURL }: Props) => {
-  const feathers = createClient(baseURL);
+  const feathers = useRef<Application>(createClient(baseURL));
 
-  return <FeathersContext.Provider value={feathers}>{children}</FeathersContext.Provider>;
+  return <FeathersContext.Provider value={feathers.current}>{children}</FeathersContext.Provider>;
 };
 export const useFeathers = () => {
   const feathers = useContext(FeathersContext);

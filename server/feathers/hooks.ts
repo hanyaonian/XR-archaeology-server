@@ -8,7 +8,7 @@
 import { disallow } from "feathers-hooks-common";
 import * as authentication from "@feathersjs/authentication/lib";
 import { Application, HookContext } from "@feathersjs/feathers";
-import errors from "@feathersjs/errors";
+import * as errors from "@feathersjs/errors";
 
 export const internalHooks = {
   before: {
@@ -77,7 +77,7 @@ export function authAdminHooks(app: Application) {
       create: [
         jwt,
         (hook: HookContext) => {
-          if (hook.params.provider) {
+          if (hook.params?.provider) {
             hook.data.admin = hook.data.modifiedBy = hook.params.user;
           }
         },
@@ -86,7 +86,7 @@ export function authAdminHooks(app: Application) {
       patch: [
         jwt,
         (hook: HookContext) => {
-          if (hook.params.provider) {
+          if (hook.params?.provider) {
             hook.data.modifiedBy = hook.params.user;
             hook.data.modified = new Date();
           }
@@ -95,7 +95,7 @@ export function authAdminHooks(app: Application) {
       update: [
         jwt,
         (hook: HookContext) => {
-          if (hook.params.provider) {
+          if (hook.params?.provider) {
             hook.data.admin = hook.params.user;
             hook.data.modifiedBy = hook.params.user;
             hook.data.modified = new Date();
@@ -110,7 +110,8 @@ export function authAdminHooks(app: Application) {
 export const authAdminOnly = {
   before: {
     all(hook: HookContext) {
-      if (hook.params.provider && (!hook.params.user || (!hook.params.user.internal && hook.params.user.role !== "admin"))) {
+      if (!hook.params.provider) return;
+      if (!hook.params.user || hook.params.user.role !== "admin") {
         throw new errors.BadRequest("No permission: " + hook.path);
       }
     },

@@ -1,7 +1,7 @@
 import { AuthenticationBaseStrategy, AuthenticationRequest, AuthenticationService, JWTStrategy } from "@feathersjs/authentication";
 import { LocalStrategy } from "@feathersjs/authentication-local";
 import { Application, Params } from "@feathersjs/feathers";
-import errors from "@feathersjs/errors";
+import * as errors from "@feathersjs/errors";
 import _ from "lodash";
 import configs from "@configs";
 import moment from "moment";

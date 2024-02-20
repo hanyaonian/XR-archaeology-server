@@ -21,7 +21,7 @@ export const hooks3 = {
     create: [local.hooks.hashPassword("password")],
     patch: [
       (hook: HookContext) => {
-        if (!hook.data.password) delete hook.data.password;
+        if (!hook.data?.password) delete hook.data.password;
       },
       local.hooks.hashPassword("password"),
     ],

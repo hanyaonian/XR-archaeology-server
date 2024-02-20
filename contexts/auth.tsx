@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const authPromise = useRef<Promise<void> | null>(null);
   const authenticated = useRef(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     async function init() {
       handleFeathers();
       let res = fromStorage();
@@ -122,6 +122,20 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         authPromise.current = promise;
       });
     }
+
+    feathers.post = async function (url: string, data: any, params: any) {
+      const accessToken = state.token ?? fromStorage()?.token;
+      return fetch(`${feathers.apiURL}/${url}`, {
+        method: "POST",
+        body: data,
+        ...params,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          ...(params.headers || {}),
+        },
+      });
+    };
+
     feathers.hooks({
       before: {
         async all(hook) {
@@ -169,34 +183,32 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     [authentication]
   );
 
-  const reAuthentication = useCallback(
-    async (force: boolean = false) => {
-      if (!authPromise.current || force) {
-        let oldToken = state.token;
-        if (!oldToken) {
-          const res = fromStorage();
-          oldToken = res?.token;
-        }
-        if (!oldToken) {
-          console.warn(`No access token stored in localStorage`);
-          return;
-        }
-        try {
-          await authentication({ strategy: "jwt", accessToken: oldToken });
-        } catch (error) {
-          console.warn("fail re-authentication");
-        }
+  const reAuthentication = async (force: boolean = false) => {
+    if (!authPromise.current || force) {
+      let oldToken = state.token;
+      if (!oldToken) {
+        const res = fromStorage();
+        oldToken = res?.token;
       }
-      return authPromise.current;
-    },
-    [state, setState]
-  );
+      if (!oldToken) {
+        console.warn(`No access token stored in localStorage`);
+        return;
+      }
+      try {
+        return authentication({ strategy: "jwt", accessToken: oldToken });
+      } catch (error) {
+        console.warn("fail re-authentication");
+      }
+    }
+    return authPromise.current;
+  };
 
   const logout = useCallback(
     async function logout() {
       console.log("logout called");
       const authRes = await feathers.service("authentication").remove(null);
       authPromise.current = null;
+      authenticated.current = false;
       const deleteSuccess = localDelete();
       return authRes && deleteSuccess;
     },

@@ -1,5 +1,10 @@
 import feathers, { Application } from "@feathersjs/feathers";
 
+interface AuthRequest {
+  strategy: string;
+  [key: string]: any;
+}
+
 declare module "@feathersjs/feathers" {
   interface Application {
     apiURL: string;
