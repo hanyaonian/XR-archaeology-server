@@ -3,21 +3,30 @@ import { useFeathers } from "../feathers";
 
 import _ from "lodash";
 import { SchemaHelper } from "./schemaHelper";
+import { useAuth } from "../auth";
 
 export const SchemasStore = createContext<SchemaHelper>(undefined);
 export const SchemasProvider = ({ children }: PropsWithChildren) => {
   const feathers = useFeathers();
+  const { user } = useAuth();
 
   const [helper, setHelper] = useState<SchemaHelper>(undefined);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    let helper = new SchemaHelper(feathers);
+    let helper = new SchemaHelper(feathers, user);
     helper.init().then(() => {
       setLoaded(true);
       setHelper(helper);
     });
   }, []);
+
+  useEffect(() => {
+    setHelper((helper) => {
+      helper.setUser(user);
+      return helper;
+    });
+  }, [user]);
 
   return <SchemasStore.Provider value={helper}>{loaded ? children : <div>Loading Schemas</div>}</SchemasStore.Provider>;
 };

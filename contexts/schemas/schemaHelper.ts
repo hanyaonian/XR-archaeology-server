@@ -4,6 +4,7 @@ import { Application } from "@feathersjs/feathers";
 import { EditorConfig } from "./def";
 import { resolveRootPath } from "./utils";
 import _ from "lodash";
+import { User } from "../auth";
 
 export class SchemaHelper {
   appName?: string;
@@ -21,10 +22,14 @@ export class SchemaHelper {
   pathToSchemas: {
     [key: string]: SchemaDefJson;
   } = {};
+  user?: User;
+  routeList: EditorConfig[] = [];
 
   private _init: Promise<void>;
 
-  constructor(public feathers: Application) {}
+  constructor(public feathers: Application, user?: User) {
+    this.user = user;
+  }
 
   public init() {
     // todo authentication for user
@@ -38,8 +43,6 @@ export class SchemaHelper {
 
     this.routes = {};
     this.allRoutes = {};
-
-    const routeList: EditorConfig[] = [];
 
     const routeCreateList: {
       config: DBEditorConfig;
@@ -68,17 +71,34 @@ export class SchemaHelper {
       const route = new EditorConfig(this, service, def, config);
       this.routes[route.rootPath] = route;
       this.allRoutes[route.rootPath] = route;
-      routeList.push(route);
+      this.routeList.push(route);
     }
-    this.updatePageList(routeList);
+    this.updatePageList();
   }
 
-  private updatePageList(routeList: EditorConfig[]) {
+  public setUser(user?: User) {
+    if (this.user?._id !== user?._id) this.user = user;
+    this.updatePageList();
+  }
+
+  public hasRole(role: string) {
+    if (this.user?.role) {
+      if (typeof this.user?.role === "string" && this.user?.role === role) return true;
+      else if (Array.isArray(this.user?.role) && this.user?.role.indexOf(role) !== -1) return true;
+    }
+    return false;
+  }
+
+  private updatePageList() {
     const allMenu: GUIHeader[] = [];
     const rootMenu: GUIHeader[] = [];
 
-    for (const route of routeList) {
+    for (const route of this.routeList) {
       if (!route.menu) continue;
+      if (route.roles && route.roles.length) {
+        const role = route.roles.find((role) => this.hasRole(role));
+        if (!role) continue;
+      }
       const groups = (route.group || "").split(".").filter((it) => !!it);
       const groupPath = [];
       let curList: GUIHeader[] = rootMenu;

@@ -612,7 +612,22 @@ export default {
         const model = newModel(key, schema);
         container[key] = model;
         dict[key] = def;
-
+        const whitelist = [
+          "$regex",
+          "$populate",
+          "$options",
+          "$gt",
+          "$lt",
+          "$ne",
+          "$gte",
+          "$lte",
+          "$nearSphere",
+          "$geometry",
+          "$elemMatch",
+          "$exists",
+          "$size",
+          "$not",
+        ];
         if (services) {
           _.each(services, (app, key) => {
             if (!container._services) container._services = {};
@@ -622,7 +637,7 @@ export default {
               container._services[key][path] = {
                 default:
                   def.paginate === false
-                    ? service({ Model: model, multi: def.multi, whitelist: ["$regex", "$options"] })
+                    ? service({ Model: model, multi: def.multi, whitelist: whitelist })
                     : service({
                         Model: model,
                         paginate:
@@ -633,22 +648,7 @@ export default {
                               }
                             : def.paginate,
                         multi: def.multi,
-                        whitelist: [
-                          "$regex",
-                          "$populate",
-                          "$options",
-                          "$gt",
-                          "$lt",
-                          "$ne",
-                          "$gte",
-                          "$lte",
-                          "$nearSphere",
-                          "$geometry",
-                          "$elemMatch",
-                          "$exists",
-                          "$size",
-                          "$not",
-                        ],
+                        whitelist: whitelist,
                       }),
                 ...def,
               };

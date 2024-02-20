@@ -40,13 +40,13 @@ export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLay
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FeathersProvider baseURL={baseUrl.current}>
-        <SchemasProvider>
-          <ViewSettingProvider>
-            <HeaderProvider>
-              <AuthProvider>{getLayout(<Component {...pageProps} />)}</AuthProvider>
-            </HeaderProvider>
-          </ViewSettingProvider>
-        </SchemasProvider>
+        <AuthProvider>
+          <SchemasProvider>
+            <ViewSettingProvider>
+              <HeaderProvider>{getLayout(<Component {...pageProps} />)}</HeaderProvider>
+            </ViewSettingProvider>
+          </SchemasProvider>
+        </AuthProvider>
       </FeathersProvider>
     </>
   );

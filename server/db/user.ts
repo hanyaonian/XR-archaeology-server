@@ -17,12 +17,12 @@ const schema: SchemaDefExt = {
   bookmarks: [{ type: "id", ref: "Attraction" }],
   collections: [{ type: "id", ref: "Artifact" }],
 
-  resetRequired: { type: Boolean, default: false, $editor: "hidden" },
-  resetTime: { type: Date, $editor: "hidden" },
-  resetToken: { type: String, $editor: "hidden" },
-  resetTrial: { type: Number, $editor: "hidden" },
+  resetRequired: { type: Boolean, default: false, $editor: { hidden: true } },
+  resetTime: { type: Date, $editor: { hidden: true } },
+  resetToken: { type: String, $editor: { hidden: true } },
+  resetTrial: { type: Number, $editor: { hidden: true } },
 
-  verifyToken: { type: String, $editor: "hidden" },
+  verifyToken: { type: String, $editor: { hidden: true } },
   verified: { type: Boolean, default: false },
 
   $params: {
@@ -35,6 +35,7 @@ const schema: SchemaDefExt = {
       headers: ["name", "email", "createdAt"],
       name: "App Users",
       icon: "MdOutlinePerson",
+      roles: ["admin"],
     },
   },
 };

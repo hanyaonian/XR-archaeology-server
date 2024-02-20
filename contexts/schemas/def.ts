@@ -80,6 +80,7 @@ export class EditorConfig {
   defaultSortDesc?: boolean;
   defaultValue?: any;
   paginate: boolean;
+  roles: string[];
   [key: string]: any;
 
   constructor(public parent: SchemaHelper, public serviceConfig: SchemaDefParamsService, public def: SchemaDefJson, public config: DBEditorConfig) {
@@ -106,6 +107,7 @@ export class EditorConfig {
     this.order = config.order ?? 999;
     this.menu = config.menu ?? true;
     this.paginate = paginate;
+    this.roles = config.roles ? (Array.isArray(config.roles) ? config.roles : [config.roles]) : [];
 
     const headerFields = getDefaultHeaders(config, def);
     this.headers = headerFields.map((it) => this.getHeader(it)).filter((it) => !!it);

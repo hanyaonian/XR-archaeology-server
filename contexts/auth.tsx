@@ -2,12 +2,12 @@ import { PropsWithChildren, createContext, useCallback, useContext, useEffect, u
 import { useFeathers } from "./feathers";
 import _ from "lodash";
 
-interface User {
+export interface User {
   _id: string;
   name: string;
   email: string;
-  password: string;
-  role: string;
+  password?: string;
+  role?: string;
 }
 
 class AuthState {

@@ -23,7 +23,7 @@ export const hooks = authOnly;
 
 export const hooks2 = {
   before: {
-    get: [authentication.authenticate("jwt"), iff(isProvider("external"), setField({ from: "params.user._id", as: "params.query._id" }))],
+    get: [iff(isProvider("external"), setField({ from: "params.user._id", as: "params.query._id" }))],
     create: [
       (hook: HookContext) => {
         if (!hook.params.provider) return;
