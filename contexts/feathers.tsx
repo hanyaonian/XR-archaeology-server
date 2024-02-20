@@ -19,7 +19,6 @@ function createClient(baseURL?: string) {
     forceNew: true,
   });
   socket.on("connect", function () {
-    console.log("Socket connected");
     connected = true;
   });
   socket.on("reconnect", function () {});

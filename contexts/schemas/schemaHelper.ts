@@ -77,14 +77,15 @@ export class SchemaHelper {
   }
 
   public setUser(user?: User) {
-    if (this.user?._id !== user?._id) this.user = user;
+    if (!this.user || this.user?._id !== user?._id) this.user = user;
+
     this.updatePageList();
   }
 
   public hasRole(role: string) {
     if (this.user?.role) {
-      if (typeof this.user?.role === "string" && this.user?.role === role) return true;
-      else if (Array.isArray(this.user?.role) && this.user?.role.indexOf(role) !== -1) return true;
+      if (typeof this.user.role === "string" && this.user.role === role) return true;
+      else if (Array.isArray(this.user.role) && this.user.role.indexOf(role) !== -1) return true;
     }
     return false;
   }

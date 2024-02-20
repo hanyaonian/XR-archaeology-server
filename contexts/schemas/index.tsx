@@ -22,11 +22,12 @@ export const SchemasProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
-    setHelper((helper) => {
-      helper.setUser(user);
-      return helper;
-    });
-  }, [user]);
+    if (loaded)
+      setHelper((helper) => {
+        if (helper) helper.setUser(user);
+        return helper;
+      });
+  }, [user, loaded]);
 
   return <SchemasStore.Provider value={helper}>{loaded ? children : <div>Loading Schemas</div>}</SchemasStore.Provider>;
 };
