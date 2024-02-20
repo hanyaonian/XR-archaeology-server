@@ -1,13 +1,14 @@
-import { PropsWithChildren, useMemo, useRef, useState, isValidElement, cloneElement, Children, ReactElement } from "react";
+import { PropsWithChildren, useMemo, useRef, useState, isValidElement, cloneElement, Children, ReactElement, useEffect } from "react";
 // The icon/action name refers to here
 import * as Icons from "react-icons/md";
 import { MdMenu } from "react-icons/md";
-import { useRouter } from "next/router";
+import Router from "next/router";
 import { useHeaderContext } from "@/contexts/header";
 import { useSchemasContext } from "@/contexts/schemas";
 import { GUIHeader } from "@components/editor/def";
 import DialogHost, { ComponentType } from "@components/dialogHost";
 import Navbar from "@components/navbar";
+import { useAuth } from "@/contexts/auth";
 
 export interface OpenDialogProps {
   component: Promise<ComponentType | any> | ComponentType | ReactElement;
@@ -26,8 +27,11 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
   const dialogsRef = useRef(null);
 
   const { pageList } = useSchemasContext();
+  const { user } = useAuth();
 
-  const menus: GUIHeader[] = [...(pageList ?? [])];
+  const authenticated: boolean = !!(user && user._id);
+
+  const menus: GUIHeader[] = authenticated ? [...(pageList ?? [])] : [{ title: "Login", action: "MdLogin", href: "/login" }];
 
   const toggleNavbar = () => {
     setMini((value) => !value);
@@ -90,7 +94,7 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
           </div>
           {/* nav bar */}
           <div className="col-start-1 row-start-1 row-span-2" onMouseEnter={() => setNavHovering(true)} onMouseLeave={() => setNavHovering(false)}>
-            <Navbar mini={mini} miniReal={miniReal} toggleNavbar={toggleNavbar} menus={menus} />
+            <Navbar mini={mini} miniReal={miniReal} toggleNavbar={toggleNavbar} menus={menus} authenticated={authenticated} />
           </div>
 
           <main className="col-start-2 row-start-2 relative flex flex-col mx-4 my-6 overflow-hidden">{childrenWithProps}</main>

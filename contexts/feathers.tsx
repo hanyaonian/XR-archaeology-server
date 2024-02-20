@@ -46,8 +46,6 @@ function createClient(baseURL?: string) {
 
   app.apiURL = apiURL;
 
-  console.log("Feathers-Client using url:", apiURL);
-
   return app;
 }
 

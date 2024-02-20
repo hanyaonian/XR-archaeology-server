@@ -13,8 +13,8 @@ import { computeComponent } from "@components/editor";
 import { useViewSetting } from "@/contexts/viewSettings";
 
 const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) => {
-  const { query: routerQuery } = useRouter();
-  const path = typeof routerQuery.schema === "string" ? routerQuery.schema : routerQuery.schema[0];
+  const router = useRouter();
+  const path = useMemo(() => (typeof router.query.schema === "string" ? router.query.schema : router.query.schema?.[0]), [router]);
 
   const schemas = useSchemasContext();
   const { setActions } = useHeaderContext();
@@ -45,7 +45,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
 
   useEffect(() => {
     initConfig();
-  }, [routerQuery]);
+  }, [router.query]);
 
   useEffect(() => {
     setActions([

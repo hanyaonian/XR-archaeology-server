@@ -2,7 +2,7 @@ import db from "@mfeathers/db";
 import service from "feathers-mongoose";
 import { disallow, discard, iff, isProvider, setField } from "feathers-hooks-common";
 import * as local from "@feathersjs/authentication-local";
-import { HookContext, NextFunction } from "@feathersjs/feathers";
+import { HookContext } from "@feathersjs/feathers";
 import * as authentication from "@feathersjs/authentication";
 
 import _ from "lodash";

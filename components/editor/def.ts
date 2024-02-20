@@ -7,7 +7,7 @@ export interface GUIHeader {
   items?: GUIHeader[];
   gpKey?: string;
   gpIcon?: string;
-  order: number;
+  order?: number;
 }
 
 export interface DataTablePopObj {

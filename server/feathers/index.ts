@@ -11,6 +11,7 @@ import http from "http";
 import https from "https";
 import dbInit, { setSchema } from "./db";
 import configs, { type ServerDef } from "@configs";
+import readline from "readline";
 
 function createServer<T = any>(servers: RequireContext, item: ServerDef) {
   const s = servers ? servers(item.source) : null;
@@ -64,6 +65,19 @@ interface SchemaOpts {
   mixins?: RequireContext;
 }
 
+function ask(q: string): Promise<string> {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question(q, (a) => {
+      rl.close();
+      resolve(a);
+    });
+  });
+}
+
 async function startServer(servers: RequireContext) {
   // Start MongoDB connection
   await dbInit();
@@ -85,6 +99,37 @@ async function startServer(servers: RequireContext) {
       (it) => !!it
     )
   );
+
+  if (process.env.INIT_ADMIN) {
+    const email = await ask("Email: ");
+    const password = await ask("Password: ");
+
+    console.log(`creating, ${email} / ${password}`);
+    const server = dict.api;
+    let user = (
+      await server.api.service("users").find({
+        query: { email },
+        paginate: false,
+      })
+    )[0];
+    if (user) {
+      console.log(`replacing, ${email} / ${password}`);
+      await server.api.service("users").patch(user._id, {
+        password: password,
+        role: "admin",
+      });
+    } else {
+      await server.api.service("users").create({
+        name: "Admin",
+        email,
+        password,
+        role: "admin",
+      });
+    }
+
+    console.log("done");
+    // process.exit();
+  }
 
   _.each(dict, (server, name) => {
     if (+configs.getPort(name) === -1) {

@@ -1,15 +1,17 @@
 import { MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons/md";
 import { GUIHeader } from "../editor/def";
 import NavbarItem from "./item";
+import auth from "@/server/feathers/auth";
 
 export interface Props {
   mini: boolean;
   miniReal: boolean;
   toggleNavbar: () => void;
   menus: GUIHeader[];
+  authenticated?: boolean;
 }
 
-export default function Navbar({ mini, miniReal, toggleNavbar, menus }: Props) {
+export default function Navbar({ mini, miniReal, toggleNavbar, menus, authenticated }: Props) {
   return (
     <div className={`nav-root ${mini ? "mini" : ""} ${miniReal ? "mini-real" : ""}`}>
       <nav className={`navbar inset-y-0 fixed text-white`}>
@@ -37,6 +39,14 @@ export default function Navbar({ mini, miniReal, toggleNavbar, menus }: Props) {
               </div>
             </div>
           </div>
+        </div>
+        <div className="col-start-1 row-start-3">
+          {authenticated && (
+            <div className="px-3">
+              {/* <NavbarItem item={{ title: "Settings", action: "MdOutlineSettings", href: "/" }} /> */}
+              <NavbarItem item={{ title: "Logout", action: "MdLogout", href: "/logout" }} />
+            </div>
+          )}
         </div>
       </nav>
     </div>
