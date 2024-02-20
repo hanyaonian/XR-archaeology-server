@@ -247,13 +247,14 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
   const reset = () => {
     if (!path) return;
+    resetData(false);
     syncData().then(() => updateCurrentPage());
   };
 
-  const refresh = useCallback(() => {
+  const refresh = () => {
     resetData();
     syncData().then(() => updateCurrentPage());
-  }, []);
+  };
 
   const toggleSort = useCallback(
     (header: DataTableHeader, append?: boolean) => {
@@ -322,25 +323,24 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
       const editId = _.get(item, props.idProperty || "_id");
       let res: any;
       const service = feathers.service(path);
-      const list = [...data];
+      let list = [...data];
       if (editId) {
         res = await service.patch(editId, item);
-
         const index = _.findIndex(list, (it) => it[props.idProperty] === res[props.idProperty]);
         index !== -1 && list.splice(index, 1, res);
       } else {
         res = await service.create(item);
         let results = Array.isArray(res) ? res : [res];
-        for (const res of results) {
-          const oldItem = list.find((item) => item[props.idProperty] === res[props.idProperty]);
-          if (oldItem) {
-            _.assign(oldItem, res);
+        for (const result of results) {
+          const index = list.findIndex((item) => item[props.idProperty] === result[props.idProperty]);
+          if (index !== -1) {
+            list[index] = result;
           } else {
-            // todo, add item to top once done caching
-            list.unshift(res);
+            list.unshift(result);
           }
         }
       }
+      console.log(editId, list.length, data.length);
       setData(list);
 
       console.log("Setting success", res);

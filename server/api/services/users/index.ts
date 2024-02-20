@@ -42,7 +42,7 @@ export const hooks2 = {
         if (!hook.data.password || hook.params.user.role !== "admin") delete hook.data.password;
         if (hook.params.user.role !== "admin" || checkID(hook.params.user, hook.id)) delete hook.data.role;
       },
-      authentication.hooks.authenticate("jwt"),
+      local.hooks.hashPassword("password"),
     ],
     update: disallow("external"),
     remove: [
@@ -52,7 +52,6 @@ export const hooks2 = {
           throw new errors.NotAuthenticated("No permission");
         }
       },
-      authentication.hooks.authenticate("jwt"),
     ],
   },
   after: {

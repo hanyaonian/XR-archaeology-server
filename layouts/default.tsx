@@ -2,7 +2,6 @@ import { PropsWithChildren, useMemo, useRef, useState, isValidElement, cloneElem
 // The icon/action name refers to here
 import * as Icons from "react-icons/md";
 import { MdMenu } from "react-icons/md";
-import Router from "next/router";
 import { useHeaderContext } from "@/contexts/header";
 import { useSchemasContext } from "@/contexts/schemas";
 import { GUIHeader } from "@components/editor/def";

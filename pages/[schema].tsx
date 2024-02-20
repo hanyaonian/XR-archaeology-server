@@ -65,7 +65,7 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
               icon: "add",
               altText: "add",
               name: "Add",
-              action: tableRef.current?.editItem,
+              action: () => tableRef.current?.editItem(),
             },
           ]
         : []),

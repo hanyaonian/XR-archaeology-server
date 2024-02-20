@@ -4,7 +4,7 @@ import { MModel, MongoSchema } from "../feathers/schemas";
 const schema: SchemaDefExt = {
   name: String,
   email: { type: String },
-  password: { type: String },
+  password: { type: String, $editor: { hidden: true } },
   role: { type: String, index: true, enum: ["admin", "editor"] },
   createdAt: { type: Date, default: Date },
 
@@ -14,7 +14,11 @@ const schema: SchemaDefExt = {
     },
   },
   $params: {
-    editor: false,
+    editor: {
+      headers: ["name", "role", "createdAt"],
+      name: "Admins",
+      icon: "MdLockPerson",
+    },
   },
 };
 

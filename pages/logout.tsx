@@ -1,14 +1,18 @@
 import { useAuth } from "@/contexts/auth";
 import { useLayoutEffect } from "react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 
-export default () => {
+const LogoutPage = () => {
   const { logout } = useAuth();
+  const router = useRouter();
   useLayoutEffect(() => {
     const fn = async () => {
       await logout();
-      Router.replace("/login");
+      router.replace("/login");
     };
     fn();
   }, []);
+  return <></>;
 };
+
+export default LogoutPage;

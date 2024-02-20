@@ -184,39 +184,43 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
     }
   };
 
-  const save = async (item: any, origin?: any) => {
-    try {
-      const editId = _.get(item, props.idProperty || "_id");
-      let res: any;
-      const service = feathers.service(props.path);
-      if (editId) {
-        res = await service.patch(editId, item);
+  const save = useCallback(
+    async (item: any, origin?: any) => {
+      try {
+        const editId = _.get(item, props.idProperty || "_id");
+        let res: any;
+        const service = feathers.service(props.path);
 
-        setData((data) => {
-          const index = _.findIndex(data, (it) => it[props.idProperty] === res[props.idProperty]);
-          index !== -1 && data.splice(index, 1, res);
-          console.log(`update item at ${index}`);
-          return data;
-        });
-      } else {
-        res = await service.create(item);
-        let results = Array.isArray(res) ? res : [res];
-        for (const res of results) {
-          const oldItem = data.find((item) => item[props.idProperty] === res[props.idProperty]);
-          if (oldItem) {
-            _.assign(oldItem, res);
-          } else {
-            // todo, add item to top once done caching
-            setData((data) => [res, ...data]);
+        if (editId) {
+          res = await service.patch(editId, item);
+
+          setData((data) => {
+            const index = _.findIndex(data, (it) => it[props.idProperty] === res[props.idProperty]);
+            index !== -1 && data.splice(index, 1, res);
+            console.log(`update item at ${index}`);
+            return data;
+          });
+        } else {
+          res = await service.create(item);
+          let results = Array.isArray(res) ? res : [res];
+          for (const res of results) {
+            const oldItem = data.find((item) => item[props.idProperty] === res[props.idProperty]);
+            if (oldItem) {
+              _.assign(oldItem, res);
+            } else {
+              // todo, add item to top once done caching
+              setData((data) => [res, ...data]);
+            }
           }
         }
+        console.log("Setting success", res);
+        return res;
+      } catch (error) {
+        alert(`Setting failed: ${error}`);
       }
-      console.log("Setting success", res);
-      return res;
-    } catch (error) {
-      alert(`Setting failed: ${error}`);
-    }
-  };
+    },
+    [data]
+  );
 
   const editItem = async (item?: any, clone?: boolean, assign?: boolean) => {
     const origin = clone ? null : item;

@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/auth";
 import { useRef, useState } from "react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { useHeaderContext } from "@/contexts/header";
 
-const Page = () => {
+const LoginPage = () => {
   const { login } = useAuth();
+  const router = useRouter();
   const { setTitle } = useHeaderContext();
   const email = useRef("");
   const password = useRef("");
@@ -23,8 +24,8 @@ const Page = () => {
         setLoading(true);
         if (isValid) {
           await login({ email: email.current, password: password.current });
-          Router.replace("/dashboard");
-          setTitle?.("Dashboard");
+          await router.replace("/attractions");
+          setTitle("APSAP");
         } else {
           setError("Invalid login");
         }
@@ -109,4 +110,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default LoginPage;
