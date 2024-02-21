@@ -643,6 +643,10 @@ video {
   margin-bottom: 0.25rem;
 }
 
+.mb-10 {
+  margin-bottom: 2.5rem;
+}
+
 .mb-2 {
   margin-bottom: 0.5rem;
 }
@@ -898,6 +902,10 @@ video {
 
 .gap-3 {
   gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
 }
 
 .gap-5 {
@@ -1775,6 +1783,22 @@ input:focus-visible {
 
 .batch-delete-dialog {
   height: calc(100% - 140px) !important;
+}
+
+.loader {
+  --loader-color: #f59e0b;
+  width: 50px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side, var(--loader-color) 94%, #0000) top/8px 8px no-repeat, conic-gradient(#0000 30%, var(--loader-color));
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
+  animation: l13 1s infinite linear;
+}
+
+@keyframes l13 {
+  100% {
+    transform: rotate(1turn);
+  }
 }
 
 .hover\:bg-blue-700:hover {

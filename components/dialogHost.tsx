@@ -141,8 +141,8 @@ class DialogHost extends Component<{}, DialogHostState> {
               className={dialog.className}
             >
               {dialog.loading ? (
-                <div>
-                  <p>Loading</p>
+                <div className="flex flex-col h-full w-full justify-center items-center">
+                  <div className="loader" />
                 </div>
               ) : (
                 dialog.component

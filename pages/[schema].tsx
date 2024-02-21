@@ -130,7 +130,14 @@ const Page: NextPageWithLayout = ({ openDialog }: { openDialog: OpenDialog }) =>
       />
     );
   } else {
-    return <div>Loading</div>;
+    return (
+      <div className=" flex flex-col h-full w-full justify-center items-center">
+        <div className="flex flex-col gap-4 text-center items-center">
+          <h1 className="text-2xl text-gray-400 ">Loading...</h1>
+          <div className="loader mb-10" />
+        </div>
+      </div>
+    );
   }
 };
 

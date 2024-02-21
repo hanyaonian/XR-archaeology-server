@@ -29,8 +29,18 @@ export const SchemasProvider = ({ children }: PropsWithChildren) => {
       });
   }, [user, loaded]);
 
-  return <SchemasStore.Provider value={helper}>{loaded ? children : <div>Loading Schemas</div>}</SchemasStore.Provider>;
+  return <SchemasStore.Provider value={helper}>{loaded ? children : <LoadingPage />}</SchemasStore.Provider>;
 };
+
+function LoadingPage() {
+  return (
+    <div className="flex flex-col h-screen w-full items-center justify-center">
+      <h1 className="text-2xl text-gray-400 ">Loading...</h1>
+      <div style={{ height: 24, width: "auto" }} />
+      <div className="loader" />
+    </div>
+  );
+}
 
 export const useSchemasContext = () => {
   const schemaHelper = useContext(SchemasStore);
