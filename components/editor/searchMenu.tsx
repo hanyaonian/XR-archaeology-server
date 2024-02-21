@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { computeComponent } from ".";
 import { SearchField } from "./def";
 import _ from "lodash";
-import { query } from "express";
 import DataTableCell from "../dataTable/dataTableCell";
 import { MdClear } from "react-icons/md";
 
@@ -110,8 +109,8 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
       }
       query[field.path] = value;
     }
-
-    setQuery({ ...config.filter, ...query });
+    const q = { ...config.filter, ...query };
+    if (!_.isEqual(q, props.query)) setQuery({ ...config.filter, ...query });
   }
 
   return (

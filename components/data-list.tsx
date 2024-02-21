@@ -96,10 +96,10 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
 
     handleResize();
     window.addEventListener("resize", handleResize);
-    scrollRef.current.addEventListener("scroll", onScroll);
+    scrollRef.current?.addEventListener("scroll", onScroll);
     return () => {
       window.removeEventListener("resize", handleResize);
-      scrollRef.current.removeEventListener("scroll", onScroll);
+      scrollRef.current?.removeEventListener("scroll", onScroll);
     };
   }, [scrollRef.current]);
 

@@ -22,6 +22,8 @@ import { MdOutlineEditNote } from "react-icons/md";
 import SearchMenu from "../editor/searchMenu";
 import { EditorConfig } from "@/contexts/schemas/def";
 import { useViewSetting } from "@/contexts/viewSettings";
+import { DataTableProvider } from "./dataTableProvider";
+import { resolve } from "path";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -37,7 +39,7 @@ import { useViewSetting } from "@/contexts/viewSettings";
  * @param editor determines the rendered inputs according to the editing object
  */
 export interface DataTableProps<T> {
-  path: string;
+  readonly path: string;
   items?: T[];
   headers?: DataTableHeader[];
   noPaginate?: boolean;
@@ -85,12 +87,13 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
   var pageStart = 0;
   var cursor = 0;
 
-  var executor: Promise<void> | null = null;
+  const executor = useRef<Promise<void> | null>(null);
 
   const pageMax = Math.max(1, Math.ceil(total / limit));
 
   // query
   const [query, setQuery] = useState(props.query || {});
+  const initPath = useRef(false);
 
   /** sorting */
   const [sort, setSort] = useState<string[]>([]);
@@ -131,28 +134,39 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
     handleResize();
     window.addEventListener("resize", handleResize);
-    scrollRef.current.addEventListener("scroll", onScroll);
+    scrollRef.current?.addEventListener("scroll", onScroll);
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      scrollRef.current.removeEventListener("scroll", onScroll);
+      scrollRef.current?.removeEventListener("scroll", onScroll);
     };
   }, [scrollRef.current]);
 
-  useEffect(() => {
-    reset();
+  const updateQuery = useCallback(
+    function updateQuery(newQuery: any) {
+      if (!_.isEqual(newQuery, query)) {
+        setQuery(newQuery);
+      }
+    },
+    [setQuery, query]
+  );
+
+  /** Force update of data base when path change, without render */
+  useLayoutEffect(() => {
+    initPath.current = true;
   }, [path]);
 
   useEffect(() => {
-    setQuery(props.query || {});
-  }, [props.query]);
-
-  useEffect(() => {
-    setCurPage(0);
     pageStart = 0;
+    setCurPage(0);
+    if (!initPath.current) {
+      console.log("stop");
+      return;
+    }
+
     resetData(false);
     syncData().then(() => updateCurrentPage());
-  }, [query, sortParams]);
+  }, [query]);
 
   useEffect(() => {
     if (props.defaultSort) {
@@ -164,70 +178,72 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
   }, [props.defaultSort, props.defaultSortDesc]);
 
   function syncData() {
-    if (executor) return executor;
+    if (executor.current) return executor.current;
     if (loaded.current) return Promise.resolve();
-    executor = syncDataCore();
-    return executor;
+    const promise = syncDataCore();
+    executor.current = promise;
+    return promise;
   }
 
-  const syncDataCore = useCallback(
-    async function syncDataCore() {
-      setLoading(true);
-      try {
-        const list = [...data];
+  async function syncDataCore() {
+    setLoading(true);
 
-        let q = {
-          ...query,
-          $sort: sortParams,
-          ...(props.noPaginate ? {} : { $limit: limit }),
-          $skip: cursor + pageStart,
-        };
-        q = JSON.parse(JSON.stringify(q));
+    await Promise.resolve(executor.current);
 
-        // Assume service using paginated data
-        /**  @type {Paginated} contains total, limit, skip and data */
-        let paged: any = await feathers.service(path).find({ query: q });
+    try {
+      const list = [...data];
 
-        if (props.noPaginate) {
-          loaded.current = true;
-          paged = {
-            total: paged.length,
-            data: paged,
-          };
-        }
+      let q = {
+        ..._.merge({}, props.query, query),
+        $sort: sortParams,
+        ...(props.noPaginate ? {} : { $limit: limit }),
+        $skip: cursor + pageStart,
+      };
+      q = JSON.parse(JSON.stringify(q));
 
-        if (Array.isArray(paged)) {
-          console.warn(`Need no paginate for ${this.path}`);
-        }
+      // Assume service using paginated data
+      /**  @type {Paginated} contains total, limit, skip and data */
+      let paged: any = await feathers.service(path).find({ query: q });
 
-        let count = paged.data.length;
-        setTotal(paged.total);
-
-        if (!cursor) {
-          list.splice(0, list.length);
-        }
-
-        cursor += count;
-
-        list.push(...paged.data);
-        setData(list);
-
-        if (count === 0 || cursor >= paged.total) loaded.current = true;
-      } catch (error) {
-        console.warn(error.message);
-        console.warn(error.stack);
+      if (props.noPaginate) {
         loaded.current = true;
-      } finally {
-        setLoading(false);
-        executor = null;
+        paged = {
+          total: paged.length,
+          data: paged,
+        };
       }
-    },
-    [data, query, sortParams, path]
-  );
+
+      if (Array.isArray(paged)) {
+        console.warn(`Need no paginate for ${this.path}`);
+      }
+
+      let count = paged.data.length;
+      setTotal(paged.total);
+
+      if (!cursor) {
+        list.splice(0, list.length);
+      }
+
+      cursor += count;
+
+      list.push(...paged.data);
+      setData(list);
+
+      if (count === 0 || cursor >= paged.total) loaded.current = true;
+    } catch (error) {
+      console.warn(error.message);
+      console.warn(error.stack);
+      loaded.current = true;
+    } finally {
+      executor.current = null;
+      setLoading(false);
+    }
+  }
 
   function updatePageStart(newPageStart: number) {
     pageStart = newPageStart;
     resetData(false);
+
     return syncData();
   }
 
@@ -239,14 +255,8 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
     if (!delay) {
       setData([]);
     }
-    executor = null;
+    executor.current = null;
   }
-
-  const reset = () => {
-    if (!path) return;
-    resetData(false);
-    syncData().then(() => updateCurrentPage());
-  };
 
   const refresh = () => {
     resetData();
@@ -340,7 +350,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
       setData(list);
 
-      console.log("Setting success", res);
+      console.log("Setting success");
       return res;
     } catch (error) {
       alert(`Setting failed: ${error}`);
@@ -445,70 +455,72 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
   const gridTemplateColumns: string = `repeat(${columnCount}, minmax(0, 1fr))`;
 
   return (
-    <div className="w-full h-full relative flex flex-col">
-      <div className="data-table-container w-full h-full flex flex-col">
-        <div className="flex-grow overflow-hidden h-full">
-          {/* Pre-header */}
-          {(props.showPreHeader ?? true) && (
-            <div className="flex flex-row justify-between mt-6 mx-6">
-              <div className="flex">Total: {total} items</div>
-              <div>
-                <button type="button" onClick={props.showViewSetting} title="Header settings">
-                  <MdOutlineEditNote size={24} />
-                </button>
+    <DataTableProvider>
+      <div className="w-full h-full relative flex flex-col">
+        <div className="data-table-container w-full h-full flex flex-col">
+          <div className="flex-grow overflow-hidden h-full">
+            {/* Pre-header */}
+            {(props.showPreHeader ?? true) && (
+              <div className="flex flex-row justify-between mt-6 mx-6">
+                <div className="flex">Total: {total} items</div>
+                <div>
+                  <button type="button" onClick={props.showViewSetting} title="Header settings">
+                    <MdOutlineEditNote size={24} />
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
-            <div className="mx-4">
-              <SearchMenu config={props.config} setting={setting} setQuery={setQuery} query={query} />
-            </div>
-            {/* Header */}
-            <div
-              className="data-table-header flex flex-row sticky top-0 z-10 "
-              ref={(node) => {
-                if (node) {
-                  setStickyHeaderHeight(node.clientHeight);
-                }
-              }}
-            >
-              <div className="data-table-item-index border-b border-gray-200" />
-              <div className="border-b border-gray-200 data-table-row" style={{ gridTemplateColumns: gridTemplateColumns }}>
-                {headers.map((header, index) => (
-                  <TableHeader key={index} header={header} sort={sort} sortDesc={sortDesc} toggleSort={toggleSort} />
-                ))}
+            <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
+              <div className="mx-4">
+                <SearchMenu config={props.config} setting={setting} setQuery={updateQuery} query={query} />
               </div>
-            </div>
-            {/* Rows */}
-            <div role="group" className="flex flex-wrap">
-              {data.map(renderItem)}
-              <div style={{ height: stickyHeaderHeight, width: "100%" }}></div>
+              {/* Header */}
+              <div
+                className="data-table-header flex flex-row sticky top-0 z-10 "
+                ref={(node) => {
+                  if (node) {
+                    setStickyHeaderHeight(node.clientHeight);
+                  }
+                }}
+              >
+                <div className="data-table-item-index border-b border-gray-200" />
+                <div className="border-b border-gray-200 data-table-row" style={{ gridTemplateColumns: gridTemplateColumns }}>
+                  {headers.map((header, index) => (
+                    <TableHeader key={index} header={header} sort={sort} sortDesc={sortDesc} toggleSort={toggleSort} />
+                  ))}
+                </div>
+              </div>
+              {/* Rows */}
+              <div role="group" className="flex flex-wrap">
+                {data.map(renderItem)}
+                <div style={{ height: stickyHeaderHeight, width: "100%" }}></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* Paginate */}
-      <div className="place-self-center mt-4 mb-1">
-        <div className="data-table-container page-control py-4 px-8">
-          <button className={`${curPage - 1 <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 2)}>
-            {curPage - 1}
-          </button>
-          <button className={`${curPage <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 1)}>
-            {curPage}
-          </button>
-          <button className="active" onClick={() => goToPage(curPage)}>
-            {curPage + 1}
-          </button>
-          <button className={`${curPage + 1 >= pageMax ? "out-range" : ""}`} onClick={() => goToPage(curPage + 1)}>
-            {curPage + 2}
-          </button>
-          <button className={`${curPage + 2 >= pageMax ? "out-range" : ""}`} onClick={() => goToPage(curPage + 2)}>
-            {curPage + 3}
-          </button>
+        {/* Paginate */}
+        <div className="place-self-center mt-4 mb-1">
+          <div className="data-table-container page-control py-4 px-8">
+            <button className={`${curPage - 1 <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 2)}>
+              {curPage - 1}
+            </button>
+            <button className={`${curPage <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 1)}>
+              {curPage}
+            </button>
+            <button className="active" onClick={() => goToPage(curPage)}>
+              {curPage + 1}
+            </button>
+            <button className={`${curPage + 1 >= pageMax ? "out-range" : ""}`} onClick={() => goToPage(curPage + 1)}>
+              {curPage + 2}
+            </button>
+            <button className={`${curPage + 2 >= pageMax ? "out-range" : ""}`} onClick={() => goToPage(curPage + 2)}>
+              {curPage + 3}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </DataTableProvider>
   );
 });
 
