@@ -93,7 +93,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
   // query
   const [query, setQuery] = useState(props.query || {});
-  const initPath = useRef(false);
+  const inited = useRef(false);
 
   /** sorting */
   const [sort, setSort] = useState<string[]>([]);
@@ -151,22 +151,32 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
     [setQuery, query]
   );
 
-  /** Force update of data base when path change, without render */
-  useLayoutEffect(() => {
-    initPath.current = true;
+  useEffect(() => {
+    inited.current = false;
   }, [path]);
 
   useEffect(() => {
     pageStart = 0;
     setCurPage(0);
-    if (!initPath.current) {
-      console.log("stop");
-      return;
-    }
-
     resetData(false);
-    syncData().then(() => updateCurrentPage());
-  }, [query]);
+
+    inited.current = true;
+    syncData().then(() => {
+      updateCurrentPage();
+    });
+  }, [query, sortParams]);
+
+  useEffect(() => {
+    if (!_.isEqual(props.query || {}, query)) {
+      setQuery(props.query || {});
+    } else if (!inited.current) {
+      inited.current = true;
+      resetData(false);
+      syncData().then(() => {
+        updateCurrentPage();
+      });
+    }
+  }, [props.query]);
 
   useEffect(() => {
     if (props.defaultSort) {
@@ -194,7 +204,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
       const list = [...data];
 
       let q = {
-        ..._.merge({}, props.query, query),
+        ...query,
         $sort: sortParams,
         ...(props.noPaginate ? {} : { $limit: limit }),
         $skip: cursor + pageStart,
