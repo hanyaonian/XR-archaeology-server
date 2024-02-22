@@ -44,7 +44,7 @@ export class EditorConfig {
   // data table header
   headers?: DataTableHeader[];
   // hidden table headers
-  extraHeaders?: DataTableHeader[];
+  extraHeaders?: DataTableHeader[] = [];
 
   // editor fields
   fields?: EditorField[];
@@ -114,9 +114,6 @@ export class EditorConfig {
 
     let jsonFields = def?.schema?.fields || [];
     this.fields = jsonFields.map((it) => this.convertField(it)).filter((it) => !!it);
-    this.extraHeaders = this.fields
-      .map((field) => this.getHeader(field.schema))
-      .filter((header) => !this.headers.find((it) => it.value === header.value && !!it));
 
     this.updateDefaultValue();
     this.updateSearchFields();
@@ -332,7 +329,12 @@ export class EditorConfig {
             props.path = path;
             const nameField = getNameField(refTable);
             const nameFields = getNameFields(refTable);
-            // Todo
+
+            const extraFields = (refTable.schema?.fields || []).filter(
+              (it) => it.name !== nameField?.name && !nameFields.find((f) => f.name === it.name)
+            );
+
+            // TODO convert nameField to be searchable
           } else {
             component = "text-field";
           }
@@ -492,6 +494,11 @@ export class EditorConfig {
       const header = this.getHeader(f.schema);
       if (header) {
         if (f.props.multiple) header.multiple = true;
+        // update extra headers here. so that some object value will not be displayed in data table.
+        // for example editor-list.
+        if (!this.headers.find((it) => it.value === header.value)) {
+          this.extraHeaders.push({ ...header });
+        }
         header.value = "";
         searchFields.push({
           name: field.name,
