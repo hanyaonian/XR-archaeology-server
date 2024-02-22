@@ -4,6 +4,7 @@
     "admin": "Admin",
     "cancel": "Cancel",
     "change": "Change",
+    "clear": "Clear",
     "clone": "Clone",
     "close": "Close",
     "confirm": "Confirm",
@@ -234,6 +235,12 @@
   },
   "enum": {
     "pages": {
+      "admins": {
+        "role": {
+          "admin": "Admin",
+          "editor": "Editor"
+        }
+      },
       "attractions": {
         "type": {
           "Attraction": "Attraction",

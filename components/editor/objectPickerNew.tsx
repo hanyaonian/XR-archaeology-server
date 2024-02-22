@@ -3,7 +3,7 @@ import { useSchemasContext } from "@/contexts/schemas";
 import { getNameField, getNameFields } from "@/contexts/schemas/utils";
 import { SchemaFieldJson } from "@/server/feathers/schema";
 import _ from "lodash";
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { checkId, getId } from "./utils";
 import { t } from "i18next";
 
@@ -133,7 +133,7 @@ function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, requ
         {/* clear button */}
         {!required && (
           <div role="button" className="item" onClick={clear}>
-            Clear
+            {t("basic.clear")}
           </div>
         )}
       </div>
