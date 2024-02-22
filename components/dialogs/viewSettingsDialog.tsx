@@ -3,6 +3,7 @@ import { DialogProps } from "./basicDialog";
 import { ViewSetting, useViewSetting } from "@/contexts/viewSettings";
 import { useMemo } from "react";
 import { MdCheck } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 export interface ViewSettingProps extends DialogProps<ViewSetting> {
   config: EditorConfig;
@@ -10,6 +11,7 @@ export interface ViewSettingProps extends DialogProps<ViewSetting> {
 }
 
 export default function ViewSettingDialog({ config, path, modalResult }: ViewSettingProps) {
+  const { t } = useTranslation();
   const { state: viewSettingState, setSetting } = useViewSetting();
   const setting = viewSettingState[path];
   const headers: string[] = useMemo(() => setting?.headers || config.headers.map((it) => it.value), [config, setting]);
@@ -52,7 +54,7 @@ export default function ViewSettingDialog({ config, path, modalResult }: ViewSet
                 <MdCheck className={`${headers.includes(header.value) ? "fill-blue-500" : "fill-gray-700"}`} size={20} />
               </div>
               {headers.includes(header.value) && <p>{headers.indexOf(header.value) + 1}</p>}
-              <p>{header.text}</p>
+              <p>{t(header.text)}</p>
             </div>
           ))}
         </div>
@@ -60,10 +62,10 @@ export default function ViewSettingDialog({ config, path, modalResult }: ViewSet
 
       <div className="flex justify-end">
         <button className="text-gray-400 hover:text-gray-600 hover:bg-slate-200 py-2 px-4 min-w-24 rounded" type="button" onClick={reset}>
-          Reset
+          {t("basic.reset")}
         </button>
         <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-24 rounded" type="button" onClick={save}>
-          Confirm
+          {t("basic.confirm")}
         </button>
       </div>
     </div>

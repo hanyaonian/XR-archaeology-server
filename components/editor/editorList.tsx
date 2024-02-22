@@ -4,6 +4,7 @@ import { computeComponent } from ".";
 import { OpenDialog } from "@/layouts/default";
 import { EditorField } from "./def";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface Props {
   defaultItems: any[];
@@ -13,6 +14,7 @@ export interface Props {
 }
 
 export default function EditorList({ defaultItems, field, onChange, openDialog }: Props) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const dragIndex = useRef<number | null>(null);
   const dragOverIndex = useRef<number | null>(null);
@@ -79,7 +81,7 @@ export default function EditorList({ defaultItems, field, onChange, openDialog }
                 <MdMenu />
               </div>
             )}
-            <div className="bg-slate-50 rounded-md p-4 w-full" style={editing ? { cursor: "move" } : {}}>
+            <div className="bg-slate-50 rounded-md p-4 w-full flex flex-col gap-6" style={editing ? { cursor: "move" } : {}}>
               {field.inner.map((f) =>
                 computeComponent({
                   field: f,
@@ -111,7 +113,7 @@ export default function EditorList({ defaultItems, field, onChange, openDialog }
         <div role="button" className="bg-white rounded border-blue-500 border-2 flex-grow-0 w-fit" onClick={addItem}>
           <div className="flex pl-2 pr-4 py-2 gap-x-1 text-blue-500 ">
             <MdAdd size={24} color="blue-500" />
-            <p>Add</p>
+            <p>{t("basic.add")}</p>
           </div>
         </div>
         <div
@@ -122,7 +124,7 @@ export default function EditorList({ defaultItems, field, onChange, openDialog }
           }}
         >
           <div className="flex px-2 py-2 gap-x-1 text-blue-500 ">
-            <p>{!editing ? "Edit Items" : "Done Editing"}</p>
+            <p>{!editing ? t("basic.edit") : t("basic.ok")}</p>
           </div>
         </div>
       </div>

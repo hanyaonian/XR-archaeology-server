@@ -1,6 +1,6 @@
 import { ForwardedRef, ReactNode, forwardRef, useState } from "react";
 import { ComponentType } from "../dialogHost";
-import _, { compact } from "lodash";
+import _ from "lodash";
 
 interface BasicDialogProps<P extends Record<string, any>, T = {}> {
   modalId: string;

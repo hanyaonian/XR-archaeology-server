@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import * as Icons from "react-icons/md";
 import { MdOutlineChevronRight } from "react-icons/md";
 import { useCallback, useState } from "react";
-import path from "path";
+import { useTranslation } from "react-i18next";
 
 export interface Props {
   item: GUIHeader;
@@ -13,6 +13,7 @@ export interface Props {
 }
 
 function NavbarItem({ item, className }: Props) {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const { setTitle } = useHeaderContext();
@@ -47,7 +48,7 @@ function NavbarItem({ item, className }: Props) {
             <div className="!h-6 !w-6 place-self-center place-content-center self-center">
               <IconComponent size={24} />
             </div>
-            <span className="overflow-hidden grow shrink mini-hide text-clip whitespace-nowrap">{item.title}</span>
+            <span className="overflow-hidden grow shrink mini-hide text-clip whitespace-nowrap">{t(item.title)}</span>
             {hasChild && <MdOutlineChevronRight size={24} className={`transition ease-in-out delay-50 mini-hide ${expand ? "expanded" : ""}`} />}
           </div>
         </div>

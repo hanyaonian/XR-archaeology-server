@@ -9,6 +9,7 @@ import {
 } from "@/server/feathers/schema";
 import _ from "lodash";
 
+export const defHeaders = ["name", "value", "price", "status", "modifiedBy", "modified", "createdBy", "createdAt", "email"];
 export const readonlyHeaders = ["modifiedBy", "modified", "createdBy", "createdAt", "_id"];
 const colors = ["green", "purple", "indigo", "blue", "teal", "orange"];
 
@@ -45,6 +46,18 @@ export function isSortable(type: string) {
 
 export function isEnum(field: SchemaFieldJson) {
   return lookupType(field.type) === "string" && !!field.params?.enum;
+}
+
+export function isTranslate(type: string | SchemaTypeJson) {
+  if (typeof type === "string") return false;
+  if (type.type !== "array") return false;
+  const innerType = type.itemType;
+  if (!innerType || typeof innerType === "string" || innerType.type !== "object") return false;
+
+  return (
+    innerType.fields.find((it) => it.name === "lang" && lookupType(it.type) === "string") &&
+    innerType.fields.find((it) => it.name === "value" && lookupType(it.type) === "string")
+  );
 }
 
 export function getDefaultHeaders(config: DBEditorConfig, def: SchemaDefJson): SchemaFieldJsonWithPath[] {
@@ -145,6 +158,18 @@ export function getNameFields(def: SchemaDefJson): SchemaFieldJsonWithPath[] {
   return def.nameFields;
 }
 
-export function getFieldName(field: SchemaFieldJsonWithPath, editor?: EditorFieldOptions) {
-  return editor?.name ?? field.path ?? field.name;
+export function getFieldName(field: SchemaFieldJsonWithPath, editor?: EditorFieldOptions, tp: string = "", withSuffix: boolean = false) {
+  if (tp.endsWith(".$.")) tp = tp.slice(0, -3) + ".";
+  const name = editor?.name ?? field.path ?? field.name;
+  const type = lookupType(field.type);
+  const useBasic =
+    name === "modifiedBy" ||
+    type === "string" ||
+    type === "number" ||
+    type === "boolean" ||
+    type === "date" ||
+    (type === "array" && isTranslate(field.type));
+  let suffix = withSuffix ? ".$" : "";
+
+  return !useBasic || defHeaders.indexOf(name) === -1 ? tp + name + suffix : "basic." + name;
 }

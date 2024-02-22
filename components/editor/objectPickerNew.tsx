@@ -5,6 +5,7 @@ import { SchemaFieldJson } from "@/server/feathers/schema";
 import _ from "lodash";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { checkId, getId } from "./utils";
+import { t } from "i18next";
 
 export interface Props {
   path: string;
@@ -18,6 +19,7 @@ export interface Props {
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  translate?: boolean; // translated enum
 }
 
 /**
@@ -25,7 +27,7 @@ export interface Props {
  * @param props
  * @returns A list of items for selection.
  */
-function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, required, disabled, readOnly, ...props }: Props) {
+function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, required, disabled, readOnly, translate, ...props }: Props) {
   const schemas = useSchemasContext();
   const feathers = useFeathers();
   const idProperty = props.idProperty ?? "_id";
@@ -86,7 +88,6 @@ function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, requ
       } else {
         onChange?.([...list, returnObject ? item : getId(item)]);
       }
-      console.log(list, inputValue, index);
     } else {
       onChange?.(checkId(inputValue, item) ? (required ? inputValue : null) : returnObject ? item : getId(item));
     }
@@ -110,6 +111,8 @@ function ObjectPickerNew({ path, returnObject, query, inputValue, onChange, requ
       <div className="flex flex-wrap gap-2">
         {(items || []).map((item, index) => {
           let name = typeof item === "string" ? item : nameFields.length ? item[nameFields[0].name] : item["name"];
+
+          if (translate) name = t(_.get(item, ["name", "$t"]) || "");
           const isDeleted = name === undefined || name === null;
           name ??= "[DELETED]";
           const isActive = isSelected(item);

@@ -109,7 +109,7 @@ export class SchemaHelper {
         if (!groupItem) {
           curList.push(
             (groupItem = {
-              title: groupPath.join("_"),
+              title: "pages.groups." + groupPath.join("_"),
               action: "",
               href: "",
               items: [],

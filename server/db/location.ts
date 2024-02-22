@@ -26,8 +26,7 @@ const schema: SchemaDefExt = {
     editor: {
       headers: ["name", "latitude", "longitude", "order"],
       icon: "MdLocationOn",
-      name: "Locations",
-      group: "Hike",
+      group: "hike",
       groupIcon: "MdLandscape",
     },
   },

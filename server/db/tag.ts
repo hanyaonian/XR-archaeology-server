@@ -18,9 +18,8 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "createdAt"],
-      name: "Tags",
       icon: "MdTag",
-      group: "Archaeology",
+      group: "archaeology",
     },
   },
 };

@@ -32,7 +32,6 @@ const schema: SchemaDefExt = {
     },
     editor: {
       headers: ["name", "email", "createdAt"],
-      name: "App Users",
       icon: "MdOutlinePerson",
       roles: ["admin"],
     },

@@ -9,6 +9,7 @@ import _ from "lodash";
 import { default as EditorList } from "./editorList";
 import { default as TextField } from "./text-field";
 import DatePicker from "./datePicker";
+import i18n from "@/plugins/i18n";
 
 export { FilePicker, ImagePicker, ObjectPickerList, ObjectPickerNew, EditorList, TextField };
 
@@ -133,7 +134,16 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
       );
       break;
     case "object-picker-list":
-      result = <ObjectPickerList path={props.path} defaultValue={defaultValue} onChange={onChange} multiple={props.multiple} items={props?.items} />;
+      result = (
+        <ObjectPickerList
+          path={props.path}
+          defaultValue={defaultValue}
+          onChange={onChange}
+          multiple={props.multiple}
+          items={props?.items}
+          translate={props?.translate}
+        />
+      );
       break;
     case "object-picker-new":
       result = (
@@ -144,6 +154,7 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
           multiple={props.multiple}
           items={props?.items}
           required={props?.required}
+          translate={props?.translate}
         />
       );
       break;
@@ -154,7 +165,7 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
   return (
     <div className="flex flex-col gap-y-2 " key={`${field.path}_${key}`}>
       {/* TODO: translate key to label */}
-      {(showLabel ?? true) && <label>{field.name}</label>}
+      {(showLabel ?? true) && <label>{i18n.t(field.name)}</label>}
       {result}
     </div>
   );

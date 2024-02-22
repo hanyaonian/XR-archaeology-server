@@ -6,6 +6,7 @@ import _ from "lodash";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { MdClear } from "react-icons/md";
 import DataList from "../data-list";
+import { t } from "i18next";
 
 export interface ObjectPickerListProps<T extends Record<string, any>, K extends keyof T> {
   path: string;
@@ -16,6 +17,7 @@ export interface ObjectPickerListProps<T extends Record<string, any>, K extends 
   query?: any;
   defaultValue?: T[K] | T | (T[K] | T)[];
   onChange?: (value: T[K] | T | (T[K] | T)[]) => void;
+  translate?: boolean; //  translated enum
 }
 
 function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(props: ObjectPickerListProps<T, K>) {
@@ -26,8 +28,7 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
 
   const schemas = useSchemasContext();
   const feathers = useFeathers();
-  const idProperty = props.idProperty ?? "_id";
-  const multiple = props.multiple ?? true;
+  const { path, idProperty = "_id", multiple = true, returnObject = false, translate = false } = props;
 
   useLayoutEffect(() => {
     updateResolve();
@@ -54,9 +55,9 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
   }, [items]);
 
   const updateResolve = async () => {
-    if (props.path) {
+    if (path) {
       await schemas.init();
-      const refRoute = schemas.lookupRoute(props.path);
+      const refRoute = schemas.lookupRoute(path);
       const refTable = refRoute?.def;
       if (!refTable) return;
       const nameField = getNameField(refTable);
@@ -75,14 +76,14 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       setItems(props.items);
       return;
     }
-    if (props.path) {
+    if (path) {
       try {
-        const data = await feathers.service(props.path).find({
+        const data = await feathers.service(path).find({
           query: { ...(props.query || {}), $paginate: false },
         });
         setItems(data);
       } catch (error) {
-        const data = await feathers.service(props.path).find({
+        const data = await feathers.service(path).find({
           query: { ...(props.query || {}) },
         });
         if (Array.isArray(data)) {
@@ -104,7 +105,7 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       items.push(item);
     }
     let res = items;
-    if (!props.returnObject) {
+    if (!returnObject) {
       res = res.map((it) => _.get(it, idProperty));
     }
 
@@ -133,6 +134,7 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
         <div className="flex gap-x-2">
           {(selectedItems || []).map((item, index) => {
             let name = nameFields.length ? item[nameFields[0].name] : item["name"];
+            if (translate) name = t(_.get(item, ["name", "$t"])) || "";
             const isDeleted = name === undefined || name === null;
             name ??= "[DELETED]";
             return (
@@ -151,7 +153,7 @@ function ObjectPickerList<T extends Record<string, any>, K extends keyof T>(prop
       {showMenu && (
         <div>
           <div className="absolute left-0 right-0 top-10 object-picker-menu z-20">
-            <DataList path={props.path} renderItem={renderMenuItem} />
+            <DataList path={path} renderItem={renderMenuItem} />
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-/**
+/*
  * This file registered feathersjs app for server
  */
 

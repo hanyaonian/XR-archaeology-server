@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { FormEvent, ReactNode, useCallback, useRef, useState } from "react";
 import { DialogProps } from "./basicDialog";
+import { useTranslation } from "react-i18next";
 
 export interface EditDialogProps<T> {
   source?: T;
@@ -11,6 +12,7 @@ export interface EditDialogProps<T> {
 }
 
 function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [item, setItem] = useState<T>(props.source);
   const formRef = useRef<HTMLFormElement>(null);
@@ -72,9 +74,9 @@ function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
               {/* Side bar */}
               <div>
                 <div className="flex flex-row rounded-xl bg-white p-4">
-                  <p className="grow-0 shrink-0">Delete this item?</p>
+                  <p className="grow-0 shrink-0">{t("editor.deleteItem")}</p>
                   <button className="text-red-500 flex flex-auto justify-end" type="button" onClick={() => props.deleteItem?.(item)}>
-                    <p className="text-right">Delete...</p>
+                    <p className="text-right">{t("editor.delete")}</p>
                   </button>
                 </div>
               </div>
@@ -90,10 +92,10 @@ function EditDialog<T>(props: EditDialogProps<T> & DialogProps<T>) {
             type="button"
             onClick={handleSubmit}
           >
-            Save
+            {t("basic.save")}
           </button>
           <button className="text-gray-400 hover:text-gray-600 hover:bg-slate-200 py-2 px-4 min-w-24 rounded" type="button" onClick={cancel}>
-            Cancel
+            {t("basic.cancel")}
           </button>
         </div>
       </div>

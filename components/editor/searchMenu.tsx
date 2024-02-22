@@ -6,6 +6,7 @@ import { SearchField } from "./def";
 import _ from "lodash";
 import DataTableCell from "../dataTable/dataTableCell";
 import { MdClear } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 export interface Props {
   config: EditorConfig;
@@ -19,6 +20,7 @@ function regEscape(text: string): string {
 }
 
 export default function SearchMenu({ config, setting, setQuery, ...props }: Props) {
+  const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
 
   const [searchFields, setSearchFields] = useState<SearchField[]>(config.searchFields);
@@ -121,11 +123,11 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
               <p>{field.name}</p>
               {isActiveSearch(field) && ((field.cond && field.value1) || (field.cond === "inRange" && field.value2)) && (
                 <>
-                  <p>{translated[field.cond]}</p>
+                  <p>{t(`cond.${field.cond}`)}</p>
                   {field.value1 ? <DataTableCell item={field.value1} header={field.header} /> : <p>-</p>}
                   {field.cond === "inRange" && (
                     <>
-                      <p>{translated["to"]}</p>
+                      <p>{t("cond.to")}</p>
                       {field.value2 ? <DataTableCell item={field.value2} header={field.header} /> : <p>-</p>}
                     </>
                   )}
@@ -146,10 +148,10 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
                 return (
                   <div key={field.path} className="contents">
                     <div style={{ backgroundColor: field.color }} className="text-white text-sm rounded p-2">
-                      {field.name}
+                      {t(field.name)}
                     </div>
                     <div className=" bg-slate-200 rounded-full p-2 mx-2 text-sm cursor-pointer" onClick={() => toggleCond(index)}>
-                      {translated[field.cond] ?? field.cond}
+                      {t(`cond.${field.cond}`) ?? field.cond}
                     </div>
                     <div className="<md:col-span-2">
                       {computeComponent({
@@ -183,18 +185,3 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
     </div>
   );
 }
-
-const translated: Record<string, string> = {
-  lt: "Less than",
-  gt: "Greater than",
-  lte: "Less or equal",
-  gte: "Greater or equal",
-  eq: "Equals",
-  ne: "Not equals",
-  inRange: "Within",
-  in: "In",
-  nin: "Excludes",
-  contains: "Contains",
-  notContains: "Not contains",
-  to: "To",
-};

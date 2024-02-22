@@ -33,8 +33,7 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "order"],
-      name: "Routes",
-      group: "Hike",
+      group: "hike",
       icon: "MdOutlineRoute",
       groupIcon: "MdLandscape",
     },

@@ -24,6 +24,7 @@ import { EditorConfig } from "@/contexts/schemas/def";
 import { useViewSetting } from "@/contexts/viewSettings";
 import { DataTableProvider } from "./dataTableProvider";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -67,6 +68,7 @@ export interface DataTableProps<T> {
 const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ path, ...props }: DataTableProps<T>, ref) {
   const feathers = useFeathers();
   const router = useRouter();
+  const { t } = useTranslation();
   const { state: settings } = useViewSetting();
   const setting = settings[path];
 
@@ -484,9 +486,9 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
             {/* Pre-header */}
             {(props.showPreHeader ?? true) && (
               <div className="flex flex-row justify-between mt-6 mx-6">
-                <div className="flex">Total: {total} items</div>
+                <div className="flex">{t("editor.totalItems", { count: total })}</div>
                 <div>
-                  <button type="button" onClick={props.showViewSetting} title="Header settings">
+                  <button type="button" onClick={props.showViewSetting} title={t("basic.headerSettings")}>
                     <MdOutlineEditNote size={24} />
                   </button>
                 </div>

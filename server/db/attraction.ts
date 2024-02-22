@@ -46,28 +46,28 @@ const schema: SchemaDefExt = {
     editor: [
       {
         headers: ["name", "order"],
-        name: "Attractions",
+        name: "attractions",
         path: "attractions",
         filter: { type: "Attraction" },
         icon: "MdOutlineWbSunny",
       },
       {
         headers: ["name", "order"],
-        name: "Restaurants",
+        name: "restaurants",
         path: "restaurants",
         filter: { type: "Restaurant" },
         icon: "MdOutlineRestaurant",
       },
       {
         headers: ["name", "order"],
-        name: "Lodging",
+        name: "lodgings",
         path: "lodgings",
         filter: { type: "Lodging" },
         icon: "MdOutlineBed",
       },
       {
         headers: ["name", "order"],
-        name: "Venues",
+        name: "venues",
         path: "venues",
         filter: { type: "Other" },
         icon: "MdApps",

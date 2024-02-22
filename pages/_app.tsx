@@ -1,13 +1,15 @@
 import { useRef, type ReactElement, type ReactNode } from "react";
 import type { NextPage, NextPageContext } from "next";
 import type { AppProps } from "next/app";
-import "../styles/main.css";
 import Head from "next/head";
 import { FeathersProvider } from "@/contexts/feathers";
 import { HeaderProvider } from "@/contexts/header";
 import { SchemasProvider } from "@/contexts/schemas";
 import { ViewSettingProvider } from "@/contexts/viewSettings";
 import { AuthProvider } from "@/contexts/auth";
+
+import "../styles/main.css";
+import "../plugins/i18n";
 
 // server-side only code: to configure server api URL
 MyApp.getInitialProps = async (ctx: NextPageContext) => {

@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/auth";
 import { useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useHeaderContext } from "@/contexts/header";
+import { t } from "i18next";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -47,9 +48,9 @@ const LoginPage = () => {
               <form ref={formRef}>
                 <div className="flex flex-col gap-6">
                   <div>
-                    <label className="mb-2">Email</label>
+                    <label className="mb-2">{t("basic.email")}</label>
                     <input
-                      placeholder="Email"
+                      placeholder={t("basic.email")}
                       defaultValue={email.current}
                       type="email"
                       onChange={(e) => {
@@ -70,9 +71,9 @@ const LoginPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="mb-2">Password</label>
+                    <label className="mb-2">{t("basic.password")}</label>
                     <input
-                      placeholder="Password"
+                      placeholder={t("basic.password")}
                       defaultValue={password.current}
                       type="password"
                       onChange={(e) => {
@@ -98,7 +99,7 @@ const LoginPage = () => {
                   type="button"
                   onClick={handleSubmit}
                 >
-                  Login
+                  {t("basic.login")}
                 </button>
                 {error && error.length && <p className="text-red-500 ">{error}</p>}
               </div>

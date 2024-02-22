@@ -8,6 +8,7 @@ import { GUIHeader } from "@components/editor/def";
 import DialogHost, { ComponentType } from "@components/dialogHost";
 import Navbar from "@components/navbar";
 import { useAuth } from "@/contexts/auth";
+import { useTranslation } from "react-i18next";
 
 export interface OpenDialogProps {
   component: Promise<ComponentType | any> | ComponentType | ReactElement;
@@ -18,6 +19,7 @@ export interface OpenDialogProps {
 export type OpenDialog = (props: OpenDialogProps) => Promise<void | any>;
 
 export default function DefaultLayout({ children }: PropsWithChildren) {
+  const { t } = useTranslation();
   const [mini, setMini] = useState<boolean>(false);
   const [isNavHovering, setNavHovering] = useState<boolean>(false);
   const miniReal = mini && !isNavHovering;
@@ -30,7 +32,7 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
 
   const authenticated: boolean = !!(user && user._id);
 
-  const menus: GUIHeader[] = authenticated ? [...(pageList ?? [])] : [{ title: "Login", action: "MdLogin", href: "/login" }];
+  const menus: GUIHeader[] = authenticated ? [...(pageList ?? [])] : [{ title: "basic.login", action: "MdLogin", href: "/login" }];
 
   const toggleNavbar = () => {
     setMini((value) => !value);
@@ -67,7 +69,7 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
               <button onClick={toggleNavbar} className="p-2 text-center center rounded-full">
                 <MdMenu size={24} />
               </button>
-              <p>{headerState.title}</p>
+              <p>{t(headerState.title)}</p>
               <div className="flex-grow" />
               <div className="flex flex-row ">
                 {headerState.actions.map((action) => {
@@ -77,11 +79,11 @@ export default function DefaultLayout({ children }: PropsWithChildren) {
 
                   return (
                     <button
-                      key={action.name}
+                      key={t(action.name)}
                       onClick={() => {
                         action.action?.();
                       }}
-                      title={action.altText || action.name}
+                      title={t(action.altText || action.name)}
                       className="h-9 w-9 flex center rounded-full hover:bg-gray-200"
                     >
                       <IconComponent size={24} />

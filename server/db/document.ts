@@ -29,7 +29,6 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "order"],
-      name: "Documents",
       icon: "MdEditDocument",
     },
   },

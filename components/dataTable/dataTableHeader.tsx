@@ -1,6 +1,7 @@
 import { MdArrowUpward } from "react-icons/md";
 import { DataTableHeader } from "../editor/def";
 import { useLongPress } from "@/plugins/hand-gesture";
+import { useTranslation } from "react-i18next";
 
 export interface Props {
   header: DataTableHeader;
@@ -10,6 +11,7 @@ export interface Props {
 }
 
 export default function TableHeader({ header, sort, sortDesc, toggleSort }: Props) {
+  const { t } = useTranslation();
   const sortIndex = sort.indexOf(header.sortField || header.value);
 
   const showIndex = sortIndex !== -1 && sort.length > 1;
@@ -39,7 +41,7 @@ export default function TableHeader({ header, sort, sortDesc, toggleSort }: Prop
         {descending !== null && (
           <MdArrowUpward size={16} className={`transition ease-in-out delay-150 ${descending ? "rotate-180" : "transform-none"}`} />
         )}
-        <p>{header.text}</p>
+        <p>{t(header.text)}</p>
       </div>
     </div>
   );

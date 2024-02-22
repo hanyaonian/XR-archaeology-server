@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import _ from "lodash";
 import moment from "moment";
 import { Application } from "@feathersjs/feathers";
+import { useTranslation } from "react-i18next";
 
 export interface MediaLibraryProps extends DialogProps<any> {
   type?: string; // default image/*
@@ -43,6 +44,7 @@ export function getThumbURL(item: any, feathers: Application) {
 function MediaDialog(props: MediaLibraryProps) {
   const uploadRef = useRef(null);
   const feathers = useFeathers();
+  const { t } = useTranslation();
   const multiple = props.multiple ?? false;
   const [files, setFiles] = useState<FileList>();
   const [selectedItems, setSelectedItems] = useState<string[]>(
@@ -266,10 +268,10 @@ function MediaDialog(props: MediaLibraryProps) {
       </div>
       <div className="flex items-center justify-center mt-4 gap-6">
         <button disabled={loading} onClick={save} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 min-w-24 rounded">
-          Save
+          {t("basic.save")}
         </button>
         <button disabled={loading} onClick={cancel} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 min-w-24 rounded">
-          Cancel
+          {t("basic.cancel")}
         </button>
       </div>
     </div>

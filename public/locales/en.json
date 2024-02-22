@@ -1,0 +1,315 @@
+{
+  "basic": {
+    "add": "Add",
+    "admin": "Admin",
+    "cancel": "Cancel",
+    "change": "Change",
+    "clone": "Clone",
+    "close": "Close",
+    "confirm": "Confirm",
+    "createdAt": "Created At",
+    "delete": "Delete",
+    "edit": "Edit",
+    "email": "Email",
+    "export": "Export",
+    "forgetPass": "Forget Password",
+    "headerSettings": "Header Settings",
+    "loading": "Loading",
+    "login": "Login",
+    "logout": "Logout",
+    "modified": "Modified",
+    "modifiedBy": "Modified By",
+    "name": "Name",
+    "ok": "OK",
+    "password": "Password",
+    "price": "Price",
+    "refresh": "Refresh",
+    "register": "Register",
+    "reset": "Reset",
+    "remove": "Remove",
+    "resend": "Resend",
+    "resetPass": "Reset Password",
+    "save": "Save",
+    "search": "Search",
+    "start": "Start",
+    "total": "Total"
+  },
+  "cond": {
+    "lt": "Less than",
+    "gt": "Greater than",
+    "lte": "Less or equal",
+    "gte": "Greater or equal",
+    "eq": "Equals",
+    "ne": "Not equals",
+    "inRange": "Within",
+    "in": "In",
+    "nin": "Excludes",
+    "contains": "Contains",
+    "notContains": "Not contains",
+    "to": "To"
+  },
+  "editor": {
+    "deleteItem": "Delete this item?",
+    "delete": "Delete...",
+    "totalItems_one": "Total {{count}} Item",
+    "totalItems_other": "Total {{count}} Items"
+  },
+  "pages": {
+    "admins": {
+      "$": "Admins",
+      "role": "Role"
+    },
+    "appUsers": {
+      "$": "App Users",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "username": "Username",
+      "phone": "Phone",
+      "dob": "Date of Birth",
+      "bookmarks": "Bookmarks",
+      "collections": "Collections",
+      "verified": "Email verified"
+    },
+    "artifacts": {
+      "$": "Artifacts",
+      "desc": "Description",
+      "location": "Location",
+      "date": "Date",
+      "tags": "Tags",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "width": "Width",
+      "length": "Length",
+      "height": "Height",
+      "file": {
+        "$": "File",
+        "object": ".obj File",
+        "material": ".mtl File",
+        "texture": "Texture"
+      }
+    },
+    "tags": {
+      "$": "Tags"
+    },
+    "attractions": {
+      "attractions": "Attractions",
+      "briefDesc": "Brief Description",
+      "desc": "Description",
+      "thumbnails": "Thumbnails",
+      "contact": "Contact No.",
+      "order": "Order",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "type": "Type",
+      "businessHours": {
+        "$": "Business Hours",
+        "openTime": "Open time",
+        "closeTime": "Close time",
+        "days": "Days of week"
+      },
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
+    "restaurants": {
+      "restaurants": "Restaurants",
+      "briefDesc": "Brief Description",
+      "desc": "Description",
+      "thumbnails": "Thumbnails",
+      "contact": "Contact No.",
+      "order": "Order",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "type": "Type",
+      "businessHours": {
+        "$": "Business Hours",
+        "openTime": "Open time",
+        "closeTime": "Close time",
+        "days": "Days of week"
+      },
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
+    "lodgings": {
+      "lodgings": "Lodgings",
+      "briefDesc": "Brief Description",
+      "desc": "Description",
+      "thumbnails": "Thumbnails",
+      "contact": "Contact No.",
+      "order": "Order",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "type": "Type",
+      "businessHours": {
+        "$": "Business Hours",
+        "openTime": "Open time",
+        "closeTime": "Close time",
+        "days": "Days of week"
+      },
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
+    "venues": {
+      "venues": "Venues",
+      "briefDesc": "Brief Description",
+      "desc": "Description",
+      "thumbnails": "Thumbnails",
+      "contact": "Contact No.",
+      "order": "Order",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "type": "Type",
+      "businessHours": {
+        "$": "Business Hours",
+        "openTime": "Open time",
+        "closeTime": "Close time",
+        "days": "Days of week"
+      },
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
+    "documents": {
+      "$": "Documents",
+      "page": "Page in app",
+      "order": "Order",
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
+    "events": {
+      "$": "Events",
+      "briefDesc": "Brief Description",
+      "content": "Content",
+      "images": "Images",
+      "venue": "Venue",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "order": "Order"
+    },
+    "locations": {
+      "$": "Locations",
+      "desc": "Description",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "images": "Images",
+      "route": "Route",
+      "order": "Order"
+    },
+    "routes": {
+      "$": "Routes",
+      "briefDesc": "Brief Description",
+      "desc": "Description",
+      "thumbnails": "Thumbnails",
+      "difficulty": "Difficulty",
+      "order": "Order",
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
+    "groups": {
+      "archaeology": "Archaeology",
+      "hike": "Hike"
+    }
+  },
+  "enum": {
+    "pages": {
+      "attractions": {
+        "type": {
+          "Attraction": "Attraction",
+          "Restaurant": "Restaurant",
+          "Lodging": "Lodging",
+          "Other": "Venue"
+        },
+        "businessHours": {
+          "days": {
+            "Sunday": "Sunday",
+            "Monday": "Monday",
+            "Tuesday": "Tuesday",
+            "Wednesday": "Wednesday",
+            "Thursday": "Thursday",
+            "Friday": "Friday",
+            "Saturday": "Saturday"
+          }
+        }
+      },
+      "restaurants": {
+        "type": {
+          "Attraction": "Attraction",
+          "Restaurant": "Restaurant",
+          "Lodging": "Lodging",
+          "Other": "Venue"
+        },
+        "businessHours": {
+          "days": {
+            "Sunday": "Sunday",
+            "Monday": "Monday",
+            "Tuesday": "Tuesday",
+            "Wednesday": "Wednesday",
+            "Thursday": "Thursday",
+            "Friday": "Friday",
+            "Saturday": "Saturday"
+          }
+        }
+      },
+      "lodgings": {
+        "type": {
+          "Attraction": "Attraction",
+          "Restaurant": "Restaurant",
+          "Lodging": "Lodging",
+          "Other": "Venue"
+        },
+        "businessHours": {
+          "days": {
+            "Sunday": "Sunday",
+            "Monday": "Monday",
+            "Tuesday": "Tuesday",
+            "Wednesday": "Wednesday",
+            "Thursday": "Thursday",
+            "Friday": "Friday",
+            "Saturday": "Saturday"
+          }
+        }
+      },
+      "venues": {
+        "type": {
+          "Attraction": "Attraction",
+          "Restaurant": "Restaurant",
+          "Lodging": "Lodging",
+          "Other": "Venue"
+        },
+        "businessHours": {
+          "days": {
+            "Sunday": "Sunday",
+            "Monday": "Monday",
+            "Tuesday": "Tuesday",
+            "Wednesday": "Wednesday",
+            "Thursday": "Thursday",
+            "Friday": "Friday",
+            "Saturday": "Saturday"
+          }
+        }
+      }
+    }
+  }
+}

@@ -10,6 +10,7 @@ import {
 import _ from "lodash";
 import {
   SchemaFieldJsonWithPath,
+  defHeaders,
   getDefaultHeaders,
   getFieldName,
   getHeaderFields,
@@ -81,11 +82,15 @@ export class EditorConfig {
   defaultValue?: any;
   paginate: boolean;
   roles: string[];
+
+  // i18n translation key
+  tp: string;
   [key: string]: any;
 
   constructor(public parent: SchemaHelper, public serviceConfig: SchemaDefParamsService, public def: SchemaDefJson, public config: DBEditorConfig) {
     const { path, paginate } = serviceConfig;
-    this.name = config.name ?? (config.path || path);
+    this.tp = "pages." + (config.path || path) + ".";
+    this.name = config.name ? this.tp + config.name : this.tp + "$";
 
     this.filter = config.filter;
 
@@ -103,7 +108,7 @@ export class EditorConfig {
     this.import = config.readOnly ?? config.import ?? true;
     this.clone = config.readOnly ?? config.create ?? true;
 
-    this.actions = config.actions?.map((action) => ({ altText: action.name, icon: action.icon, action: action.name })) ?? [];
+    this.actions = config.actions?.map((action) => ({ altText: this.tp + action.name, icon: action.icon, action: this.tp + action.name })) ?? [];
     this.order = config.order ?? 999;
     this.menu = config.menu ?? true;
     this.paginate = paginate;
@@ -124,11 +129,13 @@ export class EditorConfig {
    * @param field
    * @param editor
    */
-  getHeader(field: SchemaFieldJsonWithPath, editor?: EditorFieldOptions): DataTableHeader {
+  getHeader(field: SchemaFieldJsonWithPath, editor?: EditorFieldOptions, tp?: string): DataTableHeader {
     if (!editor && field.params.$editor) {
       editor = field.params.$editor || {};
     }
     editor = editor || {};
+    tp ??= this.tp;
+
     const type = lookupType(field.type);
     let header: DataTableHeader = {
       value: field.path || field.name,
@@ -154,7 +161,7 @@ export class EditorConfig {
         }
         break;
     }
-    header.text = getFieldName(field, editor);
+    header.text = getFieldName(field, editor, tp, needSuffix);
     if (editor.sortField) {
       header.sortField = editor.sortField;
       header.sortable = true;
@@ -178,7 +185,10 @@ export class EditorConfig {
         break;
       case "string":
         if (isEnum(field)) {
-          header.enumList = _.fromPairs(_.map(field.params?.enum, (f) => [f, `${field.path || field.name}.${f}`]));
+          let rootName = defHeaders.indexOf(field.name) === -1 ? getFieldName(field, editor, tp) : `${field.name}`;
+          if (!rootName.startsWith("enum.")) rootName = "enum." + rootName;
+          if (rootName.endsWith(".$")) rootName = rootName.slice(0, -2);
+          header.enumList = _.fromPairs(_.map(field.params?.enum, (f) => [f, `${rootName}.${f}`]));
         }
         break;
       case "id":
@@ -271,7 +281,8 @@ export class EditorConfig {
   /**
    * Returns an editor input field (frontend) given a field in json format
    */
-  convertField(field: SchemaFieldJsonWithPath): EditorField {
+  convertField(field: SchemaFieldJsonWithPath, tp?: string): EditorField {
+    tp ??= this.tp;
     let defaultValue = field.params?.default;
     const type = lookupType(field.type);
 
@@ -292,6 +303,9 @@ export class EditorConfig {
     let inner: EditorField[];
     let needSuffix = false;
     if (field.params?.required) props.required = true;
+
+    const innerTP = getFieldName(field, editor, tp);
+
     switch (type) {
       case "boolean":
         component = "checkbox";
@@ -300,7 +314,14 @@ export class EditorConfig {
       case "string":
         if (isEnum(field)) {
           component = (field.params?.enum?.length > 20 && !editor.props?.picker) || editor.props?.list ? "object-picker-list" : "object-picker-new";
-          props.items = _.cloneDeep(field.params?.enum);
+          let rootName = innerTP;
+          if (rootName.startsWith("basic.")) rootName = rootName.slice(6);
+          if (!rootName.startsWith("enum.")) rootName = "enum." + rootName;
+          if (rootName.endsWith(".$")) rootName = rootName.slice(0, -2);
+
+          props.items = field.params?.enum.map((value) => ({ _id: value, name: { $t: rootName + "." + value } }));
+          props.translate = true;
+          props.name = [{ field: "name", translate: true }];
         } else {
           component = "text-field";
           if (type === "number") {
@@ -351,7 +372,8 @@ export class EditorConfig {
               component = "editor-list";
               if (typeof itype === "object") {
                 needSuffix = true;
-                inner = _.map(itype.fields, (f) => this.convertField(f)).filter((it) => !!it);
+
+                inner = _.map(itype.fields, (f) => this.convertField(f, innerTP + ".")).filter((it) => !!it);
                 props.itemFields = inner;
                 if (!props.default) {
                   props.default = Object.fromEntries(inner.map((it) => [it.path, it.defaultValue]));
@@ -360,11 +382,14 @@ export class EditorConfig {
               break;
             default:
               // try to multiple
-              const f = this.convertField({
-                ...field,
-                params: <any>field.type.options,
-                type: itype,
-              });
+              const f = this.convertField(
+                {
+                  ...field,
+                  params: <any>field.type.options,
+                  type: itype,
+                },
+                tp
+              );
               if (!f) return null;
               if (f.component === "file-picker" || f.component === "image-picker") {
                 f.component = "uploader";
@@ -395,7 +420,7 @@ export class EditorConfig {
       case "object":
         if (typeof field.type === "object") {
           needSuffix = true;
-          inner = _.map(field.type.fields, (f) => this.convertField(f)).filter((it) => !!it);
+          inner = _.map(field.type.fields, (f) => this.convertField(f, innerTP + ".")).filter((it) => !!it);
         }
         if (inner) {
           defaultValue = _.merge({}, ...inner.map((it) => (it.defaultValue ? { [it.path]: it.defaultValue } : {})));
@@ -406,7 +431,7 @@ export class EditorConfig {
         console.warn("No suitable editor for", type);
         return null;
     }
-    const name = getFieldName(field, editor);
+    const name = getFieldName(field, editor, tp, needSuffix);
     if (readonlyHeaders.indexOf(name) !== -1) {
       props.readOnly = true;
     }

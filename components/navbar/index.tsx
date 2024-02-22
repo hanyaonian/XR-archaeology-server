@@ -44,7 +44,7 @@ export default function Navbar({ mini, miniReal, toggleNavbar, menus, authentica
           {authenticated && (
             <div className="px-3">
               {/* <NavbarItem item={{ title: "Settings", action: "MdOutlineSettings", href: "/" }} /> */}
-              <NavbarItem item={{ title: "Logout", action: "MdLogout", href: "/logout" }} />
+              <NavbarItem item={{ title: "basic.logout", action: "MdLogout", href: "/logout" }} />
             </div>
           )}
         </div>

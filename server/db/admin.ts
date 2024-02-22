@@ -16,7 +16,6 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "role", "createdAt"],
-      name: "Admins",
       icon: "MdLockPerson",
     },
   },
