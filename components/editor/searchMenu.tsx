@@ -88,7 +88,6 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
           };
           break;
         case "notContains":
-          const patternStr = `\\b(?:(?!${regEscape(field.value1.trim())})\\w)+\\b`;
           value = {
             $not: {
               $regex: regEscape(field.value1.trim()),

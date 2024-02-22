@@ -196,12 +196,12 @@ export const DataTableProvider = ({ children }: Props) => {
   const getLink = useCallback((item: any, header: DataTableHeader) => {
     if (header.noLink || header.multiple) return;
     let value, source: string;
+
     if (header.linkSource) {
-      value = getValueByPath(item, header.linkSource || header.value);
+      value = getValueByPath(item, header.value);
       source = header.linkSource;
       if (!source) return;
     } else if (header.source) {
-      source = header.source;
       value = getValueByPath(item, header.value);
       const pathList = header.paths ?? [header.path ?? "name"];
       const idProperty = header.idProperty ?? "_id";

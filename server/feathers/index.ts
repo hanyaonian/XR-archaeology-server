@@ -175,7 +175,7 @@ export default function (
   startServer(servers)
     .then((servers) => {
       console.log("Server started");
-      return fn(servers);
+      return fn?.(servers);
     })
     .catch((e) => {
       console.log(e);

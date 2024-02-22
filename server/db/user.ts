@@ -7,9 +7,8 @@ const schema: SchemaDefExt = {
   lastName: { type: String, index: true, required: true },
   username: { type: String },
   email: { type: String, index: { unique: true } },
-  /** Stores both area code and mobile number */
+  /** Stores both area code and mobile number, in format of "+<area code>  <phone number>"*/
   phone: { type: String },
-  /** Store date in format of MM/YYYY */
   dob: { type: Date },
   password: { type: String, minlength: 8, $editor: { hidden: true } },
   createdAt: { type: Date, default: Date, $editor: { props: { readOnly: true } } },

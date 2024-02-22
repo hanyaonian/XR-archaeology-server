@@ -168,9 +168,8 @@ export default function (
             socket.handshake.headers["x-forwarded-for"] ||
             socket.conn.remoteAddress;
           (<any>socket).feathers.internal = props.internal || false;
-          console.log(`[Info] ${new Date()} A client ${socket.id} connects to server`);
+
           socket.once("disconnect", function () {
-            console.log("The client left", socket.id);
             app.emit("disconnect", (<any>socket).feathers);
           });
         });

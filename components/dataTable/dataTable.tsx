@@ -23,7 +23,7 @@ import SearchMenu from "../editor/searchMenu";
 import { EditorConfig } from "@/contexts/schemas/def";
 import { useViewSetting } from "@/contexts/viewSettings";
 import { DataTableProvider } from "./dataTableProvider";
-import { resolve } from "path";
+import { useRouter } from "next/router";
 
 /**
  * @param path specifies which service should APIs access or the collection
@@ -66,6 +66,7 @@ export interface DataTableProps<T> {
 
 const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ path, ...props }: DataTableProps<T>, ref) {
   const feathers = useFeathers();
+  const router = useRouter();
   const { state: settings } = useViewSetting();
   const setting = settings[path];
 
@@ -153,6 +154,17 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
   useEffect(() => {
     inited.current = false;
+    // open editor dialog if the user click link from other data table
+    try {
+      if (router.query.editor || router.query.edit) {
+        let id = router.query.editor || router.query.edit;
+        if (Array.isArray(id)) id = id[0];
+        const service = path && feathers.service(path);
+        service.get(id).then((item) => editItem(item));
+      }
+    } catch (error) {
+      console.warn(error);
+    }
   }, [path]);
 
   useEffect(() => {

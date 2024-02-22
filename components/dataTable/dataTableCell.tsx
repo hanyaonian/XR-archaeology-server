@@ -5,6 +5,7 @@ import { getThumbURL } from "../dialogs/mediaDialog";
 import Link from "next/link";
 import { useDataTableProvider } from "./dataTableProvider";
 import { useEffect, useRef, useState } from "react";
+import moment from "moment";
 
 export interface Props {
   item: any;
@@ -67,11 +68,17 @@ export default function DataTableCell({ item, header }: Props) {
       }
       break;
     default:
+      // const isDate = moment(value.toString(), moment.ISO_8601, true).isValid();
+      // if (isDate) setValue((value) => moment(value).format("DD-MM-YYYY HH:mm"));
       res = <div key={`${header.value}_${value}`}>{value.toString()}</div>;
       break;
   }
   if (link.current) {
-    return <Link href={link.current}>{res}</Link>;
+    return (
+      <Link href={link.current} className="text-blue-500">
+        {res}
+      </Link>
+    );
   }
   return res;
 }
