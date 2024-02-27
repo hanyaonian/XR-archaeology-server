@@ -239,7 +239,7 @@ function MediaDialog(props: MediaLibraryProps) {
                 <input type="file" ref={uploadRef} multiple hidden onChange={uploadFile} />
               </div>
             </div>
-            {/* TODO grid table selector*/}
+
             <DataTable
               path="/attachments"
               renderItem={renderItem}

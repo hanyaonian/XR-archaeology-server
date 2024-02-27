@@ -287,7 +287,7 @@ export class EditorConfig {
     const type = lookupType(field.type);
 
     let editor: EditorFieldOptions = {};
-    if (field.params.$editor) {
+    if (field.params?.$editor) {
       editor = field.params.$editor;
     } else if (typeof field.type === "object") {
       if (typeof field.type.itemType === "object") {

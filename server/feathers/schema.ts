@@ -406,13 +406,15 @@ export class SchemaObject extends SchemaTypeBase {
         this.params[key] = value;
         return;
       }
+      if (key === "validate") {
+        return;
+      }
 
       const p = path ? `${path}.${key}` : path;
       if (Array.isArray(value)) {
         this.fields.push(new SchemaField(target, p, key, value));
       } else if (typeof value === "object") {
         const vvalue = value as SchemaTypeOptions<any>;
-
         if (!vvalue.type || !convertType(vvalue.type)) {
           this.fields.push(new SchemaField(target, p, key, value));
         } else {
@@ -471,6 +473,7 @@ export class SchemaDef {
   props: any;
   params: SchemaDefParams = {};
   model?: Model<any>;
+
   constructor(public name: string, schema: SchemaDefExt, public services: ServiceDefs) {
     this.indexes = [];
     this.props = {};
@@ -549,7 +552,7 @@ export class SchemaDef {
   }
 }
 
-const definitions = [];
+const definitions: SchemaDef[] = [];
 
 export function mergeSchema(ctx: RequireContext, schemaDict: Record<string, SchemaDefExt>) {
   _.each(ctx.keys(), (k) => {

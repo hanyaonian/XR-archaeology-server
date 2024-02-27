@@ -66,8 +66,9 @@ async function init() {
       console.log("cannot connect db, waiting", e);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-    await SchemaHelper.configure(init);
   }
+
+  await SchemaHelper.configure(init);
 }
 
 const dbInit: DB & DBBase = <DB & DBBase>init;

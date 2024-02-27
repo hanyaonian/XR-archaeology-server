@@ -32,7 +32,6 @@ export class SchemaHelper {
   }
 
   public init() {
-    // todo authentication for user
     return this._init || (this._init = this.initCore());
   }
 

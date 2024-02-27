@@ -27,17 +27,28 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 
 /**
- * @param path specifies which service should APIs access or the collection
+ * @property {string} path specifies which service should APIs access or the collection
  * DB should access.
- * @param columns determines the headers.
- * @param noPaginate specifies the API's paginate setting
- * @param canEdit determines whether the data/rows are editable.
- * @param canRemove determines whether the data/rows are removable.
- * @param canClone determines whether the data/rows can be duplicated.
- * @param default specifies the default value/arguments of the editing object/schema. TODO: add automatic
- * setting schemas from server.
- * @param idProperty specifies the unique id of the object. Default as [_id]
- * @param editor determines the rendered inputs according to the editing object
+ * @property {DataTableHeader[]} headers determines the headers.
+ * @property {boolean} noPaginate specifies the API's paginate setting. Default is true.
+ * @property {Record<string, any>} query specifies the default filter setting of the data from the server.
+ *
+ * @property {string | string[]} defaultSort specifies the default related sorting headers from the server.
+ * @property {boolean | boolean[]} defaultSortDesc specifies the default sorting order corresponding to the `defaultSort`.
+ * If the element is true, then the data related to that field will be sorted in descending order.
+ *
+ * @property {boolean} canEdit determines whether the data/rows are editable. Default is true
+ * @property {boolean} canRemove determines whether the data/rows are removable.
+ * @property {boolean} canClone determines whether the data/rows can be duplicated.
+ *
+ * @property {boolean} showPreHeader determines whether display search bar, total items and header setting buttons.
+ *
+ * @property {T | function(): T} default specifies the default value of data. It is used when creating a new data.
+ * @property {key of T | string} idProperty specifies the id key. Default is _id.
+ * @property {ReactNode | function(item: T, setItem: Dispatch): ReactNode} editor determines the render components based on item.
+ * It is called in rendering `EditorDialog`.
+ * @property {ReactNode | function(props: any): ReactNode} renderItem determines the component rendered as row. Default is `DataTableRow`.
+ *
  */
 export interface DataTableProps<T> {
   readonly path: string;
@@ -162,6 +173,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
         let id = router.query.editor || router.query.edit;
         if (Array.isArray(id)) id = id[0];
         const service = path && feathers.service(path);
+        // TODO: feathersjs objectID casting when id is invalid
         service.get(id).then((item) => editItem(item));
       }
     } catch (error) {

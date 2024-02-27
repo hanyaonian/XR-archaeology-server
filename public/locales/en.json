@@ -92,6 +92,23 @@
     "tags": {
       "$": "Tags"
     },
+    "buildings": {
+      "$": "AR buildings",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "rotation": {
+        "$": "Rotation",
+        "x": "X-axis",
+        "y": "Y-axis",
+        "z": "Z-axis"
+      },
+      "file": {
+        "$": "File",
+        "object": ".obj File",
+        "material": ".mtl File",
+        "texture": "Texture"
+      }
+    },
     "attractions": {
       "attractions": "Attractions",
       "briefDesc": "Brief Description",

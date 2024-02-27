@@ -14,7 +14,7 @@ import DataTableRow from "./dataTable/dataTableRow";
  * @param canEdit determines whether the data/rows are editable.
  * @param canRemove determines whether the data/rows are removable.
  * @param canClone determines whether the data/rows can be duplicated.
- * @param default specifies the default value/arguments of the editing object/schema. TODO: add automatic
+ * @param default specifies the default value/arguments of the editing object/schema.
  * setting schemas from server.
  * @param idProperty specifies the unique id of the object. Default as [_id]
  * @param editor determines the rendered inputs according to the editing object
@@ -208,7 +208,6 @@ const DataList = forwardRef<any, DataListProps<any>>(function DataTable<T>(props
             if (oldItem) {
               _.assign(oldItem, res);
             } else {
-              // todo, add item to top once done caching
               setData((data) => [res, ...data]);
             }
           }

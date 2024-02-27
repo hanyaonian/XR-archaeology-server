@@ -4,7 +4,7 @@ import _ from "lodash";
 import { useFeathers } from "@/contexts/feathers";
 
 /**
- * @param updating is used to call render
+ * @property {boolean} updating is used to call render
  */
 interface DataTableContext<T> {
   getValue: (item: T, header: DataTableHeader, objectOnly?: boolean) => any;

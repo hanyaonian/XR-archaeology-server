@@ -15,7 +15,8 @@ import "../plugins/i18n";
 MyApp.getInitialProps = async (ctx: NextPageContext) => {
   try {
     const { def: configs } = await import("@configs");
-    const baseURL = configs.prod ? configs.getUrl("internal") : configs.getUrl("api");
+    // temp VPN for transferring dev api url
+    const baseURL = configs.prod ? configs.getUrl("internal") : process.env.API_URL ?? configs.getUrl("api");
     return { baseURL };
   } catch (error) {
     return {};

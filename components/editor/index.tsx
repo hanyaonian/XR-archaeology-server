@@ -164,7 +164,6 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
   }
   return (
     <div className="flex flex-col gap-y-2 " key={`${field.path}_${key}`}>
-      {/* TODO: translate key to label */}
       {(showLabel ?? true) && <label>{i18n.t(field.name)}</label>}
       {result}
     </div>
