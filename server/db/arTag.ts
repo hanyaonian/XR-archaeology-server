@@ -6,7 +6,7 @@ const schema: SchemaDefExt = {
 
   $services: {
     services: {
-      tags: {},
+      arTags: {},
     },
     public: {
       tags: {
@@ -19,6 +19,7 @@ const schema: SchemaDefExt = {
     editor: {
       headers: ["name", "createdAt"],
       icon: "MdTag",
+      group: "archaeology",
     },
   },
 };

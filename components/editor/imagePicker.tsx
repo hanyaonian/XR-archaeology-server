@@ -119,7 +119,7 @@ function ImagePicker<T extends Record<string, any>, K extends keyof T>(props: Im
               <div key={index} className="!size-32 overflow-hidden relative cursor-pointer flex center flex-shrink-0 flex-grow-0">
                 <img
                   src={getThumbURL(item, feathers)}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain cursor-move"
                   draggable={multiple}
                   onDragStart={() => onDragStart(index)}
                   onDragEnter={() => onDragEnter(index)}

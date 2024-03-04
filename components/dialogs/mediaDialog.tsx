@@ -224,8 +224,8 @@ function MediaDialog(props: MediaLibraryProps) {
   };
 
   return (
-    <div className="h-full w-full flex flex-col p-6">
-      <div className="h-full grid grid-cols-12 gap-x-3">
+    <div className="h-full w-full flex flex-col p-6 overflow-hidden">
+      <div className="h-full grid grid-cols-12 gap-x-3 scrollable overflow-y-auto">
         <div className="md:col-span-6 col-span-12 h-full">
           <div className="flex flex-col flex-grow  h-full">
             <div className="flex flex-row justify-end items-center gap-3">
@@ -243,6 +243,7 @@ function MediaDialog(props: MediaLibraryProps) {
             <DataTable
               path="/attachments"
               renderItem={renderItem}
+              showSearch={false}
               query={{
                 $sort: { date: -1 },
                 ...getMimeType(),

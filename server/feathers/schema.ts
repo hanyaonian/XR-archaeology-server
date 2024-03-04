@@ -636,7 +636,7 @@ export default {
             if (!container._services) container._services = {};
             if (!container._services[key]) container._services[key] = {};
             _.each(app, (def, path) => {
-              console.log("add services to DB:", key, path, def);
+              console.log(`DB collection "${path}" -> feathers-app (${key}), definition: `, def);
               container._services[key][path] = {
                 default:
                   def.paginate === false

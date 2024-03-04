@@ -799,6 +799,10 @@ video {
   flex: 1 1 auto;
 }
 
+.flex-shrink {
+  flex-shrink: 1;
+}
+
 .flex-shrink-0 {
   flex-shrink: 0;
 }
@@ -842,6 +846,10 @@ video {
 
 .transform-none {
   transform: none;
+}
+
+.cursor-move {
+  cursor: move;
 }
 
 .cursor-pointer {

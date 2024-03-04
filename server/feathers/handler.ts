@@ -130,7 +130,6 @@ export default function (
         }
 
         app.use(path, <any>s);
-        console.log(`Feathers(${name}) set up service "${path}"`);
 
         const service = app.service(path);
         // Register populate query to service

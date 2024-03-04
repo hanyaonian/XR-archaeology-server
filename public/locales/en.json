@@ -92,6 +92,9 @@
     "tags": {
       "$": "Tags"
     },
+    "arTags": {
+      "$": "Tags"
+    },
     "buildings": {
       "$": "AR buildings",
       "latitude": "Latitude",
@@ -130,7 +133,9 @@
         "heading": "Heading",
         "desc": "Description",
         "images": "Images"
-      }
+      },
+      "entranceFee": "Entrance Fee",
+      "tags": "Tags"
     },
     "restaurants": {
       "restaurants": "Restaurants",
@@ -153,7 +158,9 @@
         "heading": "Heading",
         "desc": "Description",
         "images": "Images"
-      }
+      },
+      "entranceFee": "Entrance Fee",
+      "tags": "Tags"
     },
     "lodgings": {
       "lodgings": "Lodgings",
@@ -176,7 +183,9 @@
         "heading": "Heading",
         "desc": "Description",
         "images": "Images"
-      }
+      },
+      "entranceFee": "Entrance Fee",
+      "tags": "Tags"
     },
     "venues": {
       "venues": "Venues",
@@ -199,7 +208,9 @@
         "heading": "Heading",
         "desc": "Description",
         "images": "Images"
-      }
+      },
+      "entranceFee": "Entrance Fee",
+      "tags": "Tags"
     },
     "documents": {
       "$": "Documents",
@@ -332,6 +343,13 @@
             "Friday": "Friday",
             "Saturday": "Saturday"
           }
+        }
+      },
+      "routes": {
+        "difficulty": {
+          "Easy": "Easy",
+          "Moderate": "Moderate",
+          "Difficult": "Difficult"
         }
       }
     }

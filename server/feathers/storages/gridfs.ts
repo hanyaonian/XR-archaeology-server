@@ -20,8 +20,6 @@ const getByteRange = function (header) {
 export default (opts: AttachmentOpts, app: Application): AttachmentStorage => {
   const storage = memoryStorage();
 
-  console.log("Set up GridFsStorage");
-
   setTimeout(() => {
     const attachments = app.service("attachments");
     if (attachments) {

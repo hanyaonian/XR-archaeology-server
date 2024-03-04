@@ -65,6 +65,7 @@ export interface DataTableProps<T> {
   canClone?: boolean;
 
   showPreHeader?: boolean;
+  showSearch?: boolean;
 
   default?: T | (() => T);
   idProperty?: keyof T;
@@ -455,32 +456,34 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
   );
 
   const renderItem = (item: T, index: number) => {
-    let res;
     if (props.renderItem) {
+      let res;
       if (typeof props.renderItem === "function") {
-        res = props.renderItem({ item, index, ...props });
+        return props.renderItem({ item, index, ...props });
       } else {
-        res = props.renderItem;
+        return props.renderItem;
       }
+      return (
+        <div role="listitem" key={index} id={`${index}`}>
+          {res}
+        </div>
+      );
     } else {
-      res = (
-        <DataTableRow
-          key={`${index}${item[props.idProperty]}`}
-          index={index}
-          item={item}
-          headers={headers}
-          gridTemplateColumns={gridTemplateColumns}
-          editItem={editItem}
-          deleteItem={deleteItem}
-          {...props}
-        />
+      return (
+        <div role="listitem" key={index} id={`${index}`} className="w-full">
+          <DataTableRow
+            key={`${index}${item[props.idProperty]}`}
+            index={index}
+            item={item}
+            headers={headers}
+            gridTemplateColumns={gridTemplateColumns}
+            editItem={editItem}
+            deleteItem={deleteItem}
+            {...props}
+          />
+        </div>
       );
     }
-    return (
-      <div role="listitem" key={index} id={`${index}`} className="w-full">
-        {res}
-      </div>
-    );
   };
 
   // pass public methods to parent
@@ -494,7 +497,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
     <DataTableProvider>
       <div className="w-full h-full relative flex flex-col">
         <div className="data-table-container w-full h-full flex flex-col">
-          <div className="flex-grow overflow-hidden h-full">
+          <div className="flex-grow flex-shrink overflow-hidden h-full">
             {/* Pre-header */}
             {(props.showPreHeader ?? true) && (
               <div className="flex flex-row justify-between mt-6 mx-6">
@@ -508,9 +511,11 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
             )}
 
             <div className="scrollable h-full overflow-y-auto" ref={scrollRef}>
-              <div className="mx-4">
-                <SearchMenu config={props.config} setting={setting} setQuery={updateQuery} query={query} />
-              </div>
+              {(props.showSearch ?? true) && (
+                <div className="mx-4">
+                  <SearchMenu config={props.config} setting={setting} setQuery={updateQuery} query={query} />
+                </div>
+              )}
               {/* Header */}
               <div
                 className="data-table-header flex flex-row sticky top-0 z-10 "
@@ -528,7 +533,7 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
                 </div>
               </div>
               {/* Rows */}
-              <div role="group" className="flex flex-wrap">
+              <div role="group" className="flex flex-wrap flex-grow flex-shrink">
                 {data.map(renderItem)}
                 <div style={{ height: stickyHeaderHeight, width: "100%" }}></div>
               </div>

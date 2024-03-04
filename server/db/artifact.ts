@@ -5,7 +5,7 @@ const schema: SchemaDefExt = {
   desc: { type: String, $editor: { props: { multiLine: true }, headerFlex: 2 } },
   location: String,
   date: String,
-  tags: [{ type: "id", ref: "Tag" }],
+  tags: [{ type: "id", ref: "ArTag" }],
   latitude: { type: Number, min: -90, max: 90 },
   longitude: { type: Number, min: -180, max: 180 },
   width: { type: Number, min: 0 },

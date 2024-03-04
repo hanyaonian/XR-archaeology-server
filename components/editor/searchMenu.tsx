@@ -23,7 +23,7 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
 
-  const [searchFields, setSearchFields] = useState<SearchField[]>(config.searchFields);
+  const [searchFields, setSearchFields] = useState<SearchField[]>(config?.searchFields ?? []);
   const searchPin = setting?.searchPin ?? [];
   const pinSearchFields = useMemo(() => {
     const fields = searchFields || [];
@@ -34,8 +34,8 @@ export default function SearchMenu({ config, setting, setQuery, ...props }: Prop
   }, [pinSearchFields, searchFields]);
 
   useEffect(() => {
-    setSearchFields(config.searchFields);
-  }, [config.searchFields]);
+    setSearchFields(config.searchFields ?? []);
+  }, [config?.searchFields]);
 
   useEffect(() => {
     updateSearch();

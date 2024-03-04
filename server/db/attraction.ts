@@ -12,7 +12,9 @@ const schema: SchemaDefExt = {
     },
   ],
   thumbnails: [{ type: "id", ref: "Attachment", fileType: "image" }],
+  tags: [{ type: "id", ref: "Tag" }],
   contact: { type: String },
+  entranceFee: { type: Number, default: 0 },
 
   order: { type: Number, default: 0, min: 0 },
 
