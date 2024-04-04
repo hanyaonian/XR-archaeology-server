@@ -14,7 +14,9 @@
     "docker:start": "docker-compose up",
     "docker:build": "docker-compose up --build",
     "docker:force": "docker-compose up --build --force-recreate --renew-anon-volumes",
-    "server:start": "ts-node -r tsconfig-paths/register server/index.ts"
+    "server:start": "ts-node -r tsconfig-paths/register server/index.ts",
+    "admin": "INIT_ADMIN=1 ts-node -r tsconfig-paths/register server/index.ts",
+    "public": "ssh -R tests-server:80:localhost:3002 -R admin-tests-server:80:localhost:3001 serveo.net -R apsap-tests-server:80:localhost:3000"
   },
   "dependencies": {
     "@feathersjs/authentication": "^5.0.21",

@@ -40,7 +40,7 @@ export default function MyApp({ Component, baseURL, pageProps }: AppPropsWithLay
     <>
       <Head>
         <title>APSAP</title>
-        <link rel="icon" href="/favicon.ico" />
+        {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
       <FeathersProvider baseURL={baseUrl.current}>
         <AuthProvider>

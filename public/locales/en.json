@@ -89,6 +89,13 @@
         "texture": "Texture"
       }
     },
+    "arComments": {
+      "$": "Comments",
+      "user": "User",
+      "content": "Content",
+      "latitude": "Latitude",
+      "longitude": "Longitude"
+    },
     "tags": {
       "$": "Tags"
     },
@@ -257,7 +264,7 @@
       }
     },
     "groups": {
-      "archaeology": "Archaeology",
+      "AR": "AR",
       "hike": "Hike"
     }
   },

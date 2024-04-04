@@ -57,7 +57,7 @@ const schema: SchemaDefExt = {
   $params: {
     editor: {
       headers: ["name", "latitude", "longitude", "createdAt"],
-      group: "archaeology",
+      group: "AR",
     },
   },
 };

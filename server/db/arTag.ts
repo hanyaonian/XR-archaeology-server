@@ -19,7 +19,7 @@ const schema: SchemaDefExt = {
     editor: {
       headers: ["name", "createdAt"],
       icon: "MdTag",
-      group: "archaeology",
+      group: "AR",
     },
   },
 };

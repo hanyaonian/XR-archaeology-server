@@ -33,7 +33,7 @@ const schema: SchemaDefExt = {
     editor: {
       headers: ["name", "desc", "tags", "latitude", "longitude", "createdAt"],
       icon: "MdStar",
-      group: "archaeology",
+      group: "AR",
     },
   },
 };
