@@ -28,6 +28,13 @@ This is the backend for XR-archaeology-app.
    rs.initiate()
    ```
 
+4. (optional) Create a admin user
+
+   ```bash
+   # require to input email and password in terminal
+   yarn admin
+   ```
+
 4. Open a new terminal and start running the server
 
    ```bash
