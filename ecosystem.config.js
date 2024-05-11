@@ -13,12 +13,12 @@ module.exports = {
       autorestart: true,
       max_memory_restart: '1G',
     },
-    {
-      name: 'nest - admin service',
-      script: 'yarn build & yarn start',
-      args: 'start',
-      instances: 1,
-      autorestart: true,
-    },
+    // {
+    //   name: 'nest - admin service',
+    //   script: 'yarn build & yarn start',
+    //   args: 'start',
+    //   instances: 1,
+    //   autorestart: true,
+    // },
   ],
 };
