@@ -1,6 +1,7 @@
 import fs from "fs";
 import os from "os";
 import _ from "lodash";
+import { loadAdminPagePrepath } from "@/env/load";
 
 const mpackage = (fs.existsSync("./package.json") && JSON.parse(fs.readFileSync("./package.json").toString())) || {
   name: "app",
@@ -103,6 +104,10 @@ class config {
     if (config.internal) {
       const p = this.getPort(name);
       return `localhost:${p}`;
+    }
+    // highest piority
+    if (loadAdminPagePrepath()?.host) {
+      return loadAdminPagePrepath().host;
     }
     if (config.host) {
       if (this.getMode(name) === "https") {

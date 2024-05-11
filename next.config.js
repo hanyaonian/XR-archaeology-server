@@ -1,5 +1,11 @@
+const dotenv = require('dotenv');
+
 /** @type {import('next').NextConfig} */
+const page_prefix = dotenv.config().parsed?.page_prefix ?? ''; 
+
 module.exports = {
+  basePath: page_prefix,
+  assetPrefix: page_prefix,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve = {

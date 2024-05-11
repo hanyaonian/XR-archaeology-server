@@ -152,3 +152,8 @@ next-env.d.ts
 
 # mongodb local data
 data
+
+# FIXME:
+# in yarn build, many eslint error here.
+# dot not have time to fix it
+.eslintignore

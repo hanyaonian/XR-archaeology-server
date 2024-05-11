@@ -35,19 +35,39 @@ This is the backend for XR-archaeology-app.
    yarn admin
    ```
 
-4. Open a new terminal and start running the server
+5. Open a new terminal and start running the server
 
    ```bash
    yarn server:start
    ```
 
-5. Open a new terminal and start running front-end
+6. Open a new terminal and start running front-end
 
    ```bash
    yarn dev
    ```
 
-## To initialize the docker container
+## Deploy
+
+Deploy server in linux / cloud service.
+
+prerequisite: a `.env` file with
+
+```conf
+# db connection
+ME_CONFIG_BASICAUTH_USERNAME=xxx
+ME_CONFIG_BASICAUTH_PASSWORD=xxx
+# server host, "xxx.com"
+host=xxx
+# admin page's prefix. like "/admin"
+page_prefix=xxx
+# same above
+NEXT_PUBLIC_PAGE_PREFIX=xxx
+```
+
+### Docker (recommend)
+
+#### To initialize the docker container
 
 1. Create the mongodb container and start running the server
 
@@ -59,7 +79,7 @@ This is the backend for XR-archaeology-app.
    go to <http://localhost:8081/>
    log on using credentials set in .env(ME_CONFIG_BASICAUTH_USERNAME, ME_CONFIG_BASICAUTH_PASSWORD)
 
-## To run the docker container
+#### To run the docker container
 
 ```bash
 yarn start
@@ -68,6 +88,16 @@ yarn start
 1. Log on to mongo express
    go to <http://localhost:8081/>
    log on using credentials set in .env(ME_CONFIG_BASICAUTH_USERNAME, ME_CONFIG_BASICAUTH_PASSWORD)
+
+### Traditional way
+
+Using `pm2` to manage process:
+
+```sh
+npm install pm2 -g
+
+pm2 start ecosystem.config.js
+```
 
 ## Folder Structures
 
