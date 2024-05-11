@@ -61,6 +61,10 @@ class config {
   }
 
   get proto() {
+    // FIXME: this is a temporary fix
+    if (loadAdminPagePrepath()?.protocol) {
+      return loadAdminPagePrepath().protocol
+    }
     return this.prod || hostname || process.env.FORCE_HTTPS ? "https" : "http";
   }
 
@@ -78,9 +82,10 @@ class config {
 
   getUrl(name: string) {
     const config = this.getConfig(name);
-    if (config.internal) {
-      return `http://${this.getHost(name)}`;
-    }
+    // FIXME: check
+    // if (config.internal) {
+    //   return `http://${this.getHost(name)}`;
+    // }
     if (this.getMode(name) === "https") {
       return `https://${this.getHost(name)}`;
     }
@@ -100,14 +105,14 @@ class config {
   getHost(name: string): string {
     const config = this.getConfig(name);
     const host = `HOST_${name.toUpperCase()}`;
+    // highest piority
+    if (loadAdminPagePrepath()?.host) {
+      return loadAdminPagePrepath().host;
+    }
     if (process.env[host]) return process.env[host];
     if (config.internal) {
       const p = this.getPort(name);
       return `localhost:${p}`;
-    }
-    // highest piority
-    if (loadAdminPagePrepath()?.host) {
-      return loadAdminPagePrepath().host;
     }
     if (config.host) {
       if (this.getMode(name) === "https") {
