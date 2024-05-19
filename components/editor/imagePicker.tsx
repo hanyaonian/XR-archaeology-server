@@ -66,7 +66,7 @@ function ImagePicker<T extends Record<string, any>, K extends keyof T>(props: Im
     e.preventDefault();
     let res = await props.openDialog?.({
       component: import("@components/dialogs/mediaDialog"),
-      props: { type: props.type ?? "image/*", multiple: multiple, defaultValue: items.map((it) => getId(it)) },
+      props: { type: props.type ?? "image/*", multiple: multiple, defaultValue: items?.map((it) => getId(it)) ?? [] },
       className: "media-dialog",
     });
     if (!res) return;

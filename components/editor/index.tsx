@@ -1,4 +1,3 @@
-import moment from "moment";
 import { EditorField } from "./def";
 import { default as FilePicker } from "./filePicker";
 import { default as ImagePicker } from "./imagePicker";
@@ -10,6 +9,7 @@ import { default as EditorList } from "./editorList";
 import { default as TextField } from "./text-field";
 import DatePicker from "./datePicker";
 import i18n from "@/plugins/i18n";
+import { getDate } from "@/plugins/date";
 
 export { FilePicker, ImagePicker, ObjectPickerList, ObjectPickerNew, EditorList, TextField };
 
@@ -69,7 +69,7 @@ export function computeComponent({ field, item, onChange, openDialog, key, showL
 
       break;
     case "date-picker":
-      let value = typeof defaultValue === "string" ? moment(defaultValue).format("YYYY-MM-DDTHH:MM") : "";
+      let value = getDate(defaultValue);
       result = (
         <DatePicker
           inputValue={value}

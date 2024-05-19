@@ -19,7 +19,7 @@ export default function DatePicker({ inputValue, onChange, required, readOnly, m
       onChange={(e) => {
         const value = e.target.value;
         try {
-          const date = e.target.valueAsDate;
+          const date = e.target.value ?? e.target.valueAsDate;
           if (value.length && !date) {
             e.target.setCustomValidity(`This field must be in format of date.`);
             e.target.reportValidity();
