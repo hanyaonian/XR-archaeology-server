@@ -457,17 +457,11 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
 
   const renderItem = (item: T, index: number) => {
     if (props.renderItem) {
-      let res;
       if (typeof props.renderItem === "function") {
         return props.renderItem({ item, index, ...props });
       } else {
         return props.renderItem;
       }
-      return (
-        <div role="listitem" key={index} id={`${index}`}>
-          {res}
-        </div>
-      );
     } else {
       return (
         <div role="listitem" key={index} id={`${index}`} className="w-full">
@@ -543,21 +537,10 @@ const DataTable = forwardRef<any, DataTableProps<any>>(function DataTable<T>({ p
         {/* Paginate */}
         <div className="place-self-center mt-4 mb-1">
           <div className="data-table-container page-control py-4 px-8">
-            <button className={`${curPage - 1 <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 2)}>
-              {curPage - 1}
-            </button>
-            <button className={`${curPage <= 0 ? "out-range" : ""}`} onClick={() => goToPage(curPage - 1)}>
-              {curPage}
-            </button>
-            <button className="active" onClick={() => goToPage(curPage)}>
-              {curPage + 1}
-            </button>
-            <button className={`${curPage + 1 >= pageMax ? "out-range" : ""}`} onClick={() => goToPage(curPage + 1)}>
-              {curPage + 2}
-            </button>
-            <button className={`${curPage + 2 >= pageMax ? "out-range" : ""}`} onClick={() => goToPage(curPage + 2)}>
-              {curPage + 3}
-            </button>
+            {Array(pageMax).fill(0).map((_, index) =>  
+              (
+                <button key={index} className={index === curPage ? 'active' : ''} onClick={() => goToPage(index)}>{index + 1}</button>)
+            )}
           </div>
         </div>
       </div>
