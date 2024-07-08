@@ -240,6 +240,28 @@
       "endDate": "End date",
       "order": "Order"
     },
+    "experience": {
+      "$": "Experience",
+      "briefDesc": "Brief Description",
+      "desc": "Description",
+      "images": "Images",
+      "venue": "Venue",
+      "order": "Order",
+      "language": "Available Languages",
+      "personalLink": "Personal Link",
+      "businessHours": {
+        "$": "Business Hours",
+        "openTime": "Open time",
+        "closeTime": "Close time",
+        "days": "Days of week"
+      },
+      "content": {
+        "$": "Content",
+        "heading": "Heading",
+        "desc": "Description",
+        "images": "Images"
+      }
+    },
     "locations": {
       "$": "Locations",
       "desc": "Description",
@@ -283,6 +305,19 @@
           "Lodging": "Lodging",
           "Other": "Venue"
         },
+        "businessHours": {
+          "days": {
+            "Sunday": "Sunday",
+            "Monday": "Monday",
+            "Tuesday": "Tuesday",
+            "Wednesday": "Wednesday",
+            "Thursday": "Thursday",
+            "Friday": "Friday",
+            "Saturday": "Saturday"
+          }
+        }
+      },
+      "experience": {
         "businessHours": {
           "days": {
             "Sunday": "Sunday",
