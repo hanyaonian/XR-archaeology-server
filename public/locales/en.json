@@ -248,6 +248,8 @@
       "venue": "Venue",
       "order": "Order",
       "language": "Available Languages",
+      "address": "Address (Yandex/Google Map Link)",
+      "duration": "Duration",
       "personalLink": "Personal Link",
       "businessHours": {
         "$": "Business Hours",

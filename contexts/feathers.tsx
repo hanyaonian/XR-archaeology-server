@@ -20,7 +20,7 @@ function createClient(baseURL?: string) {
   socket.on("connect", function () {
     connected = true;
   });
-  socket.on("reconnect", function () {});
+  socket.on("reconnect", function () { });
   socket.on("disconnect", function () {
     console.log("Socket disconnects");
     connected = false;

@@ -148,7 +148,7 @@ async function startServer(servers: RequireContext) {
       server.http = s;
     }
 
-    console.log(`Listening ${name} at ${configs.getUrl(name)}`);
+    console.log(`Listening ${name} at ${configs.getUrl(name)} ${configs.getPort(name)}`);
   });
   return dict;
 }

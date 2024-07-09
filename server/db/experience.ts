@@ -13,9 +13,13 @@ const schema: SchemaDefExt = {
     },
   ],
 
-  personalLink: { type: String, required: true },
+  personalLink: { type: String },
 
-  language: { type: String, required: true },
+  language: { type: String },
+
+  address: { type: String, required: true },
+
+  duration: { type: String, required: true },
 
   order: { type: Number, default: 0, min: 0 },
 
