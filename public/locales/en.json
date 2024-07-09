@@ -248,9 +248,11 @@
       "venue": "Venue",
       "order": "Order",
       "language": "Available Languages",
-      "address": "Address (Yandex/Google Map Link)",
+      "address": "Address Text",
+      "addressLink": "Address link(Yandex/Google Map Link)",
       "duration": "Duration",
-      "personalLink": "Personal Link",
+      "contactText": "The contact name",
+      "personalLink": "The contact's social account link",
       "businessHours": {
         "$": "Business Hours",
         "openTime": "Open time",

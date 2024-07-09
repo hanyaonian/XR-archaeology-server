@@ -13,11 +13,15 @@ const schema: SchemaDefExt = {
     },
   ],
 
+  contactText: { type: String },
+
   personalLink: { type: String },
 
   language: { type: String },
 
   address: { type: String, required: true },
+
+  addressLink: { type: String, required: true },
 
   duration: { type: String, required: true },
 
